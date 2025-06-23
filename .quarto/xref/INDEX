@@ -1,0 +1,11 @@
+{
+  "index.qmd": {
+    "index.html": "c88b856a"
+  },
+  "about.qmd": {
+    "about.html": "919e7d15"
+  },
+  "slides/probability-distributions.qmd": {
+    "probability-distributions.tex": "7af6a370"
+  }
+}

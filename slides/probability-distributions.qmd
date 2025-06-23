@@ -1,0 +1,199 @@
+---
+title: Probability Distributions in R
+---
+
+```{r}
+knitr::opts_chunk$set(fig.align = "center")
+```
+
+```{r}
+renorm <- function(n, mean = 0, sd = 1, empirical = FALSE){
+    MASS::mvrnorm(n, mean, sd^2, empirical = empirical)[, 1]
+}
+
+tex <- latex2exp::TeX
+```
+
+# Probability Distributions in R
+
+## Working with probability distributions
+
+When we have a probability distribution there are several operations that we can do conditioning on certain parameters values:
+
+- generate random $x$ values
+- calculate the density of a certain $x$ value
+- calculate the cumulative probability of a certain $x$ value
+- calculate the $x$ value associated to a certain cumulative probability
+
+## Probability Distributions in R
+
+In R there are several probability distributions (PD) implemented as functions. Basically the corresponding equation of the PD is converted into R code. For example, the Gaussian distribution Probability Density Function (PDF) is represented in @eq-gaussian-pdf.
+
+$$
+f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \, e^{-\frac{(x - \mu)^2}{2\sigma^2}}
+$${#eq-gaussian-pdf}
+
+## Gaussian distribution example
+
+Let's convert the @eq-gaussian-pdf into R code. Our variable is $x$ then we have $\mu$ and $\sigma$ that are the mean and standard deviation of the Gaussian distribution.
+
+```{r}
+#| echo: true
+#| collapse: true
+norm <- function(x, mean = 0, sd = 1){
+    1 / sqrt(2 * pi * sd^2) * exp(-((x - mean)^2)/(2 * sd^2))
+}
+
+norm(0)
+norm(2)
+norm(-1)
+```
+
+## Gaussian distribution example
+
+With the previous code we are calculating the probability density of a certain value given the parameters. Let's use `norm()` for a sequence of values and plot the results.
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+x <- seq(-5, 5, 0.1)
+y <- norm(x)
+
+# TODO increase labels size
+plot(x, y, type = "l", ylab = "Density", main = "norm(x, mean = 0, sd = 1)")
+```
+
+## Gaussian distribution example
+
+Clearly, if we change the parameters, the calculated densities will be different. For example:
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+x <- seq(-5, 5, 0.1)
+y1 <- norm(x)
+y2 <- norm(x, 1, 1)
+
+# TODO increase labels size
+plot(x, y2, type = "l", ylab = "Density", col = "dodgerblue", lwd = 2)
+lines(x, y1, col = "firebrick", lwd = 2)
+abline(v = 0, lty = "dashed", lwd = 1.5)
+points(x = c(0, 0), y = c(norm(0), norm(0, 1)), pch = 19, col = c("firebrick", "dodgerblue"), cex = 2)
+```
+
+## Gaussian distribution in R
+
+Fortunately we do not need to write the probabilities distribution manually but a lot of them are already included in R. For example, the `norm()` function can be replaced by `dnorm()`.
+
+```{r}
+#| echo: true
+norm(0, 1, 2)
+dnorm(0, 1, 2)
+```
+
+# `d`, `q`, `r` and `p` functions
+
+## `d`, `q`, `r` and `p` functions
+
+Actually in R there are already implemented a lot of probability distributions. This document [https://cran.r-project.org/web/views/Distributions.html](https://cran.r-project.org/web/views/Distributions.html) provides a very comprehensive overview.
+
+The general idea is always the same, regardless the distribution:
+
+- generate random $x$ values **there is the `r` function**
+- calculate the density of a certain $x$ value **there is the `d` function**
+- calculate the cumulative probability of a certain $x$ value **there is the `p` function**
+- calculate the $x$ value associated to a certain cumulative probability **there is the `q` function**
+
+## `d`, `q`, `r` and `p` functions
+
+The combination is `d`, `p`, `q` or `r` + the function contaning the equations of that specific distribution. Thus we can use `dnorm()`, `pnorm()`, `qnorm()` and `rnorm()`.
+
+## Maximum Likelihood
+
+The `d` function provides the probability density (or likelihood) of a certain value(s) fixing the parameters. What about fixing the value(s) and changing the parameters?
+
+Let's assume we have $n = 10$ values from a Normal distribution with unknown parameters:
+
+```{r}
+x <- renorm(10, 10, 5, TRUE)
+round(x, 2)
+```
+
+We can calculate the mean and standard deviation:
+
+```{r}
+#| echo: true
+#| collapse: true
+
+mean(x)
+sd(x)
+```
+
+## Maximum Likelihood
+
+Now, we can calculate the likelihood of the 10 values. Which values should we used for the parameters? We can try different values for $\mu$ and $\sigma$:
+
+```{r}
+#| echo: true
+#| collapse: true
+
+dnorm(x, 0, 1)
+dnorm(x, 10, 5)
+dnorm(x, -5, 2)
+```
+
+## Maximum Likelihood
+
+We can take the product (or the sum of the log-transformed values):
+
+```{r}
+#| echo: true
+#| collapse: true
+
+prod(dnorm(x, 0, 1))
+prod(dnorm(x, 10, 5))
+prod(dnorm(x, -5, 2))
+```
+
+## Maximum Likelihood
+
+What about varying a parameter, e.g., $\mu$? We can fix the $\sigma$ to a certain value, for example 5.
+
+## Maximum Likelihood
+
+```{r}
+ll5 <- dnorm(x, 5, 5)
+ll8 <- dnorm(x, 8, 5)
+ll12 <- dnorm(x, 12, 5)
+ll0 <- dnorm(x, 0, 5)
+
+par(mfrow = c(2,2))
+
+curve(dnorm(x, 5, 5), -20, 30, main = tex("$\\mu = 5$"))
+points(x = x, y = rep(0, length(x)))
+segments(x, 0, x, ll5, col = "firebrick")
+
+curve(dnorm(x, 8, 5), -20, 30, main = tex("$\\mu = 8$"))
+points(x = x, y = rep(0, length(x)))
+segments(x, 0, x, ll8, col = "firebrick")
+
+curve(dnorm(x, 12, 5), -20, 30, main = tex("$\\mu = 12$"))
+points(x = x, y = rep(0, length(x)))
+segments(x, 0, x, ll12, col = "firebrick")
+
+curve(dnorm(x, 0, 5), -20, 30, main = tex("$\\mu = 0$"))
+points(x = x, y = rep(0, length(x)))
+segments(x, 0, x, ll0, col = "firebrick")
+```
+
+## Maximum Likelihood
+
+There is a point where the likelihood is maximised. For example, for a linear model like in this case (just estimating the mean) the Maximum Likelihood Estimator (MLE) is just the sample mean.
+
+```{r}
+#| out-width: 90%
+mu <- seq(0, 20, 0.1) # sequence from -10 to 10 for the mu parameter
+lik <- sapply(mu, function(m) prod(dnorm(x, m, 5)))
+
+plot(mu, lik, type = "l")
+```

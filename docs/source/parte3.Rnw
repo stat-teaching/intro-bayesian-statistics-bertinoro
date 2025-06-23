@@ -1,0 +1,1145 @@
+\documentclass[compress,serif]{beamer}  % t per mettere al top delle slide
+%\documentclass[compress,serif,handout]{beamer} 
+%%% Dichiarazione dei pacchetti standard.
+\usepackage[italian]{babel}
+\usepackage{tikz}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{bm}
+\usetikzlibrary{bayesnet}
+
+\definecolor{aqua}{cmyk}{11,17,0,0}
+\definecolor{jap}{rgb}{.247,.549,1}
+\definecolor{mygreen}{RGB}{34,139,34}
+\definecolor{verdeoutput}{rgb}{0,0.533,0.298}
+\definecolor{rossooutput}{rgb}{0.6,0,0}
+\definecolor{grigiooutput}{RGB}{232,239,239}
+
+%%% Personalizzazione del layout---articolata su cinque livelli.
+\usetheme{Frankfurt}        % layout complessivo.
+\usefonttheme{structurebold}
+%%%% page number
+\setbeamertemplate{footline}[frame number]
+\setbeamerfont{footline}{size=\scriptsize, series=\bfseries}
+\setbeamercolor{footline}{fg = black, bg = black}
+\setbeamercolor{page number in head/foot}{fg = gray}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usecolortheme[named=mygreen]{structure}
+\setbeamercolor{palette primary}{bg=mygreen,fg=white}
+\setbeamercolor{palette secondary}{bg=mygreen,fg=white}
+\setbeamercolor{palette tertiary}{bg=white,fg=mygreen}
+\setbeamercolor{palette quaternary}{fg=white,bg=mygreen}
+
+\setbeamercolor{title}{fg=white,bg=mygreen}
+\setbeamercolor{structure}{fg=green!15!black}
+\setbeamercolor{upesempio}{fg=white, bg=orange}
+\setbeamercolor{loesempio}{fg=black, bg=green!10!white}%{fg=black, bg=white}
+\setbeamercolor{upnotabene}{fg=white, bg=rossooutput}
+\setbeamercolor{lonotabene}{fg=red!70!black, bg=yellow!20!white}
+\setbeamercolor{uppercolor}{fg=black,bg=green!45!white}
+\setbeamercolor{lowercolor}{fg=black, bg=green!25!white}
+\setbeamercolor{formula}{fg=black, bg=grigiooutput}
+
+\setbeamercolor{tabelle}{fg=black,bg=green!45!white}
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.width=3, fig.height=3,dev="tikz",fig.align='center',echo=FALSE,results="hide",comment=NA,prompt=FALSE,cache=TRUE,external = FALSE)
+opts_knit$set(out.format = "latex") #,width=30)
+thm = knit_theme$get("autumn")  # approved by lptrainer
+knit_theme$set(thm)
+@
+
+<<echo=FALSE,message=FALSE>>=
+rm(list=ls())
+main <- "~/didattica/Bertinoro/"
+if (grepl("kolmogorov",Sys.info()["user"])) main <- gsub("~/","~/MEGAsync/",main)
+if (grepl("cox",Sys.info()["user"])) main <- gsub("~/","~/MEGA/",main)
+datadir <- paste(main,"data/",sep="")
+Sdir <- paste(main,"Scodes/",sep="")
+
+esegui <- FALSE
+# KUtils::pulizia(paste(main,"knitr/",sep=""), c(".Rnw",".bib"))
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Titolo e autore.
+\title{\textbf{3. Approccio bayesiano \\alla stima di parametri}}
+%\subtitle{\footnotesize{Analisi dei dati in ambito di comunità - AA 2013/14}}
+\author{\textbf{Massimiliano Pastore}\\
+   Università di Padova}
+\date{}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Contents}
+  \tableofcontents
+\end{frame}
+
+<<functions>>=
+### likelihood binomiale 
+Lbinom <- function(theta,x,n) {
+  y <- dbinom(x,n,theta)/choose(n,x)
+  return(y)
+}
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[Intro]{The Bayesian approach}
+
+\begin{frame}[plain]
+  
+  \begin{beamercolorbox}[rounded=true, shadow=true]{tabelle}
+\begin{center}
+\vspace{-.3cm}
+\Large{\textbf{The Bayesian approach}}
+\end{center}
+\end{beamercolorbox}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{}
+
+\begin{flushright}
+\scriptsize{$\ldots$ when you have eliminated the impossible, \\ whatever remains, however improbable, must be the truth $\ldots$ \\
+(Doyle, 1890)} 
+\end{flushright}
+
+\begin{itemize}
+ \item The general principles of Bayesian analysis are easy to understand. 
+ \item First, we model uncertainty or \emph{degree of belief} by using probability (\emph{prior}, $p(\theta)$).
+ \item Second, we use observed data to update the \emph{prior} information or beliefs to become \emph{posterior} information or belief, $p(\theta|D)$. 
+\end{itemize}
+
+\begin{flushright}
+(Lee \& Wagenmakers, 2013)
+\end{flushright}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Conditional probabilities}}
+
+\begin{itemize}
+ \item Bayesian statistics are based on Bayes’ principle of conditional probabilities: 
+\end{itemize}
+$$p(\theta|D)=\frac{p(D|\theta)p(\theta)}{p(D)}$$
+
+\begin{itemize}
+ \item This equation is often verbalized as \pause
+\end{itemize}
+$$\mbox{posterior}=\frac{\mbox{likelihood}\times \mbox{prior}}{\mbox{evidence}}$$
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Major points}} %,allowframebreaks
+
+\begin{itemize}
+\only<1>{
+ \item \textbf{More can be learned about parameter estimates and
+model fit.}
+\begin{itemize} \footnotesize
+ \item ML assumes that the distribution of the parameter estimate is normal.
+  \item In contrast, Bayes provides the whole distribution, referred to as a posterior distribution, not assuming it is normal. 
+ \item The ML confidence interval assumes a symmetric distribution, whereas the Bayesian credibility interval allows for a strongly skewed distribution.
+\end{itemize}
+}
+\only<2>{
+\normalsize 
+ \item \textbf{Better small-sample performance can be obtained and
+large-sample theory is not needed.}
+\begin{itemize} \footnotesize
+ \item This point is illustrated by better Bayesian small-sample performance for factor analyses prone to Heywood cases and better performance when a small number of clusters are analyzed in multilevel models. 
+ \item This, however, requires a judicious choice of the prior.
+\end{itemize}
+
+\vspace{.5cm}
+\footnotesize{van de Schoot, R., \& Miocevic, M. (2020). \emph{Small Sample Size Solutions: A Guide for Applied Researchers and
+Practitioners}. Routledge, London and New York.}
+
+}
+\only<3>{
+\normalsize
+ \item \textbf{Analyses can be made less computationally demanding.}
+ \begin{itemize} \footnotesize
+ \item Many models are computationally cumbersome or impossible using ML, such as with categorical outcomes and many latent variables resulting in many dimensions of numerical integration.
+ \item Such an analyst may view the Bayesian analysis simply as a computational tool for getting estimates that are analogous to what would have been
+obtained by ML had it been feasible.
+\end{itemize}
+}
+\only<4>{
+\normalsize
+ \item \textbf{New types of models can be analyzed.}
+ 
+ \begin{itemize} \footnotesize
+ \item For example models with a very large number of
+parameters or where ML does not provide a natural approach.
+\end{itemize}
+}
+
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Bayesian inference}
+\begin{frame}{\textbf{Frequentist approach}}
+
+\begin{itemize}
+ \item In the traditional frequentist approach to statistical inference, the probability of an event is interpreted as the relative
+frequency of an event given an infinite sequence of samples from an identical (i.e. fixed) probability distribution.
+ \item In the frequentist approach the model parameters are assumed as fixed, e.g. in the form of a Null-Hypothesis that fixes $\theta = 0$.
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Bayesian inference}}
+
+\begin{itemize}
+ \item In contrast, the Bayesian approach focuses directly on the probability of an effect, i.e. on the probability of observing
+the estimated parameters given the data, i.e. on $p(\theta|D)$.
+ \item Further, in addition to the sampling uncertainty of data,
+the Bayesian approach also treats the model parameters as uncertain, i.e. assumed as following a probability distribution, namely the prior distribution $p(\theta)$.
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}%{\textbf{Bayesian approach vs NHST}}
+\small
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio, shadow=true]
+{\textbf{Example}}
+Let us consider a sample of subjects for whom there is a suspicion of a cognitive deficit and $\mu = 90$ indicates the average value of the score for normal subjects in a specific test measuring cognitive abilities.
+\end{beamerboxesrounded}
+
+\vspace{.8cm}
+\begin{columns}
+\begin{column}{.5\textwidth} \pause
+\begin{beamerboxesrounded}[upper=uppercolor,lower=lowercolor, shadow=true]
+{\textbf{NHST approach:}} 
+$$\left\{
+\begin{array}{c}
+ H_0: \mu=90 \\ 
+H_1: \mu<90 
+\end{array}
+\right.$$
+\end{beamerboxesrounded}
+\end{column}
+\begin{column}{.5\textwidth} \pause
+\begin{beamerboxesrounded}[upper=uppercolor,lower=lowercolor, shadow=true]
+{\textbf{Bayes approach:}}
+$$\mu \sim \mathcal{N}(90,\tau)$$
+\end{beamerboxesrounded}
+\end{column}
+\end{columns}
+
+\vspace{.3cm}
+With Bayesian way it's possible, for example, to estimate $P(\mu<90)$ while in NHST this probability can be only 0 ($H_1$ is false) or 1 ($H_1$ is true).
+<<>>=
+mu <- 90; d <- 20
+PX <- seq(0,1,.2)
+LX <- seq(mu-d,mu+d,length=length(PX))
+a0 <- b0 <- 5
+a1 <- 7; b1 <- 10
+a2 <- a0+a1; b2 <- b0+b1
+
+x <- seq(0,1,.01)
+y <- dbeta(x,5+7,5+9)
+@
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+\only<1>{
+<<prior,fig.width=4>>=
+library(ggplot2)
+D <- data.frame(x=x,prior=dbeta(x,a0,b0),like=dbeta(x,a1,b1),post=dbeta(x,a2,b2))
+YLIM <- c(0,4.2); TEXTSIZE <- 30
+PP <- ggplot(D,aes(x,prior))+geom_line(lty=3,lwd=3,col="#7374b4")+geom_vline(xintercept=.5,col="red",lwd=1,lty=2)+xlab("$\\mu$")+ylab("")+theme_bw()+scale_x_continuous(breaks=PX,labels=LX)+scale_y_continuous(labels=NULL,limits=YLIM)+annotate("text",.77,dbeta(.7,a0,b0),label="prior")
+PP #+theme(text=element_text(size=TEXTSIZE))
+@
+}
+\only<2>{
+<<fig.width=4>>=
+(PP <- PP+geom_line(aes(x,like),col="#44469b",lwd=3,lty=2)+annotate("text",.18,dbeta(.3,a1,b1),label="likelihood"))
+@
+}
+\only<3>{
+<<fig.width=4>>=
+PP+geom_line(aes(x,post),col="#282a5d",lwd=3)+annotate("text",.60,dbeta(.48,a2,b2),label="posterior") #,size=10)
+@
+
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Models of observations and models of beliefs}
+\begin{frame}{} 
+<<>>=
+set.seed(20160408)
+n <- 9; 
+data <- sample(c("M","F"),n,replace=TRUE,prob=c(.2,.8))
+y <- sum(data=="M")
+@
+\begin{columns}
+\begin{column}{.28\textwidth}
+\vspace{3cm}
+\includegraphics{img/Kiwi.png}
+\end{column}
+\begin{column}{.68\textwidth}
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio, shadow=true]
+{\textbf{Example}}
+\begin{itemize}
+ %\item Uno studioso vuole sapere quale sia la proporzione ($\theta$) di individui  kiwi maschi in una certa zona della NZ.
+ \item An ornithologist wants to estimate the proportion ($\theta$) of male kiwi in a specified area of the NZ.
+ %\item Senza avere alcuna informazione a priori, qualunque proporzione potrebbe essere ugualmente plausibile.
+ \item Without any prior information, any proportion could be equally plausible.
+ %\item Egli osserva un campione di $\Sexpr{n}$ animali nella sequenza $$\Sexpr{paste(data,collapse=", ")}$$  $\Sexpr{y}$ risultano essere maschi e  \Sexpr{n-y} femmine.
+ \item He observes a sample of $\Sexpr{n}$ animals in the following sequence: $$\Sexpr{paste(data,collapse=", ")}$$ $\Sexpr{y}$ are male and  \Sexpr{n-y}  female.
+ \item After observing these data, what can he think?
+\end{itemize}
+\end{beamerboxesrounded}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model of observations}}
+\vspace{-.3cm}
+\begin{itemize}
+ \item We can make the following assumptions about the sampling process: 
+ \begin{enumerate} 
+  \item The true proportion of male individuals is $\theta$
+  \item By randomly pulling out an individual this will be male (with probability $\theta$) or female (with probability 1-$\theta$)
+  %Estraendo a caso un individuo questo sarà maschio (con probabilità $\theta$) o femmina (con probabilità 1-$\theta$)
+  \item The outcome (male or female) of any observation is independent 
+of the outcome of any other observation 
+  %Ciascuna estrazione di un individuo è indipendente dalle altre
+  \end{enumerate}
+ \item This collection of  assumptions about the kiwi sampling process is our model of the observations.
+\end{itemize} 
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model of observations}}
+
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio]{\textbf{The model of observations is the model that describes the probabilities of observable events.}}
+\begin{itemize}
+ \item We can have a formula that describes the probability that an observed animal will be male.
+ %Possiamo avere una formula che descrive la probabilit\`a che l'individuo estratto sia maschio.
+ \item Or a formula that tells us what is the probability of observing $k$ male on $n$ animals. 
+\end{itemize}
+\end{beamerboxesrounded}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model of beliefs}}
+\begin{itemize}
+ \item We could made a second set of assumptions about our beliefs regarding the proportion of males.
+ \item For example, assuming that we believe most strongly in the proportion being close to 50\%, but we also allowing for the possibility that the proportion could be different. 
+ \item Thus, we have a set of assumptions about how likely it is for the proportion to be 50\% or to be another value to different amounts.
+\end{itemize} 
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model of beliefs}}
+
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio]{\textbf{The model of beliefs describe the extent to which we believe in various underlying possibilities.}}
+\begin{itemize}
+ \item e.g. we can have a formula that describes how much we believe in each possible proportion of males. 
+\end{itemize}
+\end{beamerboxesrounded}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Priors and Posteriors}}
+
+\begin{itemize}
+ %\item Si definiscono \emph{Priors} (o a priori) tutte le credenze che abbiamo prima di raccogliere qualunque tipo di informazione. 
+ \item We define \emph{Priors} all the beliefs that we have before collecting any kind of information.
+ %\item Si definiscono \emph{Posteriors} (o a posteriori) tutte le credenze che tengono conto di un particolare insieme di informazioni raccolte.
+ \item We define \emph{Posteriors} all beliefs that take into account a particular set of information collected.
+\end{itemize} \pause
+
+\vspace{.3cm} \small
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio]{\textbf{For example:}}
+\begin{itemize}
+ \item Before observing a kiwi we assume to have a probability of 50\% that it is male.
+ \item After observing the animals of our sample we change our belief because the result of \Sexpr{y} males (out of \Sexpr{n} individuals observed) can lead us to reduce the probability that we assign to the fact that the number of males and females is equal.
+ \end{itemize}
+\end{beamerboxesrounded}
+
+\end{frame}
+%%%%%%
+\begin{frame}{\textbf{Priors and Posteriors}}
+<<>>=
+x <- seq(0,1,by=.01)
+y1 <- dbeta(x,1,1)
+y2 <- dbeta(x,1,2)
+D <- data.frame(x,y1,y2)
+@
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+Before observing animals, we assume that any $\theta$ value is equally plausible. 
+\vspace{.5cm}
+<<fig.width=2,fig.height=2>>= %fig.width=8,fig.height=6
+TEXTSIZE <- 10; LWD <- 3; GRIGIO <- .4
+ggplot(D,aes(x,y1)) + theme_bw() + geom_line(col="red",lwd=LWD) + xlab("$\\theta$ (proportion of males)") + ylab("") + annotate("segment",x=0,xend=0,y=0,yend=1,colour=gray(GRIGIO)) + annotate("segment",x=1,xend=1,y=0,yend=1,colour=gray(GRIGIO)) + scale_y_continuous(limits=c(0,2),breaks=NULL) + theme(text=element_text(size=TEXTSIZE))
+@
+
+\end{column}
+
+\begin{column}{.5\textwidth} \pause
+After observing the first animal (\Sexpr{data[1]}) we change the plausibility associated with $\theta$ values.
+\vspace{.5cm}
+<<fig.width=2,fig.height=2>>= %fig.width=8,fig.height=6
+ggplot(D,aes(x,y2))+theme_bw()+xlab("$\\theta$ (proportion of males)")+ylab("") + annotate("segment",x=0,xend=0,y=0,yend=2,col=gray(GRIGIO)) + annotate("segment",x=1,xend=1,y=0,yend=1,col=gray(GRIGIO))+scale_y_continuous(limits=c(0,2),breaks=NULL)+theme(text=element_text(size=TEXTSIZE)) + annotate("segment",x=0,xend=1,y=1,yend=1,lwd=LWD,lty=2,col="#ff9999")+geom_line(col="red",lwd=LWD)
+@
+\end{column}
+\end{columns}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Priors and Posteriors}}
+
+<<warning=FALSE>>=
+LWD <- 1.2
+PP <- list()
+a <- b <- 1
+for (j in 1:length(data)) {
+  y <- sum(data[1:j]=="M")
+  pp <- ggplot(D,aes(x,y1))+theme_bw()+xlab("")+ylab("")+scale_y_continuous(limits=c(0,7.5),breaks=NULL)+theme(text=element_text(size=8),plot.title = element_text(hjust = 0.5))+stat_function(fun=dbeta,args=list(shape1=a,shape2=b),lwd=LWD,lty=2,col="#ff9999")+stat_function(fun=dbeta,args=list(shape1=a+y,shape2=b+(j-y)),col="red",lwd=LWD)+ggtitle(paste("m=",y," f=",(j-y),sep=""))
+  a <- a+y; b <- b+(j-y)
+  PP <- c(PP,list(pp))
+}
+#gridExtra::grid.arrange(grobs=PP,ncol=3,nrow=3)
+@
+
+\only<1>{
+<<fig.width=4>>=
+library( cowplot )
+plot_grid(
+  PP[[1]], 
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  nrow = 3, ncol = 3
+)
+
+@
+
+}
+
+\only<2>{
+<<fig.width=4>>=
+
+plot_grid(
+  PP[[1]], 
+  PP[[2]],
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  nrow = 3, ncol = 3
+)
+
+@
+
+}
+
+\only<3>{
+<<fig.width=4>>=
+
+plot_grid(
+  PP[[1]], 
+  PP[[2]],
+  PP[[3]],
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  ggplot( D ) + theme_minimal(),
+  nrow = 3, ncol = 3
+)
+
+@
+
+}
+
+\only<4>{
+<<fig.width=4,warning=FALSE>>=
+
+gridExtra::grid.arrange(grobs=PP,ncol=3,nrow=3)
+
+@
+
+}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Goals for bayesian inference}
+\begin{frame}{\textbf{Goals for bayesian inference}}
+When we make observation of data, we typically have one of these three goals in mind (like in the frequentist approach):
+\begin{enumerate}
+ \item Estimation of Parameter Values.
+ \item Prediction of Data Values.
+ \item Model Comparison. 
+\end{enumerate}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Estimation of Parameter Values}}
+
+\begin{itemize}
+\item It means deciding the extent to which we should believe in each of the possible values of an underlying parameter.
+\item Let $\theta$ be true (unknown) value of males proportion in the kiwi-observation scenario.
+ \item Because the observation of an animal is a random process, we cannot be certain of the underlying true proportion of males; so our posterior beliefs are an estimate.
+\item The process of shifting our beliefs in various parameter values is called  \textbf{estimation of parameter values}. 
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Prediction of Data Values}}
+\begin{itemize}
+ \item Based on our beliefs, i.e. the probability of a male, we may predict other values: for example the outcome of a new observation or the number of males in ten animals.
+ \item Prediction simply means inferring the values of some missing data based on some other included data, regardless of the actual temporal relationship of the included and missing data. 
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model Comparison}}
+\begin{itemize}
+ \item If we have two different models of how something happens, then an observation of what really does happen can influence which model we believe in most. 
+ \item For example, suppose we have two different models for the male/female proportion. One model assumes that the proportion of males could be 20\%, 50\% or 80\%. The second model assumes that the proportion is either a perfectly balanced proportion or else a gender is completely missing: 0\%, 50\% or 100\%.
+ \item After observing \Sexpr{y} males out of \Sexpr{n} animals, which model do we believe in more?
+ The mathematics of Bayesian inference \textbf{can tell exactly  how much more to believe in the first model than in the second}.
+\end{itemize}
+\end{frame} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Result of a Bayesian Analysis}}
+
+\begin{itemize}
+ \item The \emph{work} of a bayesian model is to produce the \emph{posterior distribution} by sampling\footnote{\tiny{This does not exclude particular, generally simpler cases where posterior distribution is  analytically defined.}}.
+ \item After having produced the posterior, our work will consist in summarizing and interpreting this distribution. 
+ \item Depending on our goals, we can have various ways to summarize the posterior: (1) point estimates, (2) intervals based on defined boundaries, (3) intervals based on defined probability densities. 
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Point estimates}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+<<warning=FALSE,fig.width=2.2,fig.height=2.8>>=
+x <- seq(0,1,.001)
+y <- dbeta(x,a,b)
+MAP <- x[which.max(y)]
+MX <- a/(a+b)
+MD <- (a-1/3)/(a+b-2/3)
+XLIM <- c(0,.4)
+LWD <- 1
+
+D <- data.frame(x,y)
+ggplot(D,aes(x,y))+theme_bw()+geom_line(lwd=LWD,col="#0080ff")+scale_x_continuous(limits=XLIM)+xlab("$\\theta$")+ylab("$P(\\theta|D)$")+geom_vline(xintercept = c(MAP,MX,MD),lwd=LWD,lty=3)+theme(text=element_text(size=TEXTSIZE))
+@
+
+\end{column}
+\begin{column}{.5\textwidth} 
+Let's consider three alternative point estimates:
+\begin{itemize}
+ \item the \emph{maximum a posteriori}, MAP = \Sexpr{round(MAP,3)}
+ \item the posterior mean: \Sexpr{round(MX,3)}
+ \item the posterior median: \Sexpr{round(MD,3)}
+\end{itemize}
+
+\vspace{.3cm} \pause
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio]{\textbf{Problem:}}
+\begin{itemize}
+ \item If the distribution is far from symmetry these measures will tend to be different.
+\end{itemize}
+\end{beamerboxesrounded}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Intervals based on quantiles}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+<<warning=FALSE,fig.width=2.2,fig.height=2.8>>=
+Q <- qbeta(c(.025,.975),a,b)
+xx <- with(D,x[which((x>=Q[1])&(x<=Q[2]))])
+yy <- with(D,y[which((x>=Q[1])&(x<=Q[2]))])
+zz <- rep(0,length(yy))
+DD <- data.frame(xx,yy,zz)
+
+ggplot(D,aes(x,y))+theme_bw()+geom_ribbon(aes(x=xx,y=yy,ymin=zz,ymax=yy),data=DD,fill="#7fbfff")+geom_line(lwd=LWD,col="#0080ff")+scale_x_continuous(limits=XLIM)+xlab("$\\theta$")+ylab("$P(\\theta|D)$")+geom_vline(xintercept = Q,lwd=LWD,lty=2)+theme(text=element_text(size=TEXTSIZE))+geom_segment(aes(x=Q[1],y=dbeta(Q[1],a,b),xend=Q[2],yend=dbeta(Q[2],a,b)),lwd=.5,lty=3)
+@
+
+\end{column}
+\begin{column}{.5\textwidth} 
+We can use a quantile-based interval, for example the classicals 2.5\% and 97.5\%.
+
+\vspace{.3cm} \pause
+\begin{beamerboxesrounded}[upper=upesempio,lower=loesempio]{\textbf{Problem:}}
+\begin{itemize}
+ \item If the distribution is skewed we will have within the interval less likely values than those outside the interval.
+\end{itemize}
+\end{beamerboxesrounded}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{HPD intervals}}
+
+\begin{columns}
+\begin{column}{.5\textwidth}
+<<warning=FALSE,fig.width=2.2,fig.height=2.8>>=
+library(coda)
+Q0 <- Q
+Q <- HPDinterval(as.mcmc(rbeta(100000,a,b)),prob=.95)
+xx <- with(D,x[which((x>=Q[1])&(x<=Q[2]))])
+yy <- with(D,y[which((x>=Q[1])&(x<=Q[2]))])
+zz <- rep(0,length(yy))
+DD <- data.frame(xx,yy,zz)
+
+ggplot(D,aes(x,y))+theme_bw()+geom_ribbon(aes(x=xx,y=yy,ymin=zz,ymax=yy),data=DD,fill="#b6cee5")+geom_line(lwd=LWD,col="#0080ff")+scale_x_continuous(limits=XLIM)+xlab("$\\theta$")+ylab("$P(\\theta|D)$")+geom_vline(xintercept=Q0,lwd=LWD,lty=2,col=gray(.6))+geom_vline(xintercept=Q[1:2],lwd=LWD,lty=2,col="darkblue")+theme(text=element_text(size=TEXTSIZE))+geom_segment(aes(x=Q[1],y=dbeta(Q[1],a,b),xend=Q[2],yend=dbeta(Q[2],a,b)),lwd=.5,lty=3,col="darkblue")
+@
+\end{column}
+\begin{column}{.5\textwidth} 
+
+This is an interval $[l(y),u(y)]$ such that:
+
+\vspace{.3cm}
+\begin{beamerboxesrounded}[lower=formula, shadow=true]{}
+  \begin{center}
+  $\mbox{Pr}[l(y)<\theta<u(y)|D]=1-\alpha$
+  \end{center}
+  \end{beamerboxesrounded}
+
+\vspace{.3cm}
+i.e. the probability that $l(y)<\theta<u(y)$ after observing data.
+
+\end{column}
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The binomial model}
+\begin{frame}[plain]
+  
+  \begin{beamercolorbox}[rounded=true, shadow=true]{tabelle}
+\begin{center}
+\vspace{-.3cm}
+\Large{\textbf{The binomial model}}
+\end{center}
+\end{beamercolorbox}
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{From Bernoulli to binomial model}
+\begin{frame}{\textbf{From Bernoulli to binomial model}}
+
+\begin{itemize}
+ \item When we observe an animal, the result can be a male (M) or a female (F).
+ \item We will denote the result by $y$, with $y=1$ for M and $y=0$ for F.
+  \item Let $\theta$ be the probability of M: 
+\end{itemize} \pause
+
+\begin{beamercolorbox}[rounded=true, shadow=true]{formula}
+\begin{eqnarray*} 
+\left \{
+\begin{array}{l}
+p(y=1|\theta)=\theta \\
+p(y=0|\theta)=1-\theta
+\end{array}
+\right.
+\end{eqnarray*} 
+\end{beamercolorbox}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Bernoulli}}
+
+<<echo=FALSE,results='hide'>>=
+x <- c(0,1)
+L <- c(0,.25,.5,.75,1)
+@
+
+\begin{itemize}
+ \item The two equations can be combined into a single expressions as follows:
+ \begin{beamercolorbox}[rounded=true, shadow=true, wd=9cm]{formula}
+$$p(y|\theta)=\theta^y (1-\theta)^{(1-y)}$$
+\end{beamercolorbox} \\
+which expresses the Bernoulli distribution with $y \in \{0,1\}$ and $\theta \in [0,1]$.
+ \item This distribution represents the probability to obtain 0 or 1 given fixed $\theta$.
+ \item If, for example, $\theta= \{\Sexpr{paste(L,collapse=",")} \}$, we will obtain \Sexpr{length(L)} different probability distributions.
+\end{itemize} 
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Bernoulli mass function}} %,dev.args=list(pointsize=8)
+
+<<fig.width=4>>=
+B <- data.frame(y=rep(x,length(L)))
+B$p <- dbinom(B$y,1,rep(L,each=2))
+B$theta <- rep(L,each=2)
+B$Ltheta <- factor(paste("$\\theta=",B$theta,"$",sep=""),levels=paste("$\\theta=",unique(B$theta),"$",sep=""),ordered=TRUE)
+B$Ly <- factor(paste("$y=",B$y,"$",sep=""))
+
+ggplot(B,aes(factor(y),p))+theme_bw()+facet_wrap(~Ltheta,nrow=1)+geom_bar(stat="identity",width=.2,fill="#00407f")+scale_x_discrete()+xlab("$y$")+ylab("$p(y|\\theta)$")#+theme(text=element_text(size=TEXTSIZE*.8))
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Bernoulli likelihood}}
+
+\begin{itemize}
+ \item Contrariwise, by fixing $y$ and varying $\theta$ we obtain the \emph{likelihood function}.
+\end{itemize}  \pause
+
+<<fig.height=2.5,fig.width=4>>=
+ggplot(B,aes(theta,p))+theme_bw()+facet_wrap(~Ly,nrow=1)+geom_line(col="#00407f",lwd=2)+xlab("$\\theta$")+ylab("$p(y|\\theta)$")+scale_x_continuous(breaks=seq(0,1,.2)) 
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]{}
+
+ \begin{beamerboxesrounded}[upper=upnotabene,lower=lonotabene, shadow=true]
+{\textbf{Important points}:}
+\begin{itemize}
+ \item The same function $p(y|\theta)$ can be two different things: a Bernoulli distribution or a \emph{likelihood} function. \pause
+ \item The Bernoulli is a discrete distribution: it give us the probability of  $y$ given fixed $\theta$.
+ \item The \emph{likelihood} is a continuous function: it specifies a probability at each value of $\theta$ given $y$, but is not a probability distribution. \pause
+ \item In the NHST approach we consider only $\theta$ values under $H_0$.
+ \item In the bayesian approach, $\theta$ is considered  and treated  as a random variable. 
+\end{itemize}  
+\end{beamerboxesrounded}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Binomial model}}
+
+\begin{itemize}
+ \item When we observe $N$ animals, we have a set of data, $D = \{y_1, \ldots, y_N\}$, where each $y_i$ is 0 (F) or 1 (M).
+  \item By assuming each observation as independent from the others, the probability of getting the set of $N$ animals $D$ is the product of the individual outcome probabilities:
+\end{itemize} 
+
+\begin{beamercolorbox}[rounded=true,colsep*=-8pt,shadow=true]{formula} %,ht=3cm
+%\begin{eqnarray*} 
+$$p(\{y_1, \ldots, y_N \}) = \pause \prod_i p(y_i|\theta) = \pause \prod_i \theta^{y_i} (1-\theta)^{(1-y_i)}$$
+%\end{eqnarray*} 
+\end{beamercolorbox}
+
+\begin{itemize}
+ \item If the numbers of males in the set of animals is denoted $z=\sum_i^N y_i$then we can write:  
+\end{itemize} 
+
+\begin{beamercolorbox}[colsep*=-8pt,rounded=true,shadow=true]{formula} %,ht=.5cm,center
+%\begin{center} %sep=0em,
+$$p(z,N|\theta) = \theta^{z} (1-\theta)^{(N-z)}$$
+%\end{center} 
+\end{beamercolorbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Application}
+\begin{frame}{\textbf{Prior definition}}
+<<>>=
+Ltheta <- 3
+theta <- seq(1/(Ltheta+1),Ltheta/(Ltheta+1),by=1/(Ltheta+1))
+prior <- pmin(theta,1-theta) # prior distribution
+data <- ifelse(data=="F",0,1)
+n <- length(data)
+male <- sum(data)
+like <- theta^male*(1-theta)^(n-male)
+pData <- sum(prior*like)
+post <- prior*like/pData
+B <- data.frame(theta,prior,like,post)
+@
+
+\small
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+ \item Let us suppose to be interested in assessing whether proportion male/female is quite similar.
+ \item First, we specify our \emph{prior beliefs}. 
+ \item We denote the proportion of males as $\theta=p(\mbox{M})$.
+ \item Suppose that we believe there are only \Sexpr{Ltheta} possible values for this proportion: $\theta=\Sexpr{paste(theta,collapse=",")}$.
+\end{itemize}
+\end{column} \pause
+\begin{column}{0.55\textwidth}
+<<binomial_prior,fig.width=2.2,fig.height=2.8>>=
+ggplot(B,aes(factor(theta),prior))+theme_bw()+geom_bar(stat="identity",width=.2,fill="#00407f")+xlab("$\\theta$")+ylab("$p(\\theta)$")+theme(plot.title = element_text(hjust=.5))+ggtitle("prior") #text=element_text(size=TEXTSIZE),
+@
+\end{column}
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Likelihood definition}}
+
+\small
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+ \item Next, we observe a sample of animals to get some data $D$ and determine the likelihood $p(D|\theta)$. 
+ \item Suppose we observe \Sexpr{n} animals and it comes up \Sexpr{male} M and \Sexpr{n-male} F.
+ \item Consequently:
+\end{itemize}
+
+\begin{beamercolorbox}[colsep*=-8pt,rounded=true,shadow=true]{formula} %,ht=.5cm,center
+%\begin{center} %sep=0em,
+$$p(D|\theta) = \theta^{\Sexpr{male}} (1-\theta)^{\Sexpr{n-male}}$$
+%%\end{center} 
+\end{beamercolorbox}
+\end{column} \pause
+\begin{column}{0.55\textwidth}
+<<fig.width=2.2,fig.height=2.8>>=
+ggplot(B,aes(factor(theta),like))+theme_bw()+geom_bar(stat="identity",width=.2,fill="#00407f")+xlab("$\\theta$")+ylab("$p(D|\\theta)$")+theme(plot.title = element_text(hjust=.5))+ggtitle("likelihood") #text=element_text(size=TEXTSIZE),
+@
+\end{column}
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Posterior computing}}
+
+\small
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+ \item For computing the posterior distribution we use the Bayes' rule:
+\end{itemize}
+
+\begin{beamercolorbox}[colsep*=-8pt,rounded=true,shadow=true]{formula} %,ht=.5cm,center
+%\begin{center} %sep=0em,
+$$p(\theta|D)=\frac{p(D|\theta)p(\theta)}{p(D)}$$
+%\end{center} 
+\end{beamercolorbox}
+
+\begin{itemize}
+ \item In the binomial case the computation of $p(D)$ is quite easy:
+\end{itemize}
+\begin{beamercolorbox}[colsep*=-8pt,rounded=true,shadow=true]{formula} %,ht=.5cm,center
+%\begin{center} %sep=0em,
+$$p(D)=\sum_{\theta} p(D|\theta)p(\theta)$$
+%%\end{center} 
+\end{beamercolorbox}
+
+\end{column} \pause
+\begin{column}{0.55\textwidth}
+<<fig.width=2.2,fig.height=2.8>>=
+ggplot(B,aes(factor(theta),post))+theme_bw()+geom_bar(stat="identity",width=.2,fill="#00407f")+xlab("$\\theta$")+ylab("$p(\\theta|D)$")+theme(plot.title = element_text(hjust=.5))+ggtitle("posterior") #text=element_text(size=TEXTSIZE),
+@
+\end{column}
+\end{columns}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+<<fig.width=4,fig.height=3.5>>=
+Y <- stack(B[,2:4])
+Y$theta <- B$theta
+Y$ind <- factor(Y$ind,levels=c("prior","like","post"),labels=c("prior","likelihood","posterior"),ordered=TRUE)
+ggplot(Y,aes(factor(theta),values))+theme_bw()+facet_wrap(~ind,ncol=1,scales="free")+xlab("$\\theta$")+geom_bar(stat="identity",width=.2,fill="#00407f")+ylab("") #+theme(text=element_text(size=TEXTSIZE*.8))
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{}
+<<echo=TRUE,results="markup">>=
+theta <- c(.25,.5,.75) # parameter values
+(prior <- pmin(theta,1-theta)) # prior distribution
+
+data <- c(1,1,rep(0,7)) # observed data 
+n <- length(data)
+males <- sum(data) # number of males
+(like <- theta^males*(1-theta)^(n-males)) # likelihood
+
+pData <- sum(prior*like)
+(post <- prior*like/pData) # posterior distribution
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]{}
+
+ \begin{beamerboxesrounded}[upper=upnotabene,lower=lonotabene, shadow=true]
+{\textbf{The logic of Bayesian analysis}:}
+\begin{itemize}
+ \item Similarly, we can define other \emph{priors}, or we could use the  obtained  \emph{posterior} as a new \emph{prior} and then collect other data.
+ \item The main objective of the analysis is to obtain the posterior distribution.
+ \item Given the posterior distribution, we can proceed depending on our final goal: parameter estimation, prediction or model comparison. 
+\end{itemize}  
+\end{beamerboxesrounded}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Prior for binomial model}
+\begin{frame}{\textbf{Prior definition}}
+
+\begin{itemize}
+ \item Actually, the proportion is a continuous variable, so it is better to model our prior beliefs with a continuous distribution.
+ \item All we know, before observing the animals, is that the proportion of males will certainly be in the [0,1] range.
+ \item Consequently, in order to formalise our prior hypothesis we need an appropriate probability distribution.
+ \item Any idea?
+
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Uniform Prior}}
+
+<<>>=
+x <- seq(0,1,.1)
+y <- rep(1,length(x))
+
+D <- data.frame(x,y)
+YLIM <- c(0,1.5)
+ggplot(D,aes(x,y))+theme_bw()+geom_line(col="#00407f",lwd=3)+xlab("$\\theta$")+ylab("$p(\\theta)$")+annotate("segment",x=0,xend=0,y=0,yend=1,col=gray(.3),lty=2)+annotate("segment",x=1,xend=1,y=0,yend=1,col=gray(.3),lty=2)+scale_y_continuous(limits=YLIM) #+theme(text=element_text(size=TEXTSIZE))
+@
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Beta Prior}}
+
+\begin{itemize}
+ \item The Uniform distribution is actually a special case of the Beta distribution. 
+ \item The Beta is a continuous density distribution ranging from 0 to 1 and is therefore suitable for dealing with proportions or parameters that fall within this range. 
+ \item This distribution is defined as $$f(x;a,b) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} x^{a-1}(1-x)^{b-1}$$ and can easily be used to formalise hypotheses about the binomial case.
+ 
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\small
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{itemize}
+ \item Assuming that we know nothing about the proportion of males (maximum uncertainty), how many males can we  expect to see when observing two birds at random? 
+\end{itemize}
+\end{column} \pause
+\begin{column}{0.6\textwidth}
+<<fig.width=2.5,fig.height=2.5>>=
+PARS <- c(1,1)
+ggplot() + theme_bw() + stat_function(fun=dbeta,args = list(shape1=PARS[1],shape2=PARS[2]),lwd=2) + ylab("") + ggtitle( paste("Beta(",paste(PARS,collapse = ", "),")") ) 
+@
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\small
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{itemize}
+ \item Assuming that we believe that the proportion of males is about 50\%, how many males can we  expect to see when observing 20 birds at random? 
+\end{itemize}
+\end{column} \pause
+\begin{column}{0.6\textwidth}
+<<fig.width=2.5,fig.height=2.5>>=
+PARS <- c(10,10)
+ggplot() + theme_bw() + stat_function(fun=dbeta,args = list(shape1=PARS[1],shape2=PARS[2]),lwd=1.2) + ylab("") + ggtitle( paste("Beta(",paste(PARS,collapse = ", "),")") ) 
+@
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\small
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{itemize}
+ \item Assuming that we strongly believe that the proportion of males is about 50\%, how many males can we  expect to see when observing 1000 birds at random? 
+\end{itemize}
+\end{column} \pause
+\begin{column}{0.6\textwidth}
+<<fig.width=2.5,fig.height=2.5>>=
+PARS <- c(500,500)
+ggplot() + theme_bw() + stat_function(fun=dbeta,args = list(shape1=PARS[1],shape2=PARS[2]),lwd=1.2,n=300) + ylab("") + ggtitle( paste("Beta(",paste(PARS,collapse = ", "),")") ) 
+@
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Beta distribution}}
+
+<<fig.width=4>>=
+
+betaPar <- data.frame(shape1=c(1,3,.5,10),shape2=c(1,3,.5,15))
+
+x <- seq(0,1,by=.01)
+betaDat <- NULL
+
+for (j in 1:nrow(betaPar)) {
+  y <- with(betaPar, dbeta(x, shape1[j], shape2[j]) )
+  ymat <- cbind(x,y,betaPar$shape1[j],betaPar$shape2[j])
+  betaDat <- rbind(betaDat, ymat)
+} 
+
+colnames(betaDat)[3:4] <- c("a","b")
+betaDat <- data.frame(betaDat)
+betaDat$shape <- factor(with(betaDat, paste0("beta(",a,",",b,")") ))
+
+betaDat$shape <- factor(betaDat$shape,levels=levels(betaDat$shape)[c(1,2,4,3)])
+
+ggplot(betaDat,aes(x,y,color=shape)) + theme_bw() + geom_line(lwd=1.5) + theme(legend.title = element_blank()) + xlab("") + ylab("")
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Binomial inference}
+\begin{frame}{\textbf{Binomial inference}}
+
+<<>>=
+data <- ifelse(data==1,"M","F")
+@
+
+Returning to the kiwi example, we want to estimate the proportion of males in the population ($\theta$) after observing \Sexpr{sum(data=="M")} males and \Sexpr{sum(data=="F")} females (D):
+\begin{itemize}
+  \item The prior will be $p(\theta) = Beta(1,1)$
+  \item The likelihood will be $p(D|\theta) = \theta^\Sexpr{sum(data=="M")} (1-\theta)^\Sexpr{sum(data=="F")}$
+\only<1>{
+    \item Using Bayes' theorem, the posterior will be $$p(\theta|D) = \frac{p(\theta) \times p(D|\theta)}{p(D)}$$
+}  
+
+\only<2>{
+    \item Using Bayes' theorem, the posterior will be $$p(\theta|D) = \frac{p(\theta) \times p(D|\theta)}{p(D)} = Beta(1+\Sexpr{sum(data=="M")}, 1+\Sexpr{sum(data=="F")})$$
+}  
+
+  
+\end{itemize}
+
+The interesting thing is that the posterior distribution will again be a Beta distribution with parameters $a = 1+\Sexpr{sum(data=="M")}$ and $b = 1+\Sexpr{sum(data=="F")}$, $Beta(\Sexpr{1+sum(data=="M")},\Sexpr{1+sum(data=="F")})$.
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{} % toglinelprint
+
+<<fig.width=4,fig.height=3.5>>=
+x <- seq(0,1,.001)
+n <- length(data)
+yes <- sum(data=="M")
+no <- sum(data=="F")
+prior <- rep(1,length(x))
+like <- Lbinom(x,yes,n)
+post <- dbeta(x,(yes+1),(no+1))
+
+Y <- stack(data.frame(prior,like,post))
+Y$theta <- x
+Y$ind <- factor(Y$ind,levels=c("prior","like","post"),labels=c("prior","likelihood","posterior"),ordered=TRUE)
+
+a <- c(1,yes+1)
+b <- c(1,n-yes+1)
+label <- paste0(a,", ",b)
+
+levels(Y$ind)[c(1,3)] <- paste0( levels(Y$ind)[c(1,3)], ": $\\mbox{beta}(",a,", ",b,")$" )
+
+ggplot(Y,aes(theta,values))+facet_wrap(~ind,ncol=1,scales="free")+theme_bw()+geom_line(lwd=1.5,col="#ab0166")+xlab("$\\theta$")+ylab("")+theme(text=element_text(size=TEXTSIZE))
+@
+\end{frame}
+
+
+%\section{FINO QUI}
+%%%%%%%%%%%%%%%%%%%% FINE DOCUMENTO
+\section*{}
+\begin{frame}[plain,fragile]{\textbf{Used R packages}}
+
+<<results='markup',message=FALSE>>=
+options(width = 80)
+library(report)
+SI <- report(sessionInfo())
+PACK <- attr(SI,"table")$Package
+REF <- attr(SI,"table")$Reference
+REF <- gsub("#","", gsub("&","\\\\&",gsub("<","",gsub(">","",gsub("_","\\\\_",REF)))))
+
+REF <- REF[!grepl("kandinsky",PACK)] 
+#REF <- REF[!grepl("R Core Team",REF)]
+
+PACK <- PACK[!grepl("kandinsky",PACK)]
+@
+
+\scriptsize
+\begin{itemize}
+<<results='asis'>>=
+
+L <- gregexpr("\\).",REF) 
+fine <- unlist(lapply(L, function(x){
+  return(x[1]+1)
+}))
+
+for (k in 1:length(PACK)) {
+  cat(paste0("\\item \\texttt{",PACK[k],"}. "))
+  cat(substr(REF[k],1,fine[k]),"\n")
+}
+@
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+  \frametitle{}
+
+\begin{flushright}
+  \scalebox{.013}{\includegraphics{img/logo_psicostat.png}}
+\end{flushright}
+
+
+\vspace{1.5cm}
+\begin{center}
+\texttt{massimiliano.pastore@unipd.it}
+\url{https://psicostat.dpss.psy.unipd.it/}
+\end{center}
+
+\vspace{1cm}
+\begin{flushright}
+  \scalebox{.25}{\includegraphics{img/loghi2017.png}}
+\end{flushright}
+\end{frame}
+
+\end{document}
+

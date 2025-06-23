@@ -1,0 +1,20 @@
+project:
+  type: website
+  output-dir: docs
+
+resources:
+  - "exercises/*"
+
+website:
+  title: "Introduction to Bayesian Statistics"
+  navbar:
+    left:
+      - href: index.qmd
+        text: home
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true

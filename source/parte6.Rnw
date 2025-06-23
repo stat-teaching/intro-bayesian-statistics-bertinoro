@@ -1,0 +1,2245 @@
+\documentclass[compress,serif]{beamer}  % t per mettere al top delle slide
+%\documentclass[compress,serif,handout]{beamer} 
+%%% Dichiarazione dei pacchetti standard.
+\usepackage[italian]{babel}
+\usepackage{tikz}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{bm}
+\usetikzlibrary{bayesnet}
+
+\definecolor{aqua}{cmyk}{11,17,0,0}
+\definecolor{jap}{rgb}{.247,.549,1}
+\definecolor{mygreen}{RGB}{34,139,34}
+\definecolor{verdeoutput}{rgb}{0,0.533,0.298}
+\definecolor{rossooutput}{rgb}{0.6,0,0}
+\definecolor{grigiooutput}{RGB}{232,239,239}
+\definecolor{rossomich}{RGB}{180,30,50}
+\definecolor{rossomich2}{RGB}{193,72,88}
+
+%%% Personalizzazione del layout---articolata su cinque livelli.
+\usetheme{Frankfurt}        % layout complessivo.
+\usefonttheme{structurebold}
+
+%%%% page number
+\setbeamertemplate{footline}[frame number]
+\setbeamerfont{footline}{size=\scriptsize, series=\bfseries}
+\setbeamercolor{footline}{fg = black, bg = black}
+\setbeamercolor{page number in head/foot}{fg = gray}
+
+\usecolortheme[named=rossomich]{structure}
+\setbeamercolor{palette primary}{bg=rossomich,fg=white}
+\setbeamercolor{palette quaternary}{fg=white,bg=rossomich}
+
+\setbeamercolor{title}{bg=black!40!red,fg=white}
+\setbeamercolor{structure}{fg=black!40!red}
+\setbeamercolor{uppercolor}{fg=red,bg=white}
+\setbeamercolor{lowercolor}{fg=aqua, bg=white}
+\setbeamercolor{upesempio}{fg=white, bg=orange}
+\setbeamercolor{loesempio}{fg=black, bg=green!10!white}%{fg=black, bg=white}
+\setbeamercolor{upnotabene}{fg=white, bg=rossomich}
+\setbeamercolor{lonotabene}{fg=rossomich2, bg=yellow!20!white}
+\setbeamercolor{formula}{fg=black, bg=grigiooutput}
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.width=3, fig.height=3,dev="tikz",fig.align='center',echo=FALSE,results="hide",comment=NA,prompt=FALSE,cache=TRUE,external = FALSE)
+opts_knit$set(out.format = "latex") 
+
+thm = knit_theme$get("autumn")  # approved by lptrainer
+knit_theme$set(thm)
+@
+
+<<echo=FALSE,message=FALSE,results='hide'>>=
+rm(list=ls())
+main <- "~/didattica/Bertinoro/"
+if (grepl("cox",Sys.info()["user"])) main <- gsub("/didattica","/MEGA/didattica",main)
+datadir <- paste(main,"data/",sep="")
+exedir <- paste0(datadir, "esercizi/")
+Sdir <- paste(main,"Scodes/",sep="")
+nes <- 1
+esegui <- FALSE
+
+NDRAWS <- 20 
+LEVEL <- .9
+CI_LEVEL <- c( (1-LEVEL)/2,1-(1-LEVEL)/2 )
+
+# KUtils::pulizia(paste(main,"knitr/",sep=""), c(".Rnw",".bib"))
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Titolo e autore.
+\title{\textbf{6. Applicazioni pratiche}}
+\author{\textbf{Massimiliano Pastore}\\
+   Università di Padova}
+\date{}
+
+<<functions>>=
+## ++++++++++++++++++++++++++++++++
+#' @title extract_priors_param
+#' @description estrae i parametri delle prior dalle stringhe di brms
+#' @param h = stringa 
+#' @return restituisce una lista di quattro elementi: il nome R della funzione di densità (\code{funct}), il nome esteso (\coed{name}), il vettore dei parametri (\code{par}) e l'etichetta in formato LateX (\code{label})
+extract_priors_param <- function(h) {
+  
+  input <- h
+  (h <- gsub("\\)",";",gsub("\\(",";",h)))
+  (h <- strsplit(h, ";")[[1]])
+  
+  name <- h[1]
+  pars <- as.numeric( strsplit(h[2],",")[[1]] )
+  
+  if (!grepl("gamma",name) & !grepl("normal",name) & !grepl("student",name) & !grepl("lkj",name) & !grepl("beta",name)) {
+    warning(paste0("non so gestire ",input),"\n")
+    funct <- name <- label <- NULL
+  }
+  
+  if (grepl("gamma",name)) {
+    funct <- "dgamma"
+    name <- "Gamma"
+    label <- paste0( name, "(",h[2],")")
+  }
+  
+  if (grepl("normal",name)) {
+    funct <- "dnorm"
+    name <- "Normal"
+    label <- paste0( name, "(",h[2],")")
+  }
+  
+  if (grepl("beta",name)) {
+    funct <- "dbeta"
+    name <- "Beta"
+    label <- paste0( name, "(",h[2],")")
+  }
+  
+  if (grepl("student",name)) {
+    funct <- "gamlss.dist::dTF"
+    name <- "Student's $t$"
+    label <- paste0( name, "(",h[2],")")
+  } 
+  
+  if (grepl("lkj",name)) {
+    funct <- "rethinking::dlkjcorr"
+    name <- "LKJ"
+    label <- paste0(name,"(",h[2],")")
+  }
+  
+  return(list(funct=funct, name=name, pars=pars, label=label))
+}
+
+#++++++++++++++++++++++++++++++++
+### default colors
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+##++++++++++++++++++++++++++++++++++++++++++++++++++
+#' @title Diagnostics plot
+#' @details Prende in input un dataframe con residui, residui standardizzati e valori attesi e produce i grafici di diagnostica
+#' @param fit_data = dataframe con i dati del modello e tre colonne: .fitted, .resid, .stdresid
+diagnostic_plot <- function(fit_data, cex = 1,  title = NULL, ...) {
+  
+  require(ggplot2)
+  theme_set(theme_bw())
+
+  P1 <- ggplot(fit_data, aes(.fitted, .resid)) + geom_smooth() + geom_hline(yintercept = 0, lty = "longdash") + geom_point(size = cex, colour = "#4D4D4D") + xlab("Fitted values") + ylab("Residuals") + ggtitle(paste0(title, " Residuals vs Fitted")) + theme(plot.title = element_text(hjust = 0.5))
+  P2 <- ggplot(fit_data, aes(sample = .resid)) + stat_qq_line(lty = 2) + stat_qq(size = cex, colour = "#4D4D4D") + ggtitle("Normal Q-Q") + xlab("Theoretical Quantiles") + ylab("Standardized Residuals") + theme(plot.title = element_text(hjust = 0.5))
+  P3 <- ggplot(fit_data, aes(.fitted, sqrt(abs(.stdresid)))) + geom_smooth() + geom_point(size = cex, colour = "#4D4D4D") + xlab("Fitted values") + ylab("$\\sqrt{(|\\text{Standardized residuals}|)}$") + ggtitle("Scale-Location") + theme(plot.title = element_text(hjust = 0.5))
+  PLOT <- list(P1, P2, P3)
+  return(PLOT)
+}
+
+## ++++++++++++++++++++++++++++++++++
+#' @title Intervallo di confidenza della correlazione
+#' @param r = correlation 
+#' @param n = sample size
+#' @param alpha = alpha level
+r_confidence_interval <- function(r, n, alpha = .05) {
+  z <- 0.5 * log((1+r)/(1-r))
+  zq <- qnorm(1-alpha/2)
+ 
+  zlow <- z-zq*sqrt(1/(n-3))
+  zup <- z+zq*sqrt(1/(n-3))
+  
+  rCI <- c( (exp(2*zlow)-1) / (exp(2*zlow) + 1),
+  (exp(2*zup)-1) / (exp(2*zup) + 1) )
+  return(rCI)
+}
+
+
+@
+
+
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Contenuti}
+  \tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Stime bayesiane in generale}
+
+\vspace{-.3cm}
+\begin{footnotesize}
+ \begin{flushright}
+        \emph{When you have eliminated the impossible \\ all that remain, no matter how improbable,\\ must be the truth.}\\
+        (Sherlock Holmes)
+    \end{flushright}
+\end{footnotesize}
+
+\begin{itemize}
+ \item L'inferenza bayesiana può essere considerata una riallocazione di credibilità in uno spazio di possibili candidati.
+ \item In pratica vuol dire che riconsideriamo i \emph{belief} dei valori dei parametri che sono consistenti con i dati ed eliminiamo i valori non consistenti.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+\section[t-test]{$t$ test}
+\begin{beamerboxesrounded}[upper=title, lower=structure, shadow=true]
+    {\center{\Large{\textbf{$t$-test}}}}
+\end{beamerboxesrounded}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{Ripensare il $t$-test}
+
+\begin{itemize}
+ \item A differenza di NHST, il metodo bayesiano consente anche di accettare l'ipotesi nulla, non solo rigettarla. 
+ \item Il metodo bayesiano tiene conto di tutte le informazioni relative alle distribuzioni delle medie e delle deviazioni standard dei due gruppi. 
+ \item Inoltre consente di gestire outliers e distribuzioni asimmetriche piuttosto che normali.
+ \item In particolare ci occuperemo di stima dei parametri, così da ottenere un risultato molto più ricco ed informativo rispetto al semplice $t$-test.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Esempio \Sexpr{nes}}
+
+<<echo=FALSE>>=
+# Impostazione del seed per la riproducibilità
+set.seed(123)
+
+# Parametri
+n_per_gruppo <- 30
+mu_meditazione <- 76.2
+mu_controllo <- 78.7
+sigma_meditazione <- 15
+sigma_controllo <- 12 # Deviazione standard ipotetica
+ROPE <- c(-5,0)
+
+# Simulazione dei dati
+gruppo_meditazione <- round(rnorm(n_per_gruppo, mean = mu_meditazione, sd = sigma_meditazione))
+gruppo_controllo <- round(rnorm(n_per_gruppo, mean = mu_controllo, sd = sigma_controllo))
+
+# Creazione del dataframe
+dati.meditazione <- data.frame(
+  punteggio = c(gruppo_meditazione, gruppo_controllo),
+  gruppo = rep(c("Meditazione", "Controllo"), each = n_per_gruppo)
+)
+
+# Esecuzione del t-test
+risultato_t_test <- t.test(punteggio ~ gruppo, data = dati.meditazione, var.equal=TRUE)
+
+# salvataggio
+#meditazione <- dati.meditazione
+#save( meditazione, file = paste0(exedir,"meditazione.rda" ))
+@
+
+\begin{itemize}
+ \item Uno psicologo vuole valutare se una nuova tecnica di meditazione sia efficace per la riduzione dello stress.  
+ \item A tal fine recluta un campione di \Sexpr{n_per_gruppo*2} soggetti stressati, li divide in due gruppi (controllo e trattamento).
+ \item Al termine dell'esperimento calcola i punteggi di stress dei soggetti nei due gruppi e li mette a confronto.  
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Esempio \Sexpr{nes}: $t$ test}
+
+<<echo=FALSE>>=
+delta <- mean(gruppo_meditazione)-mean(gruppo_controllo)
+
+se <- sqrt( var(gruppo_controllo)/n_per_gruppo + var(gruppo_meditazione)/n_per_gruppo )
+
+tval <- delta/se
+
+pval <- pt(tval,n_per_gruppo*2-2)
+@
+
+Le ipotesi: \begin{itemize}
+ \item $H_0: \pause \mu_c = \mu_t$
+ \item $H_1: \pause \mu_c > \mu_t$
+\end{itemize}
+
+\vspace{.3cm}
+I risultati: \pause
+\begin{itemize}
+ \item Gruppo di controllo: $\overline{x}_c = \Sexpr{round(mean(gruppo_controllo),2)}$, $s_c = \Sexpr{round(sd(gruppo_controllo),2)}$ 
+ \item Gruppo di trattamento: $\overline{x}_t = \Sexpr{round(mean(gruppo_meditazione),2)}$, $s_t = \Sexpr{round(sd(gruppo_meditazione),2)}$ 
+\end{itemize}
+
+\pause
+$$t_{(\Sexpr{n_per_gruppo*2-2})} = \frac{( \Sexpr{round(mean(gruppo_meditazione),2)} - \Sexpr{round(mean(gruppo_controllo),2)})}{ \sqrt{ \Sexpr{round(sd(gruppo_controllo),2)}^2 / \Sexpr{n_per_gruppo} + \Sexpr{round(sd(gruppo_meditazione),2)}^2 / \Sexpr{n_per_gruppo} } } = \Sexpr{round(tval,2)}  $$
+
+\pause
+$$ p = \Sexpr{round(pval,2)} $$
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]%{Esempio \Sexpr{nes}: $t$-test}
+
+
+<<echo=FALSE,results='markup'>>=
+cat(paste0("curve( dt( x, ",n_per_gruppo*2-2," ), -3, 3 )"),"\n")
+@
+
+
+<<echo=FALSE,fig.width=4>>=
+
+library(ggplot2)
+(GG <- ggplot() + theme_bw() + stat_function(fun=dt, args = list(df=n_per_gruppo*2-2)) + scale_x_continuous(limits = c(-3,3)) + xlab("$t$") + ylab("$d(t)$"))
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]%{Esempio \Sexpr{nes}: $t$-test}
+
+
+<<echo=FALSE,results='markup'>>=
+cat(paste0("points( ",round(tval,2),", 0, pch = 3, col = 'red')"),"\n")
+@
+
+
+<<echo=FALSE,fig.width=4>>=
+
+(GG <- GG + geom_point(aes(x=tval,y=0),col="red",size=2))
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]%{Esempio \Sexpr{nes}: $t$-test}
+
+<<results='markup'>>=
+cat(paste0("abline( v = qt( .05, ",n_per_gruppo*2-2," ), lty = 3 )"),"\n")
+@
+
+
+<<echo=FALSE,fig.width=4>>=
+
+(GG <- GG + geom_vline(xintercept = qt(.05,n_per_gruppo*2-2), lty = 3 ) )
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]%{Esempio \Sexpr{nes}: $t$-test}
+
+<<results='markup'>>=
+cat(paste0("pt( ",round(tval,2),", ",n_per_gruppo*2-2," )"),"\n")
+@
+
+
+<<echo=FALSE,fig.width=4>>=
+
+myData <- data.frame(x=seq(-4,tval,by=.01))
+myData$y <- dt( myData$x, n_per_gruppo*2-2 )
+
+GG + geom_ribbon( aes(x=x,y=y,ymin=0,ymax=y), data = myData, fill="red", alpha = .4) + stat_function(fun=dt, args = list(df=n_per_gruppo*2-2))
+
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Esempio \Sexpr{nes}: $t$-test bayesiano}
+
+<<message=FALSE>>=
+priorsigma <- 5
+
+library(gamlss.dist)
+
+myData <- data.frame(x=seq(-12,12,by=.01))
+myData$y <- dTF( myData$x, mu = 0, sigma = priorsigma, nu = 3 )
+
+myData$rope <- with( myData, ifelse( (x >= ROPE[1]) & (x<=ROPE[2]), y, 0 ))
+myData$h1 <- with( myData, ifelse( x< ROPE[1], y, 0 ) )
+
+p_rope <- pTF( ROPE[2],sigma = priorsigma, nu = 3 ) - pTF( ROPE[1],sigma = priorsigma, nu = 3 )
+
+p_h1 <- pTF( ROPE[1],sigma = priorsigma, nu = 3 )
+
+@
+
+\begin{itemize}
+ \item Supponiamo che il trattamento, per essere efficace, deve produrre una differenza di almeno \Sexpr{abs(ROPE[1])} punti. 
+ \item In altre parole, una differenza compresa nell'intervallo $[\Sexpr{ROPE}]$ è una differenza sostanzialmente nulla. 
+ \item Quindi, scegliamo come prior per la differenza una $t(3,0,\Sexpr{priorsigma})$. 
+ \item Sulla base di questa prior, abbiamo che $p(\Sexpr{ROPE[1]}< \delta < \Sexpr{ROPE[2]}) = \Sexpr{round(p_rope,2)}$ e $p(\delta <\Sexpr{ROPE[1]}) = \Sexpr{round(p_h1,2)}$. 
+ 
+ 
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Esempio \Sexpr{nes}: prior}
+
+<<message=FALSE,fig.width=4>>=
+
+
+ggplot(myData, aes(x,y)) + theme_bw() + geom_ribbon( aes(ymin = 0, ymax = rope), fill = "red", alpha = .4 ) + geom_ribbon(aes(ymin=0, ymax = h1), fill = "blue", alpha = .4) + geom_vline(xintercept = ROPE, lty = 3) + geom_line() + xlab("$t$") + ylab("$d(t)$") + annotate("text", x = mean(ROPE), y = .005, label = round(p_rope,2) ) + annotate("text", x = mean(ROPE) - priorsigma, y = .005, label = round(p_h1,2) ) 
+
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Esempio \Sexpr{nes}: $t$ con Stan}
+
+\footnotesize
+<<>>=
+L <- readLines( paste0(Sdir,"lm_sk.stan") )
+L <- gsub("priorsigma",priorsigma,L)
+idata <- grep("data",L)
+ipar <- grep("parameters",L)[1]
+itrans <- grep("transformed",L)
+imodel <- grep("model",L)
+
+write(L,file = paste0(Sdir,"lm.stan"))
+@
+
+%\only<1>{
+\vspace{-.3cm}
+<<results='markup'>>=
+
+for (j in 1:(ipar-2)) cat(L[j],"\n")
+for (j in ipar:(itrans-2)) cat(L[j],"\n")
+
+@
+
+%}
+
+%\only<2>{
+\vspace{-.6cm} \pause
+<<results='markup'>>=
+
+for (j in itrans:(imodel-2)) cat(L[j],"\n")
+for (j in imodel:length(L)) cat(L[j],"\n")
+
+@
+
+%}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Esempio \Sexpr{nes}: $t$ con Stan}
+
+
+<<message=FALSE>>=
+library(rstan)
+
+if (esegui) {
+  y1 <- gruppo_controllo
+  y2 <- gruppo_meditazione
+
+  dataList <- list( y = c(y1,y2), x = c(rep(0,length(y1)),rep(1,length(y2))), N = length(y1)+length(y2))
+
+  fit1 <- stan(paste0(Sdir,"lm.stan"), data = dataList, seed = 3, iter = 3000 )
+  
+  meditazione <- dataList
+  save( meditazione, file = paste0(exedir,"dati_giorno_5.rda") )
+  
+  save(dataList,fit1, file = paste0(datadir,"meditazione_fit_rstan.rda"))
+} else {
+  load( paste0(datadir,"meditazione_fit_rstan.rda") )
+}
+
+@
+
+\small
+<<results='markup'>>=
+cat("> library(rstan)","\n")
+cat("> fit1 <- stan( ... , data = dataList, seed = 3, iter = 3000 )","\n")
+cat("> print( fit, pars = c('beta0','beta1' ), ","\n")
+cat("+         probs = c( .025, .5, .975 ) )","\n")
+@
+\pause \vspace{-.3cm}
+<<results='markup'>>=
+
+print(fit1, pars = c("beta0","beta1"), probs = c(.025,.5,.975))
+
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]%{Esempio \Sexpr{nes}: $t$ con Stan}
+
+<<echo=TRUE,fig.width=4>>=
+plot( fit1, pars = "beta1", plotfun = "dens" ) + 
+  geom_vline( xintercept = ROPE, lty = 3 )
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+
+\vspace{.7cm}
+<<fig.width=4>>=
+POST <- extract(fit1, pars = "beta1")
+DY <- density(POST$beta1) 
+DY <- with(DY, data.frame(x,y))
+DY$rope <- with( DY, ifelse( x >= ROPE[1] & x <= ROPE[2], y, 0 ) )
+DY$h1 <- with( DY, ifelse( x <= ROPE[1], y, 0 ) )
+
+post_rope <- with( POST, sum(beta1 >= ROPE[1] & beta1 <= ROPE[2] ) / length(beta1) )
+post_h1 <- with( POST, sum(beta1 < ROPE[1] ) / length(beta1) )
+
+
+ggplot( DY, aes(x,y) ) + theme_bw()  + geom_ribbon( aes(ymin = 0, ymax = rope), fill = "red", alpha = .4 ) + geom_ribbon(aes(ymin=0, ymax = h1), fill = "blue", alpha = .4) + geom_vline(xintercept = ROPE, lty = 3) + geom_line() + stat_function( fun = dTF, args = list( mu = 0, nu = 3, sigma = priorsigma), color = "blue", lty = 2) + xlab("$\\delta$") + ylab("$p(\\delta|D)$") + annotate("text", x = mean(ROPE), y = .005, label = round(post_rope,2) ) + annotate("text", x = mean(ROPE) - priorsigma, y = .005, label = round(post_h1,2) ) 
+
+
+
+@
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Studio clinico}
+\begin{frame}[plain]
+\begin{beamerboxesrounded}[upper=title, lower=structure, shadow=true]
+    {\center{\Large{\textbf{Uno studio clinico}}}}
+\end{beamerboxesrounded}
+
+<<>>=
+nes <- nes+1
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{\textbf{Esempio \Sexpr{nes}: Ortoressia}}
+
+\begin{center}
+  \scalebox{.34}{\includegraphics{img/ortoressia.png}}
+\end{center}
+
+\tiny
+Novara, C., Maggio, E., Pastore, M., Piasentin, S., Pardini, S., Mattioli, S. (2025). What is more likely in orthorexia nervosa: perfectionism or OC symptoms? A Bayesian method in clinical and non-clinical samples. \emph{BMC Psychology}, 13, 230. \url{doi.org/10.1186/s40359-025-02517-2}.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{\textbf{I dati}}
+
+
+<<>>=
+
+load( paste0(datadir,"ortoper_data.rda") )
+TT <- table(Z$GROUP)
+NSOGGETTI <- paste0(names(TT)," (",TT,")")
+
+@
+
+
+\begin{itemize}
+  \item Il set di dati include \Sexpr{nrow(Z)} soggetti $\times$ \Sexpr{ncol(Z)} variabili:
+
+ \begin{itemize}
+ \vspace{.3cm}
+  \item Tre variabili endogene: \\ \Sexpr{varListprint$yvar}
+ 
+   \vspace{.3cm}
+  \item Quattro variabili esogene: \\ \Sexpr{varListprint$xvar}
+ \end{itemize}
+
+ \vspace{.3cm}
+ \item In particolare ci sono tre gruppi di soggetti: \\ \Sexpr{NSOGGETTI}.
+
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Le ipotesi}}
+
+%\vspace{.3cm}
+\textbf{EHQ} -- item a 4 punti: \begin{itemize}
+ \item Scala Problemi (12 items) 
+ Per i clinici attendiamo punteggi superiori ai 32 punti e 4/5 punti sopra i soggetti degli altri due gruppi.
+ 
+ \item Scala Convinzioni (5 items) 
+ Per i clinici ed i diet attendiamo punteggi superiori ai 10 punti e circa 2 punti sopra i normali.
+ 
+ \item Scala Emozioni (4 items).  
+Per i clinici ed i diet attendiamo punteggi superiori a 8 punti e circa 2 punti sopra i normali.
+  \end{itemize}
+
+\vspace{.3cm} \pause
+\textbf{Perfezionismo}: 
+1) Il gruppo clinico dovrebbe avere maggior perfezionismo negativo (\texttt{MPS\_concern}) rispetto agli altri.
+
+2) Non dovrebbe esserci differenza tra i gruppi nel perfezionismo positivo (\texttt{MPS\_striving}). 
+
+3) Il perfezionismo negativo ha maggiori effetti sulla scala  Problemi, il perfezionismo positivo su Convinzioni e Emozioni
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{I modelli}
+\begin{frame}[fragile]{\textbf{I modelli}}
+
+\footnotesize
+Utilizzando queste variabili definiamo un insieme di 6 modelli multivariati: \begin{itemize}
+ \item M00, modello nullo: $$\bm{Y} \sim 1$$
+ \item M01, modello delle differenze tra i gruppi: $$\bm{Y} \sim \text{GROUP}$$
+ \item M02, effetti additivi GRUPPO + MPS: $$\bm{Y} \sim \text{GROUP} + \text{MPS\_striving} + \text{MPS\_concern} $$
+ \item M03, effetti additivi GRUPPO + MPS + OCI: $$\bm{Y} \sim \text{GROUP} + \text{MPS\_striving} + \text{MPS\_concern} + \text{OCI\_TOT}$$
+ \item M04, modello con interazione MPS\_NEG $\times$ OCI: $$\bm{Y} \sim \text{GROUP} + \text{MPS\_striving} + \text{MPS\_concern} \times \text{OCI\_TOT}$$
+ \item M05, modello con interazioni rispetto al GRUPPO: $$\bm{Y} \sim \text{GROUP} \times \text{MPS\_striving} + \text{GROUP} \times \text{MPS\_concern} + \text{GROUP} \times \text{OCI\_TOT}$$ 
+\end{itemize} in cui $\bm{Y}$ rappresenta la matrice delle variabili endogene EHQ: \Sexpr{gsub("EHQ_","",varList$yvar)}. Ciascuno di questi modelli viene specificato con i residui correlati.  
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{Prior specification}
+\begin{frame}{\textbf{Prior specification}}
+
+\begin{itemize}
+ \item Il numero di parametri in questi modelli varia da un minimo di \Sexpr{nrow(brms::fixef(fit00))+6} - le intercette e le deviazioni standard e le correlazioni dei residui nel modello nullo, M00 - ad un massimo di \Sexpr{nrow(brms::fixef(fit05))+6} nel modello che include le interazioni con il GRUPPO, M05.
+
+\vspace{.3cm}
+ \item Per ogni parametro dobbiamo definire una prior; in particolare utilizzeremo delle Student's $t$ per le intercette, i coefficienti di regressione e le deviazioni standard, una LKJ (Lewandowski et al, 2009) per le correlazioni tra residui.
+ 
+ \end{itemize}
+ 
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Prior specification}}
+
+
+<<message=FALSE>>=
+library(brms)
+
+load(paste0(datadir,"R03_fit05_prior.rda"))
+PRIOR_int <- subset( prior_summary( fit00 ), class == "Intercept" )
+PRIOR_beta <- subset( prior_summary( fit05 ), class == "b" )
+PRIOR_sigma <- subset( prior_summary( fit05 ), class == "sigma" )
+PRIOR_cor <- subset( prior_summary( fit00 ), class == "Lrescor" )
+
+PRIOR_GROUP <- subset(PRIOR_beta, coef=="GROUPCLI" | coef =="GROUPDIET")
+PARS_GROUP <- sort( unique( PRIOR_GROUP$prior ))
+PARS1 <- extract_priors_param(PARS_GROUP[1])$pars
+PARS2 <- extract_priors_param(PARS_GROUP[2])$pars
+PARS3 <- extract_priors_param(PARS_GROUP[3])$pars
+
+PRIOR_beta <- subset(PRIOR_beta, coef=="MPS_concern" | coef =="MPS_striving" | coef == "OCI_TOT")
+PARS_beta <- sort( unique(PRIOR_beta$prior))
+
+PARS4 <- extract_priors_param(PARS_beta[1])$pars
+PARS5 <- extract_priors_param(PARS_beta[2])$pars
+PARS6 <- extract_priors_param(PARS_beta[3])$pars
+
+#++++++++++++++++++++++
+library(gamlss.dist)
+theme_set(theme_bw())
+
+TEXTCEX <- 8
+
+GGList <- list()
+
+COLORI <- gg_color_hue(3)
+GGdata <- data.frame(x=seq(0,50,by=.2))
+
+for (j in 1:3) {
+  PARS <- extract_priors_param(PRIOR_int$prior[j])$pars
+
+  GGdata$z <- with(GGdata, dTF(x,mu = PARS[2], sigma = PARS[3], nu = PARS[1]))  
+  colnames(GGdata) <- gsub("z",PRIOR_int$resp[j],colnames(GGdata))
+
+}
+YInt <- stack(GGdata[,-1])
+YInt$x <- GGdata$x
+levels(YInt$ind) <- gsub("EHQ","",levels(YInt$ind))
+
+# GROUP
+XLIM <- c(min(c(PARS1[2],PARS2[2],PARS3[2]))-6*max(c(PARS1[3],PARS2[3],PARS3[3])), max(c(PARS1[2],PARS2[2],PARS3[2]))+6*max(c(PARS1[3],PARS2[3],PARS3[3]))
+)
+
+gg <- ggplot()+stat_function(fun=dTF,args = list(mu = PARS1[2], sigma = PARS1[3], nu = PARS1[1]),color=COLORI[1],n=300)+stat_function(fun=dTF,args = list(mu = PARS2[2], sigma = PARS2[3], nu = PARS2[1]),color=COLORI[2],n=300)+stat_function(fun=dTF,args = list(mu = PARS3[2], sigma = PARS3[3], nu = PARS3[1]),color=COLORI[3],n=300)+scale_x_continuous( limits = XLIM)+ylab("")+ggtitle("GROUP")+ theme(text = element_text(size=TEXTCEX))
+
+
+GGList <- c( GGList, list( gg ) )
+
+# beta
+XLIM <- c(min(c(PARS4[2],PARS5[2],PARS6[2]))-6*max(c(PARS4[3],PARS5[3],PARS6[3])), max(c(PARS4[2],PARS5[2],PARS6[2]))+6*max(c(PARS4[3],PARS5[3],PARS6[3]))
+)
+
+gg <- ggplot()+stat_function(fun=dTF,args = list(mu = PARS4[2], sigma = PARS4[3], nu = PARS4[1]), color=COLORI[1])+stat_function(fun=dTF,args = list(mu = PARS5[2], sigma = PARS5[3], nu = PARS5[1]), color=COLORI[2])+stat_function(fun=dTF,args = list(mu = PARS6[2], sigma = PARS6[3], nu = PARS6[1]), color=COLORI[3])+scale_x_continuous( limits = XLIM)+ylab("")+ggtitle("beta")+ theme(text = element_text(size=TEXTCEX))
+GGList <- c( GGList, list( gg ) )
+
+
+XLIM <- NULL
+GGSigma <- ggplot()
+
+GGdata <- data.frame(x=GGdata$x)
+
+for (j in 1:3) {
+  PARS <- extract_priors_param(PRIOR_sigma$prior[j])$pars
+
+  XLIM <- range( c( XLIM, Z[,gsub("EHQ","EHQ_",PRIOR_int$resp[j])] ))
+  GGSigma <- GGSigma + stat_function(fun=dTF,args = list(mu = PARS[2], sigma = PARS[3], nu = PARS[1]), color = COLORI[j])+ylab("")
+ 
+  GGdata$z <- with(GGdata, dTF(x,mu = PARS[2], sigma = PARS[3], nu = PARS[1]))  
+  colnames(GGdata) <- gsub("z",PRIOR_int$resp[j],colnames(GGdata))
+    
+  
+}
+
+YSigma <- stack(GGdata[,-1])
+YSigma$x <- GGdata$x
+levels(YSigma$ind) <- gsub("EHQ","",levels(YSigma$ind))
+
+GGSigma <-ggplot( YSigma, aes( x, values, color = ind ))+theme_bw()+geom_line() + ggtitle("Intercept")+ theme(text = element_text(size=TEXTCEX), legend.title = element_blank())+ylab("")+xlab("")+ggtitle("residual variances")
+
+gg <- ggplot()+theme_bw()+stat_function(fun=ggdist::dlkjcorr_marginal,args=list(K=2,eta=extract_priors_param(PRIOR_cor$prior)$pars)) +ylab("") +scale_x_continuous(limits = c(-1,1))+ ggtitle("residual correlations") + theme(text = element_text(size=TEXTCEX))
+GGList <- c( GGList, list( gg ) )
+
+###
+GGBe <- GGList[1:2]
+GGSigma <- list(GGSigma,gg)
+
+@
+
+\only<1>{
+<<fig.width=4>>=
+ggplot( YInt, aes( x, values, color = ind ))+theme_bw()+geom_line() + ggtitle("Intercept")+ theme(text = element_text(size=TEXTCEX), legend.title = element_blank())+ylab("")+xlab("")+ggtitle("Intercepts")
+@
+}
+
+\only<2>{
+<<fig.width=4>>=
+library(cowplot)
+theme_set(theme_bw())
+plot_grid(plotlist = GGBe)
+@
+
+}
+
+\only<3>{
+<<fig.width=4>>=
+plot_grid(plotlist = GGSigma, nrow = 2) # rel_widths = c(1,.7)
+@
+
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Prior Predictive Check}
+\begin{frame}[fragile]{\textbf{Prior Predictive Check}}
+
+<<>>=
+
+load( paste0(datadir, "R03_fit03_prior.rda") )
+
+myPrior <- prior_summary(fit03)
+Zlong <- stack(fit03$data[,varList$yvar])
+Zlong$GROUP <- fit03$data$GROUP
+Zlong$MPS_concern <- fit03$data$MPS_concern
+Zlong$MPS_striving <- fit03$data$MPS_striving
+Zlong$OCI_TOT <- fit03$data$OCI_TOT
+Zlong$y <- gsub("EHQ_","EHQ",Zlong$ind)
+Zlong$lower__ <- Zlong$upper__ <- 0
+#Zlong$estimate__ <- Zlong$values
+
+PrPred <- posterior_epred( fit03, ndraws = NDRAWS )
+PP <- NULL
+for (j in 1:3) {
+  
+  #cat(attr(PrPred,"dimnames")[[3]][j],"\n")
+  P <- stack( data.frame( t( PrPred[,,j] ) ) )
+  P$y <- attr(PrPred,"dimnames")[[3]][j]
+  P$GROUP <- fit03$data$GROUP
+  
+  PP <- rbind(P,PP)
+}
+Y <- PP
+#++++++++++++++++++++++++
+PLOT <- plot(conditional_effects(fit03, prob=LEVEL),plot=FALSE)
+
+YLIM <- list(
+  EHQPROBLEMI = range( c( with( PLOT$EHQPROBLEMI.EHQPROBLEMI_MPS_concern$data, c(lower__, upper__)), with( PLOT$EHQPROBLEMI.EHQPROBLEMI_MPS_striving$data, c(lower__, upper__))), with( PLOT$EHQPROBLEMI.EHQPROBLEMI_OCI_TOT$data, c(lower__, upper__)) ),
+  EHQCONVINZIONI = range( c( with( PLOT$EHQCONVINZIONI.EHQCONVINZIONI_MPS_concern$data, c(lower__, upper__)), with( PLOT$EHQCONVINZIONI.EHQCONVINZIONI_MPS_striving$data, c(lower__, upper__)), with(PLOT$EHQCONVINZIONI.EHQCONVINZIONI_OCI_TOT$data, c(lower__, upper__))) ),
+  EHQEMOZIONI = range( c( with( PLOT$EHQEMOZIONI.EHQEMOZIONI_MPS_concern$data, c(lower__, upper__)), with( PLOT$EHQEMOZIONI.EHQEMOZIONI_MPS_striving$data, c(lower__, upper__)), with(PLOT$EHQEMOZIONI.EHQEMOZIONI_OCI_TOT$data, c(lower__, upper__))) )
+)
+@
+
+<<echo=TRUE,eval=FALSE>>=
+fit_prior <- brm(
+      bf( EHQ_PROBLEMI ~ GROUP + MPS_concern + 
+            MPS_striving + OCI_TOT ) +
+      bf( EHQ_CONVINZIONI ~ GROUP + MPS_concern + 
+            MPS_striving + OCI_TOT ) +
+      bf( EHQ_EMOZIONI ~ GROUP + MPS_concern + 
+            MPS_striving + OCI_TOT ) + 
+        set_rescor( TRUE ), 
+  data = Z, prior = myPrior, 
+        sample_prior = "only", seed = 1 )
+@
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Prior Predictive Check}}
+
+
+\only<1>{
+<<PrPM03_GROUP,warning=FALSE,fig.width=4>>=
+ggplot(subset( Zlong, y == "EHQPROBLEMI"),aes(x=values))+theme_bw()+facet_grid(~GROUP,scales="free")+geom_density(aes(x=values,group=ind), data=subset(Y,y == "EHQPROBLEMI"),color=gray(.8))+geom_density(aes(fill=GROUP, color=GROUP),alpha=.3)+guides(color="none",fill="none")+xlab("EHQPROBLEMI")+ylab("")+scale_x_continuous(limits = c(-10,60))+scale_y_continuous(breaks = NULL)+theme(text=element_text(size=TEXTCEX))
+@
+}
+
+<<eval=FALSE>>=
+ggplot(Zlong,aes(x=values))+theme_bw()+facet_grid(GROUP~y,scales="free")+geom_density(aes(x=values,group=ind), data=Y,color=gray(.8))+geom_density(aes(fill=GROUP, color=GROUP),alpha=.3)+guides(color="none",fill="none")+xlab("")+ylab("")+scale_x_continuous(limits = c(-10,60))
+
+@
+
+
+\only<2>{
+<<warning=FALSE,fig.width=4>>=
+ggplot(subset( Zlong, y == "EHQCONVINZIONI"),aes(x=values))+theme_bw()+facet_grid(~GROUP,scales="free")+geom_density(aes(x=values,group=ind), data=subset(Y,y == "EHQCONVINZIONI"),color=gray(.8))+geom_density(aes(fill=GROUP, color=GROUP),alpha=.3)+guides(color="none",fill="none")+xlab("EHQCONVINZIONI")+ylab("")+scale_x_continuous(limits = c(-10,60))+scale_y_continuous(breaks = NULL)+theme(text=element_text(size=TEXTCEX))
+@
+}
+
+\only<3>{
+<<warning=FALSE,fig.width=4>>=
+ggplot(subset( Zlong, y == "EHQEMOZIONI"),aes(x=values))+theme_bw()+facet_grid(~GROUP,scales="free")+geom_density(aes(x=values,group=ind), data=subset(Y,y == "EHQEMOZIONI"),color=gray(.8))+geom_density(aes(fill=GROUP, color=GROUP),alpha=.3)+guides(color="none",fill="none")+xlab("EHQEMOZIONI")+ylab("")+scale_x_continuous(limits = c(-10,60))+scale_y_continuous(breaks = NULL)+theme(text=element_text(size=TEXTCEX))
+@
+}
+
+\only<4>{
+<<PrPM03,sanitize=TRUE,fig.width=4>>=
+
+CEXPOINT <- .3
+theme_set(theme_bw())
+cowplot::plot_grid(
+  ggplot(PLOT$EHQPROBLEMI.EHQPROBLEMI_MPS_striving$data, aes(MPS_striving,estimate__,ymin=lower__,ymax=upper__))+geom_ribbon(alpha=.2)+geom_point(aes(MPS_striving,values),data=subset(Zlong,y=="EHQPROBLEMI"),size=CEXPOINT)+geom_line(color="blue",linewidth=1.2)+ylab("EHQ PROBLEMI")+ggtitle("[A]")+scale_y_continuous(limits =YLIM$EHQPROBLEMI)+theme(text=element_text(size=TEXTCEX)),
+
+  ggplot(PLOT$EHQPROBLEMI.EHQPROBLEMI_MPS_concern$data, aes(MPS_concern,estimate__,ymin=lower__,ymax=upper__))+geom_ribbon(alpha=.2)+geom_point(aes(MPS_concern,values),data=subset(Zlong,y=="EHQPROBLEMI"),size=CEXPOINT)+geom_line(color="blue",linewidth=1.2)+ylab("")+ggtitle("[B]")+scale_y_continuous(limits =YLIM$EHQPROBLEMI)+theme(text=element_text(size=TEXTCEX)),
+  
+  ggplot(PLOT$EHQPROBLEMI.EHQPROBLEMI_OCI_TOT$data, aes(OCI_TOT,estimate__,ymin=lower__,ymax=upper__))+geom_ribbon(alpha=.2)+geom_point(aes(OCI_TOT,values),data=subset(Zlong,y=="EHQPROBLEMI"),size=CEXPOINT)+geom_line(color="blue",linewidth=1.2)+ylab("")+ggtitle("[C]")+scale_y_continuous(limits =YLIM$EHQPROBLEMI)+theme(text=element_text(size=TEXTCEX)),
+
+
+  nrow = 1
+)
+
+@
+
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Analisi}
+\begin{frame}[fragile]{\textbf{Modello finale (solo su PROBLEMI)}}
+
+\textbf{Le prior}
+
+\small
+<<results='markup'>>=
+options(width = 100)
+load( paste0( datadir,"R03_fit05.rda" ))
+
+PRIOR <- prior_summary(fit05)
+PRIOR <- subset(PRIOR, resp == "EHQPROBLEMI"  )[-1,] 
+as.data.frame( PRIOR[,c("prior","class","coef")] )
+myPrior <- PRIOR
+myPrior$resp <- ""
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Modello finale (solo su PROBLEMI)}}
+
+<<fit2,echo=TRUE,message=FALSE,warning=FALSE,eval=FALSE>>=
+fit2 <- brm( EHQ_PROBLEMI ~ GROUP * MPS_concern + 
+              GROUP * MPS_striving + GROUP * OCI_TOT, 
+            data  = Z, prior = myPrior, cores = 4  )
+@
+\end{frame}
+
+
+<<>>=
+load(paste0(datadir,"fit_problemi.rda"))
+
+if (esegui) {
+  
+  load( paste0(exedir,"dati_giorno_5.rda") )
+  ortodata <- fit2$data
+  ii <- sample(1:nrow(ortodata),500)
+  ortodata <- ortodata[ii,]
+  
+  save( meditazione, ortodata, file = paste0(exedir,"dati_giorno_5.rda") )
+
+}
+
+
+#save(fit2,file = paste0(datadir,"fit_problemi.rda"))
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Diagnostics}}
+
+<<warning=FALSE,message=FALSE,fig.width=4>>=
+
+if ( esegui ) {
+  Z <- fit05$data
+  Z$.fitted <- fitted(fit05)[,"Estimate","EHQPROBLEMI"]
+  Z$.resid <- residuals(fit05)[,"Estimate","EHQPROBLEMI"]
+  Z$.stdresid <- residuals(fit05,type = "pearson")[,"Estimate","EHQPROBLEMI"]
+  DList <- diagnostic_plot(Z, cex = .6)
+  for (j in 1:length(DList)) {
+    DList[[j]] <- DList[[j]]+theme(text=element_text(size=TEXTCEX*.8)) 
+  }
+
+  save( Z, DList, file = paste0(datadir,"fit05_diagnostics.rda")) 
+
+} else {
+  load( paste0(datadir,"fit05_diagnostics.rda") )
+}
+
+theme_set(theme_bw())
+plot_grid(
+  plotlist = DList, nrow = 1
+)
+@
+
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Posterior Predictive Check}}
+
+
+
+<<echo=TRUE,message=FALSE,fig.height=2.5>>=
+
+pp_check( fit2, ndraws = 30 )
+
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}[fragile]{\textbf{Model predictions}}
+
+<<sanitize=TRUE,warning=FALSE,fig.width=4.2>>=
+PP <- plot( conditional_effects(fit2), cat_args = list(size=1.5), prob = CI_LEVEL, plot = FALSE)
+
+YLIM <- NULL
+for (j in grep(":",names(PP))) {
+  rr <- range( PP[[j]]$data$lower__, PP[[j]]$data$upper__)
+  YLIM <- range(c(YLIM,rr))
+}
+
+TEXTCEX <- 7
+theme_set(theme_bw())
+cowplot::plot_grid(
+  PP$`MPS_striving:GROUP` + scale_y_continuous(limits = YLIM)+ggtitle("[A]")+guides(fill="none",color="none")+theme(text=element_text(size=TEXTCEX)),
+  PP$`MPS_concern:GROUP`+ ylab("")+ scale_y_continuous(limits = YLIM)+ggtitle("[B]")+guides(fill="none",color="none")+theme(text=element_text(size=TEXTCEX)),
+  PP$`OCI_TOT:GROUP` + ylab("") + scale_y_continuous(limits = YLIM)+ggtitle("[C]")+theme(text=element_text(size=TEXTCEX)),
+  nrow=1, rel_widths = c(.60,.60,1)
+)
+
+
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Analisi delle ipotesi}}
+
+\vspace{-.3cm}
+<<PPdata,echo=TRUE>>=
+ll <- 15
+
+newData <- expand.grid (
+ MPS_striving = 
+  seq(min(Z$MPS_striving), max(Z$MPS_striving), length=ll),
+ MPS_concern = 
+  seq(min(Z$MPS_concern), max(Z$MPS_concern), length=ll),
+ OCI_TOT = 
+  seq(min(Z$OCI_TOT), max(Z$OCI_TOT), length=ll), 
+ GROUP = levels(Z$GROUP)
+)
+
+PP <- posterior_predict( fit2, ndraws = NDRAWS, 
+                         newdata = newData )
+
+@
+\vspace{-.3cm}
+\texttt{[...]}
+<<>>=
+
+PPdata <- NULL
+for (j in 1:dim(PP)[1]) {
+  dd <- data.frame( EHQPROBLEMI = PP[j,] )
+  dd$GROUP <- newData$GROUP
+  dd$MPS_striving <- newData$MPS_striving
+  dd$MPS_concern <- newData$MPS_concern
+  dd$OCI_TOT <- newData$OCI_TOT
+  PPdata <- rbind(PPdata, dd)
+}
+
+DENS <- density(subset(PPdata,GROUP=="CLI")$EHQPROBLEMI)
+DENS <- with(DENS, data.frame(x,y))
+DENS$h <- with(DENS, ifelse( x>32, y, NA))
+
+PPdata$GROUP2 <- with(PPdata, ifelse(GROUP=="CLI", "CLI","others"))
+
+Z <- unstack(PPdata, EHQPROBLEMI ~ GROUP)
+Z$dCLIPOP <- Z$CLI - Z$POP
+Z$dCLIDIET <- Z$CLI - Z$DIET
+DENSd <- lapply(Z[,c("dCLIPOP","dCLIDIET")], density, from = min(Z[,c("dCLIPOP","dCLIDIET")]), to = max(Z[,c("dCLIPOP","dCLIDIET")]))
+DENSd <- with(DENSd, data.frame(
+  xdCLIPOP = DENSd$dCLIPOP$x, ydCLIPOP = DENSd$dCLIPOP$y, xdCLIDIET  = DENSd$dCLIDIET$x, ydCLIDIET  = DENSd$dCLIDIET$y  
+))
+DENSd$hdCLIPOP <- with( DENSd, ifelse( xdCLIPOP > 4, ydCLIPOP, NA) )
+DENSd$hdCLIDIET <- with( DENSd, ifelse( xdCLIDIET > 4, ydCLIDIET, NA) )
+
+
+jj <- which(DENSd$xdCLIPOP <=31 & DENSd$xdCLIPOP >=29)[1]
+
+Label_delta_CLIPOP <- data.frame( x = DENSd$xdCLIPOP[jj], y = DENSd$ydCLIPOP[jj], label = "$\\delta_{\\mbox{\\footnotesize{CLIPOP}}}$")
+
+
+COLORI <- gg_color_hue(2)
+
+
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Analisi delle ipotesi}}
+
+
+\begin{columns}
+\begin{column}{.4\textwidth}
+\begin{itemize}
+ \item Per i clinici attendiamo punteggi superiori ai 32 punti.
+
+ \item \pause \emph{Posterior predictive distribution} dei punteggi del gruppo clinico: $Pr(x>32) = \Sexpr{round(sum(subset(PPdata,GROUP=="CLI")$EHQPROBLEMI>32)/sum(PPdata$GROUP=="CLI"),2)}$ 
+ \end{itemize}
+\end{column}
+
+\begin{column}{.5\textwidth}
+<<fig.width=2.5, fig.height=2.5>>=
+ggplot(DENS,aes(x,y))+theme_bw()+geom_ribbon(aes(ymin=0,ymax=h))+geom_line()+xlab("EHQPROBLEMI")+ylab("")+ggtitle("[A]")+scale_y_continuous(breaks = NULL)
+@
+
+\end{column}
+\begin{column}{.1\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Analisi delle ipotesi}}
+
+<<>>=
+PROB <- round(effectsize::p_superiority( subset(PPdata,GROUP!="CLI")$EHQPROBLEMI, subset(PPdata,GROUP=="CLI")$EHQPROBLEMI )$p_superiority,2)
+@
+
+
+\begin{columns}
+\begin{column}{.4\textwidth}
+\begin{itemize}
+ \item Per i clinici attendiamo punteggi superiori ai soggetti degli altri due gruppi.
+ \item \pause{} \emph{Posterior predictive distributions} dei punteggi del gruppo clinico (in rosso) vs gli altri due gruppi: $Pr(x_{\mbox{\tiny{CLI}}} > x_{\mbox{\tiny{others}}}) = \Sexpr{PROB}$
+ 
+ \end{itemize}
+\end{column}
+
+\begin{column}{.5\textwidth}
+<<fig.width=2.5, fig.height=2.5>>=
+ggplot(PPdata,aes(EHQPROBLEMI, fill=GROUP2,color=GROUP2))+theme_bw()+geom_density(alpha = .3)+guides(fill="none",color="none")+ylab("")+ggtitle("[B]")+scale_y_continuous(breaks = NULL)
+@
+
+\end{column}
+\begin{column}{.1\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Analisi delle ipotesi}}
+
+\small
+\begin{columns}
+\begin{column}{.4\textwidth}
+\begin{itemize}
+ \item Per i clinici attendiamo punteggi superiori di circa 4 punti rispetto a quelli degli altri due gruppi.
+ \item \pause{} \emph{Posterior predictive distributions} delle differenze tra i punteggi CLI-POP (in rosso) e tra i punteggi CLI-DIET (in azzurro); $Pr(\delta_{\mbox{\tiny{CLI-POP}}}>4) = \Sexpr{round(sum(Z$dCLIPOP>4)/nrow(Z),2)}$, $Pr(\delta_{\mbox{\tiny{CLI-DIET}}}>4) = \Sexpr{round(sum(Z$dCLIDIET>4)/nrow(Z),2)}$
+\end{itemize}
+\end{column}
+
+\begin{column}{.5\textwidth}
+<<fig.width=2.5, fig.height=2.5>>=
+  ggplot(DENSd)+theme_bw()+geom_ribbon(aes(xdCLIPOP,ymin=0,ymax=hdCLIPOP),alpha=.3,fill=COLORI[1])+geom_ribbon(aes(xdCLIDIET,ymin=0,ymax=hdCLIDIET),alpha=.3,fill=COLORI[2])+geom_line(aes(xdCLIPOP,ydCLIPOP),color=COLORI[1])+geom_line(aes(xdCLIDIET,ydCLIDIET),color=COLORI[2])+ylab("")+xlab("$\\delta$")+ggtitle("[C]")+scale_y_continuous(breaks = NULL)
+@
+
+\end{column}
+\begin{column}{.1\textwidth}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Meta analisi}
+\begin{frame}[plain]
+
+\begin{beamerboxesrounded}[upper=title, lower=structure, shadow=true]
+    {\center{\Large{\textbf{Meta analisi}}}}
+\end{beamerboxesrounded}
+
+
+
+<<>>=
+nes <- nes+1
+load(paste0(datadir,"metanalysis.rda"))
+
+if (esegui) {
+  load( paste0(exedir,"dati_giorno_5.rda") )
+
+  metadata <- E[,c("countstudy","author","modadulti","spstype","macrotype","n","r","yi","vi")]
+  colnames(metadata) <- gsub("vi","varz",gsub("yi","fisherz",gsub("modadulti","age",colnames(metadata))))
+  
+  save(meditazione, ortodata, metadata, file = paste0(exedir,"dati_giorno_5.rda") )  
+  
+}
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}
+
+\begin{center}
+  \scalebox{.42}{\includegraphics{img/meta.png}}
+\end{center}
+
+
+\tiny
+Lionetti, F., Pastore, M., Moscardino, U., Nocentini, A., Pluess, K., Pluess, M. (2019). Sensory Sensory Processing Sensitivity and its Association with Personality Traits and Affect: A Meta-Analysis. \emph{Journal of Research in Personality}, 81, 138-152. 
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\begin{columns}
+\begin{column}{.45\textwidth}
+
+\scalebox{1.2}{
+\begin{tikzpicture}[>=latex, scale = 1]
+
+  % Define nodes
+  \node[obs] (z) {$z_{ij}$};
+  \node[obs, above=of z, xshift=.8cm, yshift=-.7cm] (sigma) {$\hat{\sigma}^2_{ij}$};
+  \node[latent, above=of z, xshift=-.5cm, yshift=.3cm] (delta) {$\delta_i$};
+  \node[latent, above=of z, xshift=-1.8cm, yshift=.3cm] (theta) {$\theta$};
+  \node[latent, xshift=-1.8cm, yshift=.3cm] (tau) {$\tau^2$};
+  
+  % Connect the nodes
+  \edge {sigma, delta} {z}
+  \edge {theta, tau} {delta} ; 
+  
+  % Plates
+  \plate [label={[label distance=-13pt, xshift=.45cm]$i$ studies}]{deltazsigma}{(z)(sigma)(delta)} {};
+  \plate [node distance=0pt,inner sep=5pt,yshift=.1cm]{zsigma} {(z)(sigma)} {}; %,xshift=.05cm
+
+\end{tikzpicture}
+
+}
+
+\end{column} \pause
+\hspace{-1cm}
+\begin{column}{.45\textwidth}
+<<fig.width=2.5,fig.height=2.5>>=
+x1 <- seq(-5,5,.01)
+y <- dcauchy(x1)
+x2 <- seq(0,15,.01)
+x <- c(x1,x2)
+y <- c(y,dcauchy(x2,0,5))
+k <- factor(c(rep("theta",length(x1)),rep("tau",length(x2))),levels=c("theta","tau"),ordered=TRUE)
+levels(k) <- paste("$\\",levels(k),"$",sep="")
+d <- data.frame(x,y,k)
+ggplot(d,aes(x,y))+theme_bw()+facet_wrap(~k,scales="free")+geom_line()+xlab("")+ylab("")+theme(text=element_text(size=9)) + scale_y_continuous(breaks = NULL)
+@
+\end{column}
+\begin{column}{.1\textwidth}
+\end{column}
+\end{columns}
+
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+\scriptsize
+<<results='asis'>>=
+library( xtable )
+print(xtable(SS),hline.after=c(-1,0,(nrow(SS)-1),nrow(SS)))
+
+@
+
+%Meta-Analysis One: Correlazioni medie per studio.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+
+<<fig.width=4,warning=FALSE>>=
+
+CEXTEXT <- 8
+
+cowplot::plot_grid(
+  ggplot(E,aes(countstudy,r,group=countstudy))+theme_bw()+geom_violin(fill="#dfe3ee",alpha=.5,drop=FALSE)+geom_boxplot(alpha=.2)+xlab("Study")+ylab("Pearson correlations")+ggtitle("[A]")+theme(plot.title = element_text(hjust=.5),text = element_text(size=CEXTEXT),axis.text = element_text(size = CEXTEXT*.7)),
+
+  ggplot(dfCI,aes(x=se.seq,y=ll95))+ theme_bw() +geom_hline(yintercept = estimate) + geom_line(aes(x = se.seq, y = ll95), linetype = 'dotted') + geom_line(aes(x = se.seq, y = ul95), linetype = 'dotted') + geom_line(aes(x = se.seq, y = ll99), linetype = 'dashed') + geom_line(aes(x = se.seq, y = ul99), linetype = 'dashed') + geom_ribbon(aes(x=se.seq,ymin = ul99, ymax = ll99),fill="#dfe3ee",alpha=.3) + geom_ribbon(aes(x=se.seq,ymin = ul95, ymax = ll95),fill="#8b9dc3",alpha=.3) + geom_point(aes(x=sqrt(vi),y=yi),data=E,size=1)+ ylab("Pearson correlations") + xlab("Standard Error") +  scale_x_reverse() +scale_y_continuous(breaks=seq(-1.25,2,0.25)) + coord_flip() + theme(legend.position = "none",plot.title = element_text(hjust=.5),text = element_text(size=CEXTEXT),axis.text = element_text(size = CEXTEXT*.7))+ggtitle("[B]")
+) 
+
+@
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Model comparison}}
+
+%\begin{columns}
+%\begin{column}{.55\textwidth}
+\small
+\begin{center}
+<<results='asis'>>=
+colnames(Bfit) <- gsub("se\\.waic","se",colnames(Bfit))
+print(xtable(Bfit,digits=c(rep(0,5),2),label="tab:waictab"),hline.after=c(0,3,5),table.placement="!b",floating=FALSE)
+@
+\end{center}
+%\end{column}
+
+%\begin{column}{.5\textwidth}
+<<waicplot,fig.height=1.8>>=
+
+Bfit$y <- 1:nrow(Bfit)
+ggplot(Bfit,aes(WAIC,y))+theme_bw()+geom_segment(aes(x=WAIC-se,xend=WAIC+se,yend=y),lty=2)+geom_point(size=2)+xlab("WAIC values")+ylab("")+scale_y_continuous(breaks = 1:nrow(Bfit),labels=rownames(Bfit))+theme(text=element_text(size=10))
+
+@
+%\end{column}
+%\end{columns}
+
+%%Fit indices for tested models \\protect\\cite{vehtari+al:2016}: n = effective sample size, waic = Widely applicable or Watanabe-Akaike information criterion \\protect\\cite{watanabe:2010}."
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Best model}}
+
+
+
+<<megapost,fig.width=4>>=
+
+TEXTCEX <- 8
+
+ggplot(Ymeta,aes(values,fill=modadulti,color=modadulti)) +theme_bw() +facet_grid(macrotype~spstype) +geom_density(alpha=.3) +geom_vline(xintercept = 0,lty=2)+xlab("Pearson correlations")+ylab("Posterior distributions")+theme(legend.title = element_blank(),text = element_text(size=TEXTCEX), axis.text = element_text(size= TEXTCEX*.7), legend.position = "bottom") 
+
+#+scale_color_manual(values=GRAY)+scale_fill_manual(values=GRAY)
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+
+<<results='asis'>>=
+print(xtable(DD),include.rownames=FALSE,size="footnotesize",sanitize.colnames.function=function(x){x},hline.after=c(0,4,8,12),table.placement="!t")
+@
+
+%,label="tab:postES",caption=paste("Posterior estimates of effect sizes, based on ",B," post-warmup draws, for each factor interaction levels: mean = correlations posterior mean, hpd = lower (lb) and upper (ub) bounds of 89\\% HPD interval, $r$ = correlation, $d$ = Cohen's $d$.",sep=""))
+
+\end{frame}
+
+%\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Power analysis}
+\begin{frame}[plain]
+\begin{beamerboxesrounded}[upper=title, lower=structure, shadow=true]
+    {\center{\Large{\textbf{Power analysis}}}}
+\end{beamerboxesrounded}
+
+
+<<>>=
+nes <- nes+1
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Esempio \Sexpr{nes}: (Bayesian) power analysis}}
+
+\vspace{-.6cm}
+\begin{center}
+%\scalebox{.85}{}
+\includegraphics[width=\textwidth,height=.75\textheight]{img/priorpowerBW.png}
+
+\scriptsize \vspace{.4cm}
+Kruschke, J. K. (2015). Doing Bayesian Data Analysis. Academic Press, UK.
+\end{center}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Highest Posterior Density Interval}} % toglinelprint
+ 
+<<>>=
+library(HDInterval)
+LEVEL <- .89
+mu <- 90; d <- 20
+PX <- seq(0,1,.2)
+LX <- seq(mu-d,mu+d,length=length(PX))
+a0 <- b0 <- 5
+a1 <- 7; b1 <- 10
+a2 <- a0+a1; b2 <- b0+b1
+
+x <- seq(0,1,.01)
+y <- dbeta(x,5+7,5+9)
+D <- data.frame(x=x,prior=dbeta(x,a0,b0),like=dbeta(x,a1,b1),post=dbeta(x,a2,b2))
+HDI <- hdi(rbeta(1e6,a2,b2),credMass = LEVEL)
+D$hdi <- ifelse((x>=HDI["lower"])&(x<=HDI["upper"]),TRUE,FALSE)
+YLIM <- c(0,4.2); TEXTSIZE <- 12
+BASE <- ggplot(D,aes(x,prior))+theme_bw()+xlab("$\\theta$")+ylab("")+scale_x_continuous(breaks=PX,labels=NULL)+theme(text=element_text(size=TEXTSIZE))+scale_y_continuous(labels=NULL,limits=YLIM)
+@
+
+
+<<fig.width=4>>=
+BASE +geom_ribbon(aes(ymin=0,ymax=post),data=subset(D,hdi),fill="#c6e2ff") + geom_line(aes(x,post),col="#282a5d",lwd=1)+annotate("text",x=rep(.77,3),y=c(3.82,3.62,3.42),label=c("HPDI is the narrowest interval","containing a specified","probability mass."),size=3)
+@
+
+\pause
+\vspace{-3cm}
+\begin{flushright}
+~
+\begin{beamercolorbox}[rounded=true, shadow=true, wd=.8\textwidth]{formula}
+\textbf{Power could be defined as the proportion of times in which HPDI contains or not a specified range of values.} 
+\end{beamercolorbox}
+~ 
+\end{flushright}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{nes}.1}} %toglinelprint
+
+\begin{itemize}
+ \item Let's suppose to want to test the mean scores standardized difference ($\delta$) between two groups (Control and Experimental).
+
+<<results='hide'>>=
+muH1 <- 1
+delta <- .25
+sigma <- 1
+power.t.test( delta=delta, power = .85 )
+@
+ \item A difference less than \Sexpr{delta} is considered trivial in our particular application, i.e. null difference; consequently, the interval $[0,\Sexpr{delta}]$ represents the \emph{Region of Practical Equivalence} (ROPE; Kruschke, 2015).
+ \item How many subjects (per group) do we need for detecting a difference greater than \Sexpr{delta}? 
+\end{itemize}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{nes}.1: prior definition}} %toglinelprint
+
+<<>>=
+RANGEX <- c(0,3)
+@
+
+\begin{itemize}
+ \item We know that, empirically, the difference could range between 
+ \Sexpr{paste0(RANGEX,collapse=" to ")}.
+ \item We also believe that the most plausible value of the difference should be around 1. 
+ \item Consequently, we assume for the difference a truncated normal distribution in the interval $[\Sexpr{paste0(RANGEX,collapse=", ")}]$, with mean equal to 1 and a variance value related to our degree of beliefs (for example $\sigma^2=\Sexpr{sqrt(sigma)}$). 
+\end{itemize}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{nes}.1}} %toglinelprint
+<<fig.width=4,warning=FALSE>>=
+library(truncnorm)
+x <- seq(RANGEX[1],RANGEX[2],by=.001)
+y <- dtruncnorm(x,a=RANGEX[1],b=RANGEX[2],mean=1,sd=sigma)
+dati <- data.frame(x,y)
+ggplot(dati,aes(x,y))+theme_bw()+geom_line()+scale_y_continuous(limits = c(0,max(y)))+xlab("$\\delta$")+ylab("")+annotate("segment",x=RANGEX[1],y=0,xend=delta,yend=0,lwd=4,color="red")+geom_vline(xintercept = RANGEX, lty=2)+geom_vline(xintercept = delta, lty=3)
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Example \Sexpr{nes}.1}} %toglinelprint
+
+<<>>=
+load(paste0(datadir,"power_examples.rda"))
+@
+
+
+The following steps were repeated \Sexpr{table(OUT$n)[1]*10} times for each specified value of sample size $n = (\Sexpr{paste(unique(OUT$n),collapse=", ")})$.
+
+
+\begin{enumerate}
+ \item Sample a $\delta$ value from a TruncNorm(\Sexpr{paste0(RANGEX,collapse=", ")}, $\mu = 1$, $\sigma = \Sexpr{sigma}$).
+  \item Generate a couple of independent samples with sizes $n$ from two populations in which the true difference $\mu_1-\mu_2$ is $\delta$.
+  \item Estimate posterior distribution of $\hat{\delta}=\overline{x}_2-\overline{x}_1$ by using a skeptical prior -- e.g. $\delta \sim \text{Normal}(0,1)$.
+  \item Compute the \Sexpr{LEVEL*100}\% HPDI, and the number of cases in which the value \Sexpr{delta} is outside the interval. 
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{nes}.1: results}} %toglinelprint
+
+<<message=FALSE,fig.width=4>>=
+
+Y <- data.frame(delta=c(POST_5$x1,POST_60$x1),n=rep(c(5,60),each=nrow(POST_5)))
+S <- aggregate(delta~n,data=Y,FUN=hdi)
+
+ggplot(Y,aes(delta))+theme_bw()+facet_wrap(~n)+geom_histogram(aes(y=after_stat(density)),bins=50)+geom_vline(xintercept = c(0,delta),lty=2)+geom_density()+xlab("$\\delta$")+ylab("")+geom_segment(aes(x=delta[,1],xend=delta[,2],y=0,yend=0),data=S,lwd=4,color="red")
+
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{nes}.1: results}} %toglinelprint
+
+
+<<fig.width=4>>=
+if (max(PW$power)>.8) {
+  (cutpower <- PW$power[PW$power>.8][1])
+  icut <- which(PW$power==cutpower)
+  PW <- PW[1:icut,]
+}
+ggplot(PW,aes(n,power))+theme_bw()+geom_hline(yintercept = .8,lty=3,color=gray(.3))+geom_line()+geom_point()+scale_x_continuous(breaks = PW$n)+scale_y_continuous(limits = c(0,.85))+xlab("Sample size (per group)")+ylab("Estimated power")
+@
+
+\end{frame}
+
+%%%%%%%%%%%%
+<<>>=
+powernes <- paste0(nes,".2")
+stimuli <- 4
+replicates <- 10
+@
+\begin{frame}{\textbf{Example \Sexpr{powernes}}} %toglinelprint
+
+\begin{itemize}
+ \item In a recent work, McIntosh et al. (2005, 2017) have shown how line bisection in neglect can be analysed by looking at the effect that the positions of the left and the right endpoints exert on the position marked by
+the patient, rather than by looking at the directional error.
+ \item We consider a 2$\times$2 factorial design in which the Left endpoint is either 40 or 80 mm to the left of the display centre, and the Right endpoint is either 40 or 80 mm to the right of the display centre, and the dependent measure is the response position ($P$), coded with respect to the page midline.
+ \item Overall, \Sexpr{replicates*stimuli} trials are given (defined as Block) – \Sexpr{replicates} repeats for each of the four stimulus lines, in pseudo-random order.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{powernes}: The task}} %toglinelprint
+
+<<>>=
+L <- c(-4,-8)
+R <- c(4,8)
+EG <- expand.grid(L=L,R=R)
+NB <- 1
+ROPEmargin <- .2
+@
+
+
+<<fig.width=4>>=
+dati <- expand.grid(xL=unique(L),xR=unique(R))
+dati$x0 <- rep(0,4)
+dati$y <- 4:1
+dati$LAB <- LETTERS[1:4] #with(dati, paste0("[",xL,"; ",xR,"]"))
+ggplot(dati,aes(y,x0))+theme_bw()+geom_segment(aes(xend=y,y=xL,yend=xR))+scale_x_continuous(limits = c(.5,4.5),breaks=dati$y,labels = dati$LAB)+scale_y_continuous(breaks = unique(unlist(c(dati[,grep("x",colnames(dati))])))) +xlab("")+ylab("")+coord_flip()+theme(panel.grid = element_blank())
+@
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example of Individual data for a patient}} %toglinelprint
+
+%\vspace{-.6cm}
+\begin{center}
+\includegraphics[width=.8\textwidth,height=.7\textheight]{img/esempio_neglect.png}
+
+\scriptsize \vspace{.4cm}
+McIntosh, R.D., Schindler, I., Birchall, D., Milner, A.D. (2005). Weights and measures: A new look at bisection behaviour in neglect. \emph{Cognitive Brain Research}, 25, 833--850.  
+\end{center}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{powernes}: The model}} %toglinelprint
+
+\begin{eqnarray}\label{eq:M106}
+\left\{
+\begin{array}{lr}
+P \sim \mathcal{N}(\mu, \sigma) & \text{general model} \vspace{.3cm} \\ \pause
+\mu = k + dP_L \times L + dP_R \times R  & \mu \text{ model}\\ \pause
+\sigma = exp(\alpha + \beta \times (R-L)) & \sigma \text{ model} \vspace{.3cm} \\ \pause
+k = k_0  + k_B[Block]  & \text{elements of }\mu\\
+dP_L = dP_{L_0}  + dP_{L_B}[Block]& \\
+dP_R = dP_{R_0}  + dP_{R_B}[Block] & \vspace{.3cm} \\
+\alpha = \alpha_0 + \alpha_B[Block] & \text{elements of }\sigma\\
+\beta = \beta_0 + \beta_B[Block] & \\
+\end{array}
+\right.
+\end{eqnarray}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{powernes}: The question}} %toglinelprint
+<<>>=
+rm(PW)
+@
+\begin{itemize}
+ \item We are interested in evaluating the experimental effects (for semplicity only for the mean), measured from the parameters $dP_L$ and $dP_R$.
+ \item In this case, we suppose that values lower than \Sexpr{ROPEmargin} can be considered equivalent to a NULL value. 
+ \item Unfortunately, we cannot have more than one patient and consequently our power analysis does not focus on ``\emph{how many subjects}'' but instead on ``\emph{how many Blocks}'' do we need.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{\textbf{Representative parameter values}} 
+
+<<fig.width=4>>=
+
+CEXTITLE <- 8
+dati1 <- data.frame(x=seq(.35,.55,by=.005))
+dati2 <- data.frame(x=seq(0,3,by=.005))
+
+theme_set(theme_bw())
+
+plot_grid(
+  plot_grid(
+    ggplot(dati1,aes(x))+stat_function(fun=dnorm,args=list(mean=dataList_power$dPL0mu,sd=dataList_power$dPL0sig),n = 300)+xlab("")+ylab("")+scale_y_continuous(labels = NULL)+ ggtitle(paste0("$dP_{L_B}=\\mathcal{N}(",dataList_power$dPL0mu,",",dataList_power$dPL0sig,")$")) + theme(title = element_text(size = CEXTITLE )),
+    
+    
+    ggplot(dati1,aes(x))+stat_function(fun=dnorm,args=list(mean=dataList_power$dPR0mu,sd=dataList_power$dPR0sig),n = 300)+xlab("")+ylab("")+scale_y_continuous(labels = NULL)+ ggtitle(paste0("$dP_{R_B}=\\mathcal{N}(",dataList_power$dPR0mu,",",dataList_power$dPR0sig,")$")) + theme(title = element_text(size = CEXTITLE ))
+    ), 
+  
+  ggplot(dati2,aes(x))+stat_function(fun=dcauchy,args=list(location=0,scale=1))+xlab("")+ylab("")+scale_y_continuous(labels = NULL)+ ggtitle("$\\sigma_{dP_L} = \\sigma_{dP_R} = \\mbox{HalfCauchy}(0,1)$") + theme(title = element_text(size = CEXTITLE )),
+  ncol = 1
+)
+
+@
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Example \Sexpr{powernes}}} %toglinelprint
+
+We replicated at least 1000 times for each specified number of Blocks (from \Sexpr{paste(range(Z$NB),collapse=" to ")}) the following steps:
+\begin{enumerate}
+ \item Generate \Sexpr{nrow(EG)*replicates} values of $P$ for each Block. 
+ \item Estimate posterior distributions of $dP_L$ and $dP_R$.
+ \item Compute the \Sexpr{LEVEL*100}\% HPDI, and the number of cases in which the value \Sexpr{ROPEmargin} is outside the interval.
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Posterior distributions (\Sexpr{LEVEL*100}\% HPDI)}} %toglinelprint
+
+
+<<fig.width=4>>=
+ggplot(Z0,aes(x,haty,color=par))+theme_bw()+geom_hline(yintercept = ROPEmargin,lty=3,color=gray(.2))+geom_point()+scale_x_continuous(breaks = unique(Z0$x))+geom_errorbar(aes(ymin=lower,ymax=upper))+facet_wrap(~par,ncol=1)+guides(color="none")+xlab("Number of blocks")+ylab("")
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Estimated power}}  %toglinelprint
+
+<<fig.width=4.2>>=
+ggplot(subset(PW2,!grepl("k",par)),aes(NB,power,color=par,shape=par))+theme_bw()+geom_hline(yintercept = .8,lty=3,color=gray(.2))+geom_line()+geom_point()+scale_x_continuous(breaks = unique(PW2$NB))+xlab("Number of blocks")+ylab("Estimated power")+theme(legend.title = element_blank())
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The dark side of the priors}
+\begin{frame}[plain]
+\begin{beamerboxesrounded}[upper=title, lower=structure, shadow=true]
+    {\center{\Large{\textbf{The dark side of the priors}}}}
+\end{beamerboxesrounded}
+
+<<>>=
+nes <- nes+1
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{\textbf{Esempio \Sexpr{nes}: A Correlation Case}}
+
+<<>>=
+load(paste0(datadir,"corrdata.rda"))
+X2b <- X2b[,-3] 
+colnames(X2b) <- gsub("mrest","",colnames(X2b))
+B <- 2e4; W <- 5000
+@
+
+\small
+\begin{itemize}
+ \item In a study of the association between environmental sensitivity, parenting behavior and physiological arousal, \Sexpr{nrow(X2b)} mothers with 3-month-old infants were recruited.
+ \item The aim of the study was to examine whether the association between environmental sensitivity and parenting behavior is moderated by physiological arousal.
+ \item Three variables were considered:
+  \begin{enumerate}
+    \item Environmental Sensitivity (ES, measured by the Highly Sensitive Person scale, Pluess et al., 2023)
+    \item Parenting Behavior (measured by the Emotional Availability Scales, EAS, Biringen, 2008)
+    \item Physiological Arousal (respiratory sinus arrhythmia, RSA)
+  \end{enumerate}
+
+\end{itemize}
+
+\vspace{.3cm}
+\tiny
+Pluess, M., Lionetti, F., Aron, E. N., \& Aron, A. (2023). People differ in their
+sensitivity to the environment: An integrated theory, measurement and empirical evidence. \emph{Journal of Research in Personality}, 104, 104377.
+
+Biringen, Z. (2008). \emph{The Emotional Availability (EA) Scales Manual}, 4th Edn.
+Boulder, CO: International Center for Excellence in Emotional Availability.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+
+
+<<message=FALSE,fig.width=4>>=
+library(GGally)
+theme_set(theme_bw())
+ggpairs( X2b,aes( color = HSP, fill = HSP, alpha=.3 ), upper = list(continuous = wrap("cor",size=2.5)), lower=list(continuous=wrap("points",size=.6))) + theme(text = element_text(size = 7))
+
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Hypothetical correlation values}}
+
+<<>>=
+priors <- data.frame(pairs = rep(priors2b$pairs,each=3), SPS = c("Low","Medium","High"), r = stack(as.data.frame(t(priors2b[,c("low","med","high")])))$values, mu = stack(as.data.frame(t(priors2b[,c("lowmu","medmu","highmu")])))$values , sigma = stack(as.data.frame(t(priors2b[,c("lowsigma","medsigma","highsigma")])))$values, prob = stack(as.data.frame(t(priors2b[,c("low_prob_interval","med_prob_interval","high_prob_interval")])))$values)
+priors$pairs <- gsub("PSI_","PSI",gsub("3m","",gsub("tot","",priors$pairs)))
+L <- do.call(rbind, strsplit( priors$pairs, split = "_" ))
+priors$var1 <- L[,1]
+priors$var2 <- L[,2]
+priors$var1[seq(2,9,by=3)] <- priors$var2[seq(2,9,by=3)] <- NA
+priors$var1[seq(3,9,by=3)] <- priors$var2[seq(3,9,by=3)] <- NA
+
+priors <- subset(priors, !grepl("nint",pairs)) 
+priors$pairs <- gsub("mrest","",priors$pairs)
+priors$var1 <- gsub("mrest","",priors$var1)
+
+@
+
+
+<<results='asis',message=FALSE>>=
+
+addtorow <- list()    
+addtorow$pos <- list(0)   
+addtorow$command <- paste0("  \\multicolumn{2}{c}{Pairs} & SPS & $r$ & $\\mu$ \\\\") 
+
+print(xtable(priors[,c("var1","var2","SPS", "r","mu")],align = "rllc|cc", digits = c(rep(0,5),2)), include.rownames = FALSE, add.to.row = addtorow, include.colnames = FALSE, table.placement = "!t",hline.after=c(seq(0,6,by=3)))
+
+
+@
+
+\vspace{.3cm}
+\only<1>{
+\begin{itemize}
+ \item Once we have defined the target intervals, we need to formalise the priors.
+\end{itemize}
+
+}
+
+\only<2>{
+\begin{itemize}
+ \item Since the correlations are between -1 and 1, the truncated Student's $t$ is a good choice.
+\end{itemize}
+
+}
+\only<3>{
+\begin{itemize}
+ \item We set the degrees of freedom to 3 and the mean of the distribution to the mid-points of the target intervals (i.e. \Sexpr{unique(priors$mu)}).
+\end{itemize}
+
+}
+\only<4>{
+\begin{itemize}
+ \item We then need to determine the variance based on the knowledge/belief of the researcher.
+\end{itemize}
+
+}
+
+\only<5>{
+\begin{itemize}
+ \item A simple way of doing this is to ask the expert for the subjective probability that the correlation is in the target interval, and use this probability to calculate the appropriate variance of the distribution.
+\end{itemize}
+
+}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Truncated Student's $t$}}
+
+<<>>=
+library(mnormt)
+
+SIGMA <- c(1,.1,.01)
+P1 <- pmtrunct(.2,0,S=SIGMA[1],df = 3,lower=-1,upper=1)-pmtrunct(-.2,0,S=SIGMA[1],df = 3,lower=-1,upper=1)
+P2 <- pmtrunct(.2,0,S=SIGMA[2],df = 3,lower=-1,upper=1)-pmtrunct(-.2,0,S=SIGMA[2],df = 3,lower=-1,upper=1)
+P3 <- pmtrunct(.2,0,S=SIGMA[3],df = 3,lower=-1,upper=1)-pmtrunct(-.2,0,S=SIGMA[3],df = 3,lower=-1,upper=1)
+
+Gdata <- expand.grid(x=seq(-1,1,by=.01),sigma=SIGMA,mean=with(priors2b,c(lowmu[1],medmu[1],highmu[1])))
+
+y <- NULL
+for (j in 1:nrow(Gdata)) {
+  y <- c(y, with(Gdata, dmtrunct(x[j],df=3,S=sigma[j],mean=mean[j],lower = -1,upper=1) ) )
+}
+Gdata$y <- y
+Gdata$up <- with( Gdata, ifelse( (x>=-.2)&(x<=.2), y, NA ))
+@
+
+\only<1>{
+<<fig.width=4>>=
+s <- 1
+maxY <- max(subset(Gdata,mean==0&sigma==SIGMA[s])$y)
+ggplot(subset(Gdata,mean==0&sigma==SIGMA[s]),aes(x,y,up)) + theme_bw() + geom_ribbon(aes(ymin=0,ymax=up),fill="red") + geom_line() + xlab("") + ylab("") + ggtitle(paste0("Student's $t( 3, 0, ",SIGMA[s],")[-1,1]$")) + annotate("text",.6,maxY,label=paste0("$Pr(-.2<r<.2) = ",round(P1,1),"$"),size=3)
+@
+
+}
+
+\only<2>{
+<<fig.width=4>>=
+s <- 2
+maxY <- max(subset(Gdata,mean==0&sigma==SIGMA[s])$y)
+ggplot(subset(Gdata,mean==0&sigma==SIGMA[s]),aes(x,y,up)) + theme_bw() + geom_ribbon(aes(ymin=0,ymax=up),fill="red") + geom_line() + xlab("") + ylab("") + ggtitle(paste0("Student's $t( 3, 0, ",SIGMA[s],")[-1,1]$")) + annotate("text",.6,maxY,label=paste0("$Pr(-.2<r<.2) = ",round(P2,1),"$"),size=3)
+@
+
+}
+
+\only<3>{
+<<fig.width=4>>=
+s <- 3
+maxY <- max(subset(Gdata,mean==0&sigma==SIGMA[s])$y)
+
+ggplot(subset(Gdata,mean==0&sigma==SIGMA[s]),aes(x,y,up)) + theme_bw() + geom_ribbon(aes(ymin=0,ymax=up),fill="red") + geom_line() + xlab("") + ylab("") + ggtitle(paste0("Student's $t( 3, 0, ",SIGMA[s],")[-1,1]$")) + annotate("text",0.6,maxY,label=paste0("$Pr(-.2<r<.2) = ",round(P3,1),"$"),size=3)
+@
+
+}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{\textbf{Sensitivity Analysis}}
+
+\begin{itemize}
+ \item Given the small sample size, the choice of hypothesized intervals and related prior probabilities is crucial. In particular, we must consider that prior variance cannot be too small because -- with small sample size -- this means to obtain results depending only on prior distribution.   
+ \item Consequently we performed a sensitivity analysis for the three groups identified with the SPS scores. The objective of this analysis was to identify an optimal prior variance value that would enable us to evaluate our hypotheses without excessively influencing the results.
+
+
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+
+<<priorscenari,fig.width=4.2>>=
+
+
+SIGMA <- sort( c( .01, seq(.05, 1, by = .2),1, unique(priors2b$lowsigma), unique(priors2b$medsigma), unique(priors2b$highsigma)) )
+
+Gdata <- expand.grid(x=seq(-1,1,by=.01),sigma=SIGMA,mean=with(priors2b,c(lowmu[1],medmu[1],highmu[1])))
+
+y <- NULL
+for (j in 1:nrow(Gdata)) {
+  y <- c(y, with(Gdata, dmtrunct(x[j],df=3,S=sigma[j],mean=mean[j],lower = -1,upper=1) ) )
+}
+Gdata$y <- y
+
+Gdata$fmean <- factor( Gdata$mean, labels = paste0("$\\mu = ",unique(Gdata$mean), "$")) 
+addPlot <- data.frame(mean=unique(Gdata$mean),x=c(-.2,0,.2,.2,.3,.4))
+
+ggplot(Gdata,aes(x,y,color=factor(sigma)))+theme_bw()+facet_wrap(~fmean)+geom_line()+xlab("")+labs(color="$\\sigma$")+ylab("") + theme( text = element_text(size = 8))
+@
+
+\footnotesize
+Truncated Student's $t$ priors distributions in different scenarios. Panels refers to different means, colored lines to different standard deviations for fixed 3 degrees of freedom. 
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Estimation}}
+
+\begin{itemize}
+ \item For each scenario, we repeated the correlation estimation using these priors – the mean remains fixed across the groups, specifically at \Sexpr{unique(DESIGN$mean)}, while $\sigma$ varies based on the \Sexpr{length(unique(DESIGN$sigma))}  selected values – with  four chains of \Sexpr{as.character(B-W)} effective replications each. 
+  \item Additionally, we calculated the prior and posterior probabilities for the target intervals, namely \Sexpr{priors2b$low[1]}, \Sexpr{priors2b$med[1]}, and \Sexpr{priors2b$high[1]} respectively.
+\end{itemize}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+<<sensitivity,fig.width=4,fig.height=2.8>>=
+
+PRIORLine <- data.frame(sigma=with(priors2b,c(lowsigma[1],medsigma[1],highsigma[1])),fmean=factor(levels(DESIGN$fmean)),priorprob=with(priors2b, c(low_prob_interval[1],med_prob_interval[1],high_prob_interval[1])))
+
+XX <- seq(0,1,by=.25)
+ggplot(DESIGN,aes(sigma,prior_prob))+theme_bw()+ylab("Probability of interval")+facet_wrap(~fmean)+scale_x_continuous(breaks = XX,labels = gsub("0.",".",XX))+geom_line()+geom_line(aes(sigma,post_prob),color="red")+xlab("Prior $\\sigma$")+geom_vline(aes(xintercept=sigma), data = PRIORLine, lty = 3)+geom_hline(aes(yintercept=priorprob), data = PRIORLine, lty = 3) + theme( text = element_text(size = 8))
+
+
+@
+
+\scriptsize
+On the $x$-axis, the chosen values of $\sigma$ are plotted. The black lines represent the prior probability of the target intervals, while the red lines represent the posterior probability. The vertical dashed lines indicate the selected values of $\sigma$ for the analyses, while the horizontal dashed lines represent their corresponding prior probabilities.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+
+<<>>=
+if (esegui) {
+  
+  stanmodel <- stan_model(paste0(Sdir,"robustcorr_el.stan"))
+  
+  DESIGN <- unique(Gdata[,c("mean","sigma")])
+  DESIGN$group <- factor(DESIGN$mean,levels = unique(DESIGN$mean),labels = c("low","med","high"))
+  cor_scelta <- c("RSA","EASse")
+  x <- seq(-1,1,by=.01)
+  
+  DESIGN <- subset(DESIGN, group=="low") 
+  #& ((sigma==0.01) | (sigma==0.35)) )
+
+  # ++++++++++++++++++++++++++++++  
+  POSTprob <- R_est <- PRIORprob <- R_obs <- N <- HDI_low <- HDI_up <- NULL
+  GGList <- list()
+  
+  priors2b$var1 <- "RSA"
+  priors2b$var2 <- "EASse"
+  
+  for (d in 1:nrow(DESIGN)) {
+    Z <- subset(X2b, HSP == DESIGN$group[d] )
+    (Z <- scale( na.omit( Z[,cor_scelta] ) ))
+    N <- c(N, nrow(Z))
+    
+    (P <- subset(priors2b, var1 == colnames(Z)[1] & var2 == colnames(Z)[2]))
+    
+    cat("r_obs = ",round(cor(Z)[2,1],2),"\n")
+    R_obs <- c(R_obs, cor(Z)[2,1])
+
+    dataList <- list(N = nrow(Z), y = Z, mu = DESIGN$mean[d], sigma = DESIGN$sigma[d])
+
+    # +++++++++++++++++++++++++++
+    # estremi dell'intervallo
+    MIN <- ifelse( DESIGN$group[d] == "low", P$lmin, 
+            ifelse( DESIGN$group[d] == "med", P$mdmin,P$hmin))
+    
+    MAX <- ifelse( DESIGN$group[d] == "low", P$lmax, 
+            ifelse( DESIGN$group[d] == "med", P$mdmax,P$hmax))
+    # +++++++++++++++++++++++++++
+    
+    prior_prob <- pmtrunct( MAX, mean = dataList$mu, S = dataList$sigma, 3, -1, 1) - pmtrunct( MIN, mean = dataList$mu, S = dataList$sigma, 3, -1, 1)
+    
+    cat(paste0("sigma = ",dataList$sigma, " prior prob = ",round(prior_prob,2)),"\n")
+    PRIORprob <- c(PRIORprob, prior_prob)
+
+    # sampling
+    samples <- sampling(stanmodel, data = dataList, iter = B, warmup = W, chains = 4, refresh=0) 
+    postR <- extract(samples,"rho")$rho
+    cat("r_est = ",round(mean(postR),2),"\n")
+    R_est <- c(R_est, median(postR))
+
+    postprob <- with( P, sum( postR > MIN & postR < MAX ) )/length(postR) 
+    POSTprob <- c(POSTprob, postprob)
+    cat("posterior probability =",round(postprob,2),"\n")
+    cat("","\n")
+
+    HD <- HDInterval::hdi(postR, LEVEL)
+    HDI_low <- c(HDI_low, HD[1])
+    HDI_up <- c(HDI_up, HD[2])
+    
+    #+++++++++++++++++++++++++++++++++++
+    # grafico
+    GG <- data.frame(x=x)
+    GG$y <- NA
+    for (i in 1:nrow(GG)) GG$y[i] <- dmtrunct(GG$x[i],dataList$mu,dataList$sigma,3,-1,1)
+    GG$area <- with(GG, ifelse(x<MIN|x>MAX, NA, y))
+    POSTDENS <- density(postR)
+    POSTDENS <- data.frame(x=POSTDENS$x,y=POSTDENS$y)
+    POSTDENS$area <- with(POSTDENS, ifelse(x<MIN|x>MAX, NA, y))
+    POSTDENS$y0 <- 0
+    
+    PLOT <- ggplot(GG,aes(x,y))+geom_vline(xintercept = c(MIN,MAX),lty=3)+geom_line()+geom_ribbon(aes(x,ymin=y0, ymax=area), data = POSTDENS,color = "red",fill = "red", alpha=.5)+geom_line(aes(x,y), data=POSTDENS, color = "red")+xlab("correlation")+ylab("density")+ggtitle(paste0("Prior ",round( prior_prob,2), " - ",paste0("Posterior ",round( postprob,2))))
+    print(PLOT)
+    
+    GGList <- c(GGList,list(PLOT))
+    
+  }
+
+  DESIGN$n <- N
+  DESIGN$r_obs <- R_obs
+  DESIGN$r_est <- R_est
+  DESIGN$prior_prob = PRIORprob
+  DESIGN$post_prob = POSTprob
+  DESIGN$HDI_low <- HDI_low
+  DESIGN$HDI_up <- HDI_up
+  
+  names(GGList) <- paste0(DESIGN$group,"_",DESIGN$sigma)
+  
+  save(DESIGN, GGList, cor_scelta, file = paste0(datadir,"sensitivity.rda"))
+  
+} else {
+  load(paste0(datadir,"sensitivity.rda"))
+}
+@
+
+
+<<low,warning=FALSE,fig.width=4,fig.height=2.8>>=
+
+theme_set(theme_bw())
+cowplot::plot_grid(
+  GGList$low_0.01 + ggtitle("[A]") +scale_y_continuous(breaks = NULL) + theme( text = element_text(size = 8)), 
+  GGList$low_0.35 + ggtitle("[B]") +scale_y_continuous(breaks = NULL) + theme( text = element_text(size = 8))
+)
+
+@
+
+\scriptsize
+Examples of Scenarios for the case with $\mu = \Sexpr{priors2b$lowmu[1]}$; the black curves represent the priors, and the red curves represent the posteriors. [A] Priors is a  truncated Student's $t(3,0,0.01)[-1,1]$. $Pr(\rho \in [-.2,.2]) = \Sexpr{round(subset(DESIGN, group=="low" & sigma == 0.01)$prior_prob,2)}$; $Pr(\rho \in [-.2,.2]|D) = \Sexpr{round(subset(DESIGN, group=="low" & sigma == 0.01)$post_prob,2)}$.  [B] Priors is a  truncated Student's $t(3,0,0.35)[-1,1]$. $Pr(\rho \in [-.2,.2]) = \Sexpr{round(subset(DESIGN, group=="low" & sigma == 0.35)$prior_prob,2)}$; $Pr(\rho \in [-.2,.2]|D) = \Sexpr{round(subset(DESIGN, group=="low" & sigma == 0.35)$post_prob,2)}$.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{\textbf{Correlation analysis}}
+
+
+<<results='asis'>>=
+addtorow <- list()    
+addtorow$pos <- list(0)   
+addtorow$command <- paste0("  \\multicolumn{2}{c}{Pairs} & SPS & $r$ & $\\mu$ & $\\sigma$ & Prob.  \\\\") 
+
+print(xtable(priors[,c("var1","var2","SPS", "r","mu","sigma" ,"prob")],align = "rllc|cccc", digits = c(rep(0,5),1,1,2)), include.rownames = FALSE, add.to.row = addtorow, include.colnames = FALSE, table.placement = "!t",hline.after=c(seq(0,6,by=3)))
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Priors}}
+
+<<>>=
+r_seq <- seq(-1,1,by=.01)
+PRIORS <- DD <- data.frame(r = r_seq)
+
+for (i in 1:nrow(priors2b)) {
+  
+  hlow <- hmed <- hhigh <- NULL
+  for (j in 1:nrow(PRIORS)) {
+  
+    hlow <- c(hlow, dmtrunct( PRIORS$r[j], mean = priors2b$lowmu[i], S = priors2b$lowsigma[i], df = 3, lower = -1, upper = 1 ) )
+    
+    hmed <- c(hmed, dmtrunct( PRIORS$r[j], mean = priors2b$medmu[i], S = priors2b$medsigma[i], df = 3, lower = -1, upper = 1 ) )
+
+    hhigh <- c(hhigh, dmtrunct( PRIORS$r[j], mean = priors2b$highmu[i], S = priors2b$highsigma[i], df = 3, lower = -1, upper = 1 ) )
+
+  }
+  
+  dlow <- ifelse( PRIORS$r < priors2b$lmin[i] | PRIORS$r > priors2b$lmax[i], 0, hlow )
+  dmed <- ifelse( PRIORS$r < priors2b$mdmin[i] | PRIORS$r > priors2b$mdmax[i], 0, hmed )
+  dhigh <- ifelse( PRIORS$r < priors2b$hmin[i] | PRIORS$r > priors2b$hmax[i], 0, hhigh )
+  
+  nhlow <- paste0(priors2b$pairs[i],".low")
+  nhmed <- paste0(priors2b$pairs[i],".med")
+  nhhigh <- paste0(priors2b$pairs[i],".high")
+  
+  PRIORS <- cbind(PRIORS, hlow, hmed, hhigh)
+  DD <- cbind( DD, dlow, dmed, dhigh )
+  colnames(PRIORS) <- colnames(DD) <- gsub("hhigh", nhhigh, gsub("hlow", nhlow, gsub("hmed",nhmed, colnames(PRIORS) )) )
+  
+}
+
+PRIORS <- stack(PRIORS[,-1])
+PRIORS$r <- r_seq
+LL <- do.call( rbind, strsplit(as.character(PRIORS$ind),split="\\.") )
+PRIORS$group <- factor( LL[,2], levels = c("low","med","high") )
+PRIORS$pairs <- gsub("3m","",gsub("tot","",LL[,1]))
+PRIORS$interval <- stack(DD[,-1])$values
+PRIORS <- subset(PRIORS,!grepl("nint",pairs))
+
+PRIORS$pairs <- gsub("mrest","",PRIORS$pairs)
+
+@
+
+<<priors2b,fig.width=4,sanitize=TRUE,fig.height=2.8>>=
+
+ggplot(PRIORS,aes(r,values,color=group,fill=group)) + theme_bw() + facet_wrap(~pairs) + geom_line()+labs(color="SPS",fill="SPS")+xlab("")+ylab("")+geom_ribbon(aes(ymin=0,ymax=interval),alpha = .4)+scale_y_continuous(breaks = NULL) + theme( text = element_text(size = 8))
+
+@
+
+\scriptsize
+Priors distributions of correlations. Colors indicate the three SPS groups. Filled areas represent the prior probability of the target interval.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{Posteriors}}
+
+<<postcor2b,fig.width=4,sanitize=TRUE,fig.height=2.8>>=
+
+Z$var <- gsub("mrest","",Z$var)
+Z <- subset(Z, !grepl("nint",var))
+
+ggplot(Z,aes(r,y,color=group))+theme_bw()+geom_vline(xintercept = 0,lty=2)+facet_wrap(~var)+geom_ribbon(aes(ymin=0,ymax=interval,fill=group),alpha=.6)+geom_line()+labs(color="SPS",fill="SPS")+xlab("")+ylab("")+scale_y_continuous(breaks = NULL) + theme( text = element_text(size = 8))
+
+@
+
+\scriptsize
+Posterior distributions of correlations. Colors refer to the SPS groups. Filled areas represent the posterior probability that correlation lies in the target interval.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{}
+
+<<>>=
+POSTtable <- subset(POSTtable, !grepl("nint",var2))
+POSTtable$pairprint <- gsub("mrest","",POSTtable$pairprint)
+
+@
+
+
+
+<<results='asis'>>=
+addtorow <- list()    
+addtorow$pos <- list(0)    
+addtorow$command <- 
+  paste0("  Pairs & HSP & $n$ & Est $r$ & ",LEVEL*100,"\\% HDI & Interval & Prior Pr. & Post Pr.  \\\\")
+
+print(xtable(POSTtable[,c("pairprint","group","n","est_r","HDI","interval","priorprob","postprob")],align = "rlcc|cc|ccc"), add.to.row = addtorow, include.colnames = FALSE, include.rownames = FALSE, hline.after= c(-1,0,seq(3,nrow(POSTtable),by=3)), size = "scriptsize")
+
+@
+
+\small
+Posterior table. Pairs = paired variables; HSP = SPS group; $n$ = sample size; Est $r$ = estimated correlation, i.e. the median of posterior distribution; \Sexpr{LEVEL*100}\% HDI = Highest Density Interval; Interval = target interval; Prior Pr. = prior probability of target interval; Post Pr. = posterior probability of target interval.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{}
+\begin{frame}{\textbf{A frequentist remark}}
+
+\begin{itemize}
+ \item To evaluate the advantages of the Bayesian approach over the simple frequentist method, we compare the frequentist confidence intervals with the Bayesian credible intervals.
+
+\end{itemize}
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{\textbf{A frequentist remark}}
+
+<<>>=
+r_confidence_interval( DESIGN$r_obs, DESIGN$n, alpha = .1)
+RCI <- data.frame( t( sapply(1:nrow(DESIGN), function(b){
+  rCI <-with(DESIGN, r_confidence_interval(r_obs[b], n[b], .1))
+  names(rCI) <- c("CI_low","CI_up")
+  return(rCI)
+}) ) )
+DESIGN <- cbind(DESIGN,RCI)
+
+@
+
+<<designCI,fig.width=4,message=FALSE,fig.height=2.6>>=
+
+library(ggdist)
+
+a <- .01
+DESIGN$x_obs <- DESIGN$sigma - a
+DESIGN$x_est <- DESIGN$sigma + a
+
+ggplot(DESIGN,aes(x_obs,r_obs))+theme_bw()+geom_pointinterval(aes(x_est,r_est,ymin=HDI_low,ymax=HDI_up),col = "red")+geom_pointinterval(aes(ymin=CI_low, ymax=CI_up))+xlab("Prior $\\sigma$")+ylab("Correlations") + theme( text = element_text(size = 8))
+@
+
+\small
+Comparison of \Sexpr{LEVEL*100}\% confidence intervals (black lines) and \Sexpr{LEVEL*100}\% credibility intervals (red lines) as a function of the chosen values of $\sigma$ in the prior.
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}%{\textbf{A frequentist remark}}
+
+<<>>=
+DESIGN$rangeCI <- apply(DESIGN[,c("CI_low","CI_up")],1,function(x){
+  diff(range(x))
+})
+DESIGN$rangeHDI <- apply(DESIGN[,c("HDI_low","HDI_up")],1,function(x){
+  diff(range(x))
+})
+@
+
+\small
+\begin{itemize}
+ \item Obviously, the frequentist estimates (Pearson $r$) do not change -- as the prior is not used -- and the intervals are always quite wide, averaging \Sexpr{round(mean(DESIGN$rangeCI),2)}, which is almost half of the available range $[-1, 1]$. 
+ \item On the other hand, the HDIs increase as $\sigma$ increases, and when this parameter is too low -- indicating a very strong prior -- the HDIs become too narrow to be credible.
+ \item In other words, if we were to adopt a frequentist approach (without using a prior), we would necessarily rely solely on the observed correlations and therefore have very wide confidence intervals. As a result, the credibility of the results would be certainly lower.
+ \item Conversely, by adopting priors, we can reason in terms of probabilities (prior and posterior) and assess hypotheses regarding the differences between groups. This approach provides a level of credibility for the results that is certainly not less than that of the frequentist approach. 
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Conclusions}
+\begin{frame}{\textbf{Summarizing}}
+
+\begin{itemize}
+  \item The Bayesian approach allows incorporating prior information (priors) and updating it with the newly observed data to obtain the posterior distribution.
+
+  \item With small sample sizes, the choice of the prior distribution is crucial and can significantly influence the results. Sensitivity analysis on the priors allows evaluating the impact of the prior choice on the results.
+
+  \item In cases of small samples, the Bayesian approach can be more informative compared to frequentist confidence intervals alone. However, the use of overly informative priors can lead to results excessively influenced by the prior assumptions rather than the observed data.
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%% FINE DOCUMENTO
+\section*{}
+\begin{frame}[plain,fragile]{\textbf{Used R packages}}
+
+<<results='markup',message=FALSE,echo=FALSE>>=
+options(width = 80)
+library(report)
+SI <- report(sessionInfo())
+PACK <- attr(SI,"table")$Package
+REF <- attr(SI,"table")$Reference
+REF <- gsub("#","", gsub("&","\\\\&",gsub("<","",gsub(">","",gsub("_","\\\\_",REF)))))
+
+REF <- REF[!grepl("kandinsky",PACK)] 
+#REF <- REF[!grepl("R Core Team",REF)]
+
+PACK <- PACK[!grepl("kandinsky",PACK)]
+@
+
+\scriptsize
+\begin{itemize}
+<<results='asis',echo=FALSE>>=
+
+L <- gregexpr("\\).",REF) 
+fine <- unlist(lapply(L, function(x){
+  return(x[1]+1)
+}))
+
+for (k in 1:length(PACK)) {
+  cat(paste0("\\item \\texttt{",PACK[k],"}. "))
+  cat(substr(REF[k],1,fine[k]),"\n")
+}
+@
+\end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+  \frametitle{}
+
+\begin{flushright}
+  \scalebox{.013}{\includegraphics{img/logo_psicostat.png}}
+\end{flushright}
+
+
+\vspace{1.5cm}
+\begin{center}
+\texttt{massimiliano.pastore@unipd.it}
+\url{https://psicostat.dpss.psy.unipd.it/}
+\end{center}
+
+\vspace{1cm}
+\begin{flushright}
+  \scalebox{.25}{\includegraphics{img/loghi2017.png}}
+\end{flushright}
+\end{frame}
+\end{document}
+
