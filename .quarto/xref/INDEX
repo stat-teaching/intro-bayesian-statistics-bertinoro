@@ -7,5 +7,9 @@
   },
   "slides/probability-distributions.qmd": {
     "probability-distributions.tex": "7af6a370"
+  },
+  "slides/bayesian-glm.qmd": {
+    "bayesian-glm.typ": "dcc6f0c4",
+    "bayesian-glm.html": "2116a6b9"
   }
 }

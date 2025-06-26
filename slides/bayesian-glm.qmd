@@ -1,0 +1,1000 @@
+---
+title: Generalized Linear Models with `brms`
+author:
+  - name: Filippo Gambarota
+    orcid: 0000-0002-6666-1747
+    email: filippo.gambarota@unipd.it
+    affiliations: University of Padova
+format:
+  minimal-revealjs: default
+execute: 
+  echo: false
+  warning: false
+brand:
+  typography: 
+    fonts: 
+      - family: Roboto
+        source: google
+        weight: [light, bold]
+        style: [normal, italic]
+    base:
+      family: Roboto
+      weight: light
+    headings: Roboto
+knitr:
+  opts_chunk: 
+    fig.align: center
+    dev: svg
+    comment: "#>"
+bibliography: "`r filor::fil()$bib`"
+---
+
+```{r}
+library(tidyverse)
+library(showtext)
+library(effects)
+library(brms)
+library(here)
+
+qhist <- function(x, fill = "grey"){
+    xn <- deparse(substitute(x))
+    data.frame(x) |> 
+        ggplot(aes(x = {{x}})) +
+        geom_histogram(fill = fill) +
+        xlab(xn)
+}
+
+font_base_regular <- "Roboto Condensed"
+font_base_light <- "Roboto Condensed Light"
+
+# font_add_google(font_base_regular, font_base_light)
+showtext_auto()
+
+theme_quarto <- function(
+  font_title = font_base_regular,
+  font_text = font_base_light,
+  size_base = 25
+) {
+  ggplot2::theme_minimal(base_family = font_text, base_size = size_base) +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(
+        size = size_base * 1.2,
+        face = "bold",
+        family = font_title
+      ),
+      plot.subtitle = ggplot2::element_text(
+        size = size_base,
+        face = "plain",
+        family = font_text
+      ),
+      plot.caption = ggplot2::element_text(
+        size = size_base * 0.6,
+        color = "grey50",
+        face = "plain",
+        family = font_text,
+        margin = ggplot2::margin(t = 10)
+      ),
+      panel.grid.minor = ggplot2::element_blank(),
+      strip.text = ggplot2::element_text(
+        size = size_base * 0.9,
+        hjust = 0,
+        family = font_text,
+        face = "bold"
+      ),
+      strip.background = ggplot2::element_rect(
+        fill = "#ffffff",
+        color = NA
+      ),
+      axis.ticks = ggplot2::element_blank(),
+      axis.title = ggplot2::element_text(
+        family = font_text,
+        face = "plain",
+        size = size_base * 0.8
+      ),
+      axis.title.x = ggplot2::element_text(
+        margin = ggplot2::margin(t = 5)
+      ),
+      axis.text = ggplot2::element_text(
+        family = font_text,
+        face = "plain"
+      ),
+      legend.title = ggplot2::element_blank(),
+      legend.key = ggplot2::element_blank(),
+      legend.text = ggplot2::element_text(
+        size = size_base * 0.75,
+        family = font_text,
+        face = "plain"
+      ),
+      legend.spacing = ggplot2::unit(0.1, "lines"),
+      legend.box.margin = ggplot2::margin(t = -0.5, unit = "lines"),
+      legend.margin = ggplot2::margin(t = 0),
+      legend.position = "bottom",
+      plot.title.position = "plot"
+    )
+}
+
+theme_set(theme_quarto())
+
+source_all <- function(){
+  rs <- list.files(here::here("R"), pattern = "*.R", full.names = TRUE)
+  for(i in rs) source(i)
+}
+
+source_all()
+```
+
+```{r}
+#| label: gt
+#| include: false
+qtab <- function(data, digits = 3){
+  require(gt)
+  data |> 
+    gt::gt() |> 
+    gt::cols_align(align = "center") |> 
+    gt::tab_style(
+      style = cell_text(weight = "bold"),
+      locations = cells_column_labels()
+    ) |> 
+    gt::fmt_number(decimals = digits) |>
+    gt::fmt_markdown()
+}
+
+oqtab <- function(data, digits = 3, ...){
+  data |>
+    kableExtra::kable(escape = FALSE,
+                      format = "html") |>
+    kableExtra::kable_styling(...)
+}
+```
+
+# Recap about linear models
+
+## (almost) everything is a linear model
+
+Most of the statistical analysis that you usually perfom, is essentially a linear model.
+
+- The **t-test** is a linear model where a numerical variable `y` is predicted by a factor with two levels `x`
+- The **one-way anova** is a linear model where a numerical variable `y` is predicted by one factor with more than two levels `x`
+- The **correlation** is a linear model where a numerical variable `y` is predicted by another numerical variable `x`
+- The **ancova** is a linear model where a numerical variable `y` is predicted by a numerical variable `x` and a factor with two levels `g`
+- ...
+
+## What is a linear model?
+
+Let's start with a single variable `y`. We assume that the variable comes from a Normal distribution:
+
+```{r}
+#| fig-height: 4
+y <- MASS::mvrnorm(100, 100, 50^2, empirical = TRUE)
+qhist(y, fill = "dodgerblue")
+```
+
+## What is a linear model?
+
+What we can do with this variable? We can estimate the parameters that define the Normal distribution thus $\mu$ (the mean) and $\sigma$ (the standard deviation).
+
+```{r}
+#| echo: true
+#| collapse: true
+mean(y)
+sd(y)
+```
+
+## What is a linear model?
+
+Using a linear model we can just fit a model without predictors, also known as intercept-only model.
+
+```{r}
+#| echo: true
+fit <- glm(y ~ 1, family = gaussian(link = "identity"))
+summary(fit)
+```
+
+## What is a linear model?
+
+I am using `glm` because I want to estimate parameters using Maximul Likelihood, but the results are the same as using `lm`.
+
+Basically we estimated the mean `(Intercept)` and the standard deviation `Dispersion`, just take the square root thus `r sigma(fit)`.
+
+What we are doing is essentially finding the $\mu$ and $\sigma$ that maximised the log-likelihood of the model fixing the observed data.
+
+## What is a linear model?
+
+```{r}
+mu <- seq(80, 120, length.out = 100)
+sigma <- seq(30, 70, length.out = 100)
+grid <- expand.grid(mu = mu, sigma = sigma)
+grid$ll <- NA
+
+for(i in 1:nrow(grid)){
+  #grid$ll[i] <- -sum(dnorm(y, grid$mu[i], grid$sigma[i], log = TRUE))
+  grid$ll[i] <- prod(dnorm(y, grid$mu[i], grid$sigma[i]))
+}
+
+ggplot(grid, aes(x = mu, y = sigma, fill = ll)) +
+  geom_raster(interpolate = TRUE) +
+  scale_fill_viridis_c() +
+  theme(legend.position = "none")
+```
+
+## What is a linear model?
+
+And assuming that we know $\sigma$ (thus fixing it at 50):
+
+```{r}
+mu <- seq(80, 120, length.out = 100)
+sigma <- 50
+grid <- expand.grid(mu = mu, sigma = sigma)
+grid$ll <- NA
+
+for(i in 1:nrow(grid)){
+  #grid$ll[i] <- -sum(dnorm(y, grid$mu[i], grid$sigma[i], log = TRUE))
+  grid$ll[i] <- sum(dnorm(y, grid$mu[i], grid$sigma[i], log = TRUE))
+}
+
+ggplot(grid, aes(x = mu, y = ll)) +
+    geom_line()
+```
+
+## What is a linear model?
+
+Thus, with the estimates of `glm`, we have this model fitted on the data:
+
+```{r}
+dat <- data.frame(y)
+
+ggplot() +
+  stat_function(fun = dnorm, args = list(mean = 100, sd = 50)) +
+  xlim(c(-100, 300)) +
+  geom_rug(aes(x = y))
+```
+
+## Including a predictor
+
+When we include a predictor, we are actually try to explain the variability of `y` using a variable `x`. For example, this is an hypothetical relationship:
+
+```{r}
+x <- rnorm(100)
+y <- 10 + 0.5 * x + rnorm(100)
+dat <- data.frame(x, y)
+ggplot(dat, aes(x, y)) +
+    geom_point()
+```
+
+Seems that there is a positive (linear) relationship between `x` and `y`. We can try to improve the previous model by adding the predictor:
+
+```{r}
+#| echo: true
+fit <- glm(y ~ x, family = gaussian(link = "identity"))
+summary(fit)
+```
+
+```{r}
+plot(allEffects(fit))
+```
+
+# Assumptions of the linear model
+
+## Assumptions of the linear model
+
+include here
+
+## Assumptions of the linear model
+
+More practicaly, we are saying that the model allows for varying the mean i.e., each `x` value can be associated with a different $\mu$ but with a fixed (and estimated) $\sigma$.
+
+```{r}
+x <- rnorm(100)
+y <- 10 + 0.5 * x + rnorm(100)
+dat <- data.frame(x, y)
+
+fit <- lm(y ~ x, data = dat)
+
+# Example x values at which to plot slices
+x_vals <- quantile(x, seq(0.01, 0.99, length.out = 5))
+
+# Extract fitted values and residual sd
+preds <- predict(fit, newdata = data.frame(x = x_vals))
+sigma <- summary(fit)$sigma
+
+# Generate density "slices"
+gaussians <- lapply(seq_along(x_vals), function(i) {
+    x0 <- x_vals[i]
+    mu <- preds[i]
+    y_seq <- seq(mu - 3*sigma, mu + 3*sigma, length.out = 100)
+    data.frame(
+        x = x0,
+        y = y_seq,
+        d = dnorm(y_seq, mean = mu, sd = sigma)  # density values
+    )
+}) %>% bind_rows()
+
+gaussians <- gaussians %>%
+    mutate(x_plot = x + d * 0.5)  # adjust 0.5 to control horizontal spread
+
+ggplot(dat, aes(x, y)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "blue") +
+    geom_path(data = gaussians, aes(x = x_plot, y = y, group = x), color = "red")
+```
+
+# Generalized linear models
+
+## Recipe for a GLM
+
+- **Random Component**
+- **Systematic Component**
+- **Link Function**
+
+## Random Component
+
+The **random component** of a GLM identify the response variable $y$ coming from a certain probability distribution.
+
+```{r, echo = FALSE, out.width="50%"}
+par(mfrow = c(1,3))
+
+curve(dnorm(x), -4, 4, main = "Normal", ylab = "density(x)", cex.lab = 1.5, cex.main = 1.5)
+plot(0:10, dbinom(0:10, 10, 0.5), type = "h", main = "Binomial", ylab = "density(x)",
+     cex.lab = 1.5, cex.main = 1.5, xlab = "x")
+points(0:10, dbinom(0:10, 10, 0.5), pch = 19)
+plot(0:20, dpois(0:20, 8), type = "h", main = "Poisson", ylab = "density(x)",
+     cex.lab = 1.5, cex.main = 1.5,
+     xlab = "x")
+```
+
+## Random Component
+
+- In practice, by definition the GLM is a model where the random component is a distribution of the [Exponential Family](https://en.wikipedia.org/wiki/Exponential_family). For example the Gaussian distribution, the Gamma distribution or the Binomial are part of the Exponential Family.
+- These distribution can be described using a **location** parameter (e.g., the mean) and a **scale** parameter (e.g., the variance).
+- The distributions are defined by parameters (e.g., $\mu$ and $\sigma$ for the Gaussian or $\lambda$ for the Poisson). The location (or mean) can be directly one of the parameter or a combination of parameters.
+
+## Random Component, Poisson example
+
+For example, the [Poisson distribution](https://it.wikipedia.org/wiki/Distribuzione_di_Poisson) is defined as:
+
+$$
+f(k,\lambda) = Pr(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
+$$
+
+Where $k$ is the number of events and $\lambda$ (the only parameter) is the *rate*.
+
+## Random Component, Poisson example
+
+The mean or location of the Poisson is $\lambda$ and also the scale or variance is $\lambda$. Compared to the Gaussian, there are no two parameters.
+
+```{r, echo = FALSE}
+lambda <- c(5, 10, 15)
+ggpois(lambda, type = "pl")
+```
+
+## Random Component
+
+To sum-up, the random component represents the assumption about the nature of our response variable. **With GLM we want to include predictors to explain *systematic* changes of the mean (but also the scale/variance) of the random component**.
+
+Assuming a Gaussian distribution, we try to explain how the mean of the Gaussian distribution change according to our predictors. For the Poisson, we include predictors on the $\lambda$ parameters for example.
+
+The Random Component is called random, beacause it determines how the **error term** $\epsilon$ of our model is distributed.
+
+## Systematic Component
+
+The systematic component of a GLM is the combination of predictors (i.e., independent variables) that we want to include in the model.
+
+The systematic component is also called *linear predictor* $\eta$ and is usually written in equation terms as:
+$$
+\eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip}
+$$
+
+Note that I am omitting the $+ \epsilon_i$ that you usually find at the end because this is the combination of predictors without errors.
+
+## Systematic Component, an example
+
+Assuming that we have two groups and we want to see if there are differences in a depression score. This is a t-test, or better a linear model, or better a GLM.
+
+Ignoring the random component, we can have a systematic component written in this way:
+
+$$
+\eta_i = \beta_0 + \beta_1{\mbox{group}_i}
+$$
+
+Assuming that the group is dummy-coded, $\beta_0$ is the mean of the first group and $\beta_1$ is the difference between the two groups. In other terms, these are the true or estimated values without the error (i.e., the random component).
+
+## Systematic Component, an example
+
+Another example, assuming we have the same depression score and we want to predict it with an anxiety score. The blue line is the true/estimated regression line where $\eta_i$ is the expected value for the observation $x_i$. The red segments are the errors or residuals i.e., the random component.
+
+```{r}
+set.seed(2027)
+
+x <- rnorm(30)
+lp <- 0.3 * 0.8 * x
+y <- lp + rnorm(30)
+
+fit <- lm(y ~ x)
+plot(x, y, pch = 19, cex = 1.5, type = "n", xlab = "Anxiety", ylab = "Depression")
+abline(fit, col = "dodgerblue", lwd = 3)
+segments(x, y, x, predict(fit), col = "firebrick")
+points(x, y, pch = 19, cex = 1.5)
+```
+
+## Systematic Component
+
+To sum-up, the systematic component is the combination of predictors that are used to predict the mean of the distribution that is used as random component. The errors part of the model is distributed as the random component.
+
+## Link Function
+
+The final element is the **link function**. The idea is that we need a way to connect the systematic component $\eta$ to the random component mean $\mu$.
+
+The **link function** $g(\mu)$ is an **invertible** function that connects the mean $\mu$ of the random component with the *linear combination* of predictors.
+
+Thus $\eta_i = g(\mu_i)$ and $\mu_i = g(\eta_i)^{-1}$. The systematic component is not affected by $g()$ while the relationship between $\mu$ and $\eta$ changes using different link functions.
+
+$$
+g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip}
+$$
+
+$$
+\mu_i = g(\eta_i)^{-1} = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p x_{ip}
+$$
+
+## Link function
+
+The simplest **link function** is the **identity link** where $g(\mu) = \mu$ and correspond to the standard linear model. In fact, the linear regression is just a GLM with a **Gaussian random component** and the **identity** link function.
+
+```{r}
+#| echo: false
+#| tbl-cap: Main distributions and link functions
+fam <- c("gaussian", "gamma", "binomial", "binomial", "poisson")
+link <- c("identity", "log", "logit", "probit", "log")
+range <- c("$$(-\\infty,+\\infty)$$", "$$(0,+\\infty)$$",
+           "$$\\frac{0, 1, ..., n_{i}}{n_{i}}$$",
+           "$$\\frac{0, 1, ..., n_{i}}{n_{i}}$$",
+           "$$0, 1, 2, ...$$")
+
+linktab <- data.frame(Family = fam, Link = link, Range = range)
+linktab$Family <- code(linktab$Family, "markdown")
+linktab |> 
+  qtab()
+```
+
+## Gaussian GLM
+
+Thus remember that when you do a `lm` or `lmer` you are actually doing a GLM with a Gaussian random component and an identity link function. You are including predictors (systematic component) explaining changes in the mean of the Gaussian distribution.
+
+```{r}
+#| echo: false
+n <- 100
+x <- rnorm(100)
+y <- 0.3 + 0.5 * x + rnorm(100)
+```
+
+::: {.columns}
+::: {.column}
+
+```{r}
+#| echo: true
+lm(y ~ x)
+```
+
+:::
+::: {.column}
+
+```{r}
+#| echo: true
+glm(y ~ x, family = gaussian(link = "identity"))
+```
+
+:::
+:::
+
+## Gaussian GLM, a simple simulation
+
+We can understand the GLM recipe trying to simulate a simple model. Let's simulate a relationship between two numerical variables (like the depression and anxiety example).
+
+```{r}
+#| echo: true
+N <- 20
+anxiety <- rnorm(N, 0, 1) # anxiety scores
+b0 <- 0.3 # intercept, depression when anxiety = 0
+b1 <- 0.5 # increase in depression for 1 increase in anxiety
+
+# systematic component
+eta <- b0 + b1 * anxiety
+
+dat <- data.frame(anxiety, b0, b1, eta)
+head(dat)
+```
+
+## Gaussian GLM, a simple simulation
+
+`eta` is the linear predictor (without errors):
+
+```{r}
+ggplot(dat, aes(x = anxiety, y = eta)) +
+  geom_point()
+```
+
+Thus the expected value of a person with $\mbox{anxiety} = -1$ is $\beta_0 + \beta_1\times(-1)$ thus `r b0 + b1 * -1`.
+
+## Gaussian GLM, a simple simulation
+
+Now, for a realistic simulation we need some random errors. The random component here is a Gaussian distribution thus each observed (or simulated) value is the systematic component plus the random error $\mbox{depression}_i = \eta_i + \epsilon_i$.
+
+The errors (or residuals) are assumed to be normally distributed with $\mu = 0$ and variance $\sigma^2_{\epsilon}$ (the residual standard deviation).
+
+```{r}
+#| echo: true
+
+sigma <- 1 # residual standard deviation
+error <- rnorm(N, 0, sigma)
+depression <- eta + error # b0 + b1 * anxiety + error
+```
+
+## Gaussian GLM, a simple simulation
+
+This is the simulated dataset. The blue line is the linear predictor and the red segments are the Gaussian residuals.
+
+```{r}
+dat$depression <- depression
+dat$error <- error
+
+ggplot(dat, aes(x = anxiety, y = depression)) +
+  geom_line(aes(x = anxiety, y = eta), col = "dodgerblue", lwd = 1.5) +
+  geom_segment(aes(x = anxiety, xend = anxiety, y = depression, yend = eta), col = "firebrick") +
+  geom_point(size = 3)
+```
+
+## Gaussian GLM, a simple simulation
+
+If we plot the red segments we have roughly a Gaussian distribution. This is the assumption of the GLM with a Gaussian random component.
+
+```{r}
+hist(error, col = "firebrick", breaks = 10)
+```
+
+## What about the link function?
+
+The link function for the Gaussian GLM is by default the *identity*. Identity means that $\eta_i = \mu_i$, thus there is no transformation. Within each distribution object in R there is the link function and the inverse:
+
+```{r}
+#| echo: true
+# this is the family (or random component) and the link function. doing a lm() is like glm(family = gaussian(link = "identity"))
+fam <- gaussian(link = "identity")
+fam$linkfun # link function specifed above
+fam$linkinv # inverse link function
+```
+
+## What about the link function?
+
+With the identity, the link function has no effect.
+
+```{r}
+#| echo: true
+mu <- fam$linkinv(b0 + b1 * anxiety)
+head(mu)
+head(fam$linkfun(mu))
+```
+
+But with other GLMs, (e.g., logistic regression) the link function is the core element.
+
+## Gaussian GLM, a simple simulation
+
+A more compact (and useful) way to simulate the data is:
+
+```{r}
+#| echo: true
+depression <- rnorm(N, mean = fam$linkinv(b0 + b1 * anxiety), sd = sigma)
+```
+
+In this way is more clear that we are generating data from a normal distribution with fixed $\sigma^2_{\epsilon}$ and we are modeling the mean.
+
+# Parameters intepretation
+
+## Parameters intepretation
+
+Let's make a more complex example with a Gaussian GLM with more than one predictor. We have a dataset with 150 observations and some variables.
+
+```{r}
+set.seed(7101)
+N <- 150
+anxiety <- rnorm(N)
+age <- round(runif(N, 18, 50))
+group <- rep(c("g1", "g2"))
+depression <- 0.3 + 0.01 * age + 0.5 * anxiety + 0.3 * ifelse(group == "g1", 0, 1) + rnorm(N)
+
+dat <- data.frame(depression, age, group, anxiety)
+head(dat)
+```
+
+We want to predict the `depression` with `anxiety`, `group` and `age`.
+
+## Parameters intepretation
+
+Let's fit the model (here using `lm` but is a GLM!):
+
+```{r}
+fit <- lm(depression ~ anxiety + group + age, data = dat)
+summary(fit)
+```
+
+How do you intepret the output? and the model parameters?
+
+# Bayesian Models
+
+## Bayesian vs Frequentists GLM
+
+What about the Bayesian version of the previous model? Actually the main difference is that we need to include the priors to obtain posterior distributions about model parameters. The likelihood part is extactly the same as non-bayesian models.
+
+## `brms`
+
+There are several R packages for estimating Bayesian GLMs. The most complete is called [`brms`](https://paulbuerkner.com/brms/).
+
+There are also other options such as `rstanarm`. `rstanarm` is faster but less flexible. `brms` include all GLMs (and also other models such as meta-analysis, multivariate, etc.) but is slower and requires more knowledge.
+
+The syntax is the same as `lm` or `glm` and also `lme4` if you want to include random-effects.
+
+## `brms`
+
+Let's start with a simple model, predicting the `depression` with the group. Thus essentially a t-test:
+
+```{r}
+#| echo: true
+fit_group <- brm(depression ~ group, 
+                 data = dat, 
+                 family = gaussian(link = "identity"), 
+                 file = here("slides/objects/fit_group.rds"))
+```
+
+## `brms`
+
+```{r}
+#| echo: true
+summary(fit_group)
+```
+
+## `brms` vs `lm`
+
+Firstly, let's compare the two models:
+
+```{r}
+fit_group_lm <- lm(depression ~ group, data = dat)
+summary(fit_group_lm)
+```
+
+## `brms` results
+
+Firsly we can have a look at the posterior distributions of the parameters:
+
+```{r}
+#| echo: true
+plot(fit_group)
+```
+
+## Model checking using simulations
+
+We can check the model fit using simulations. In Bayesian terms this is called Posterior Predictive Checks. For standard models we use only the likelihood.
+
+```{r}
+#| code-fold: true
+ss <- simulate(fit_group_lm, nsim = 50)
+ss <- cbind(sim_0 = dat$depression, ss)
+dd <- lapply(ss, density)
+
+plot(density(dat$depression), ylim = c(0, max(sapply(dd, function(x) x$y))),
+main = "Simulation-based model checking", xlab = "", type = "n")
+for(i in 1:length(dd)){
+  lines(dd[[i]]$x, dd[[i]]$y, col = scales::alpha("black", 0.2))
+}
+lines(density(ss[, 1]), col = "firebrick", lwd = 3)
+```
+
+## Model checking using simulations
+
+With the Bayesian models we can just use the `brms::pp_check()` function that compute the posterior predictive checks:
+
+```{r}
+#| echo: true
+pp_check(fit_group)
+```
+
+## Setting priors
+
+By default `brms` use some priors. You can see the actual used priors using:
+
+```{r}
+get_prior(fit_group)
+```
+
+You can also see the priors before fitting the model:
+
+```{r}
+get_prior(depression ~ group, data = dat, family = gaussian(link = "identity"))
+```
+
+```{r}
+#| eval: false
+prior_plot <- function(x){
+  ggplot(x, aes(dist = .dist, args = .args)) +
+    stat_halfeye(orientation = "horizontal")
+}
+
+xx <- fit_group |> 
+  get_prior() |> 
+  mutate(prior = ifelse(prior == "", "unif(-1, 1)", prior)) |> 
+  parse_dist() |> 
+  mutate(param = paste(class, coef)) |> 
+  slice(-1)
+
+pp <- split(xx, 1:nrow(xx)) |> 
+  lapply(prior_plot)
+
+cowplot::plot_grid(plotlist = pp)
+?stat_halfeye()
+```
+
+# Centering, re-scaling and contrasts coding
+
+## Centering, re-scaling and contrasts coding
+
+When fitting a model is important to transform the predictors according to the hypothesis that we have and the intepretation of parameters.
+
+Centering (for numerical variables) and contrasts coding (for categorical variables) are the two main strategies affecting the intepretation of model parameters.
+
+The crucial point is that also the prior distribution need to be adapted when using different parametrizations of the same model.
+
+## Rescaling
+
+For example, let's assume to have the relationship between self-esteem (from 0 to 20) and the graduation mark from 66 to 111 (110 cum laude):
+
+```{r}
+N <- 30
+mark <- round(runif(N, 66, 111))
+mark0 <- mark - 66
+se <- 1 + 0.1 * mark0 + rnorm(N)*2
+se[se < 0] <- 0
+dat_mark <- data.frame(se, mark)
+plot(mark, se, pch = 19, cex = 1.5)
+```
+
+## Rescaling
+
+Let's fit a simple regression:
+
+```{r}
+fit_mark <- brm(se ~ mark,
+                data = dat_mark, 
+                family = gaussian(link = "identity"),
+                file = here("slides", "objects", "fit_mark.rds"))
+
+summary(fit_mark)
+```
+
+## Rescaling, problems?
+
+We are using the default priors that are basically non-informative. What about setting appropriate or more informative priors?
+
+```{r}
+prior_summary(fit_mark)
+```
+
+## Rescaling, problems?
+
+There are a couple of problems:
+
+- `Intercept` is the expected self-esteem score for people with 0 graduation mark (is that plausible?)
+- `mark` is the expected increase in self-esteem for a unit increase in the graduation mark. (is that intepretable?)
+
+Assuming that we want to put priors, how do you choose the distribution and the parameters?
+
+## Rescaling, problems?
+
+The first problem is that the `Intercept` is meaningless. Thus we can, for example, mean-center the `mark` variable. The slope is the same, we are only shifting the `x`. The intercept is different.
+
+```{r}
+dat_mark |> 
+  mutate(mark0 = mark - mean(mark)) |> 
+  pivot_longer(c(mark, mark0)) |> 
+  mutate(name = ifelse(name == "mark", "Raw", "Mean-Centered")) |> 
+  ggplot(aes(x = value, y = se)) +
+  facet_wrap(~name, scales = "free") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  xlab("Mark")
+```
+
+## Intercept prior
+
+Now the intercept is the expected self esteem value when `mark` is on average. Given that the values ranges from 0 to 20, we could put less probability of extreme values (for average marks, around 88) we could imagine also average value for self-esteem (around 10).
+
+```{r}
+curve(dnorm(x, 10, 8), 0, 20, main = "Gaussian(mean = 10, sd = 8)")
+```
+
+## Intercept prior, centering
+
+```{r}
+priors <- c(
+  prior(normal(10, 8), class = "Intercept")
+)
+
+priors
+```
+
+## Slope prior, rescaling
+
+Then for the slope, probably there is too much granularity in the `mark` variable. 1 point increase is very tiny. To improve the model interpretation we can rescale the variable giving more weight to the unit increase.
+
+```{r}
+dat_mark_resc <- dat_mark |> 
+  mutate(mark10 = mark / 10) |> 
+  pivot_longer(c(mark, mark10)) |> 
+  mutate(name = ifelse(name == "mark", "Raw", "Mark/10"))
+  
+dat_mark_resc |> 
+  ggplot(aes(x = value, y = se)) +
+  facet_wrap(~name, scales = "free") +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_vline(data = filter(dat_mark_resc, name == "Raw"), 
+             aes(xintercept = c(80))) +
+  geom_vline(data = filter(dat_mark_resc, name == "Raw"), 
+             aes(xintercept = c(90))) +
+    geom_vline(data = filter(dat_mark_resc, name != "Raw"), 
+             aes(xintercept = c(8))) +
+  geom_vline(data = filter(dat_mark_resc, name != "Raw"), 
+             aes(xintercept = c(9)))
+```
+
+## Slope prior, rescaling
+
+Now we have a more practical idea of size of the slope. We can use a very vague but not flat prior (the default) considering that 0 means no effect. Remember that now the slope is the increase in self-esteem for incrase of 10 points in the mark.
+
+```{r}
+curve(dnorm(x, 0, 8), -20, 20, main = "Gaussian(mean = 0, sd = 8)")
+```
+
+## Slope prior, rescaling
+
+The previus prior is very uninformative but is simply excluding impossible values. A slope of 10 means that increasing by 10 points would produce an increase that ranges the entire available scale.
+
+```{r}
+priors <- c(
+  priors,
+  prior(normal(0, 3), class = "b")
+)
+```
+
+## Refitting the model^[For the residual standard deviation, `brms` is already doing a good job with default priors, mainly escluding negative values.]
+
+We can now refit the model using our priors and rescaling/centering
+
+```{r}
+dat_mark$mark10 <- dat_mark$mark/10
+dat_mark$mark10c <- dat_mark$mark10 - mean(dat_mark$mark10)
+fit_mark_priors <- brm(se ~ mark10c, 
+                       data = dat_mark, 
+                       family = gaussian(link = "identity"),
+                       prior = priors,
+                       sample_prior = TRUE,
+                       file = here("slides", "objects", "fit_mark_priors.rds"))
+summary(fit_mark_priors)
+```
+
+## Contrasts coding
+
+Contrasts coding is a vast and difficult topic. The basic idea is that when you have categorical predictors, with or without interactions, the way you set the contrasts will impact the intepretation of model parameters (and the priors).
+
+By default in R, categorical variables are coded using the so-called **dummy coding** or **treatment coding**.
+
+```{r}
+#| echo: true
+x <- factor(rep(c("a", "b", "c"), each = 5))
+x
+```
+
+## Contrasts coding
+
+```{r}
+#| echo: true
+contrasts(x)
+model.matrix(~x)
+```
+
+## Contrasts coding
+
+With a factor with $p$ levels, we need $p - 1$ variables representing contrasts. **dummy-coding** means that there will be a reference level (usually the first level) and $p - 1$ contrasts comparing the other levels with the first level (baseline).
+
+An example with the `iris` dataset:
+
+```{r}
+#| collapse: true
+#| echo: true
+levels(iris$Species)
+fit_dummy <- lm(Sepal.Length ~ Species, data = iris)
+summary(fit_dummy)
+```
+
+## Contrasts coding
+
+```{r}
+#| echo: true
+vv <- split(iris$Sepal.Length, iris$Species)
+mean(vv$setosa)
+mean(vv$versicolor) - mean(vv$setosa)
+mean(vv$virginica) - mean(vv$setosa)
+```
+
+## Contrasts coding
+
+Another coding scheme could be the so called **Successive Differences Contrast Coding**. The idea is to compare level 2 with level 1, level 3 with level 2 and so on. 
+
+```{r}
+#| echo: true
+
+iris$Species_sdif <- iris$Species
+contrasts(iris$Species_sdif) <- MASS::contr.sdif(3)
+contrasts(iris$Species_sdif)
+```
+
+## Contrasts coding
+
+```{r}
+#| echo: true
+
+fit_sdif <- lm(Sepal.Length ~ Species_sdif, data = iris)
+summary(fit_sdif)
+```
+
+## More on contrasts coding
+
+There are few very useful papers about contrasts coding:
+
+- @Schad2020-ht: comprehensive and (difficult) paper about contrasts coding
+- @Granziol2025-sy: amazing work by our colleagues in Padova
+
+# Hypothesis testing and effect size
+
+## Hypothesis testing
+
+The easiest way to test an hypothesis similarly to the frequentist framework is by checking if the null value of a certain test is contaned or not in the Credible Interval or the Highest Posterior Density Interval.
+
+In the frequentist framework, the p value lower than $\alpha$ corresponds to a confidence interval to $1 - \alpha$ level that does not contains the null value (e.g., 0).
+
+## `brms::hypothesis()`
+
+The `brms::hypothesis()` function is a very nice way to test hypotheses into a bayesian framework.
+
+```{r}
+hyp <- hypothesis(fit_mark_priors, "mark10c = 0")
+plot(hyp)
+```
+
+## Bayesian $R^2$ [@Gelman2019-hp]
+
+@Gelman2019-hp explained a generalization of the common $R^2$ to be applied for Bayesian Generalized Linear Models.
+
+$$
+\text{Bayesian } R^2_s = 
+\frac{
+\mathrm{Var}_{n=1}^{N}\left( y_n^{\text{pred}, s} \right)
+}{
+\mathrm{Var}_{n=1}^{N}\left( y_n^{\text{pred}, s} \right) + \mathrm{Var}_{\text{res}}^s
+}
+$$
+
+There are few important points:
+
+- This works for any GLM (unlike the usual $R^2$)
+- Different models on the same dataset cannot be compared <!-- TODO rivedi questo -->
+https://avehtari.github.io/bayes_R2/bayes_R2.html
+
+## Extracting posteriors
+
+https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/
+https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet
+
+## Packages
+
+- broom
+
+
+## References {.refs}

@@ -3,7 +3,17 @@ title: Probability Distributions in R
 ---
 
 ```{r}
-knitr::opts_chunk$set(fig.align = "center")
+
+library(formatR)
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+
+knitr::opts_chunk$set(fig.align = "center", size = "footnotesize", comment = "#>")
+options(width = 60)
 ```
 
 ```{r}
@@ -136,6 +146,7 @@ Now, we can calculate the likelihood of the 10 values. Which values should we us
 ```{r}
 #| echo: true
 #| collapse: true
+#| tidy.opts: { width.cutoff: 10 }
 
 dnorm(x, 0, 1)
 dnorm(x, 10, 5)
@@ -188,7 +199,7 @@ segments(x, 0, x, ll0, col = "firebrick")
 
 ## Maximum Likelihood
 
-There is a point where the likelihood is maximised. For example, for a linear model like in this case (just estimating the mean) the Maximum Likelihood Estimator (MLE) is just the sample mean.
+There is a point where the likelihood is maximised. The point is when the sum of the heights of the red segments is maximised.
 
 ```{r}
 #| out-width: 90%
@@ -196,4 +207,91 @@ mu <- seq(0, 20, 0.1) # sequence from -10 to 10 for the mu parameter
 lik <- sapply(mu, function(m) prod(dnorm(x, m, 5)))
 
 plot(mu, lik, type = "l")
+```
+
+## Cumulative distribution
+
+With the `p` function we calculate the cumulative probability associated with a given value.
+
+```{r}
+#| out-width: 90%
+par(mfrow = c(1, 2))
+curve(dnorm(x, 0, 1), -4, 4)
+points(x = -2, y = 0, pch = 19, col = "firebrick")
+segments(x0 = -2, y0 = 0, x1 = -2, y1 = dnorm(-2, 0, 1), col = "firebrick")
+
+points(x = 0, y = 0, pch = 19, col = "black")
+segments(x0 = 0, y0 = 0, x1 = 0, y1 = dnorm(0, 0, 1), col = "black")
+
+points(x = 1, y = 0, pch = 19, col = "dodgerblue")
+segments(x0 = 1, y0 = 0, x1 = 1, y1 = dnorm(1, 0, 1), col = "dodgerblue")
+
+curve(pnorm(x, 0, 1), -4, 4)
+points(x = -2, y = 0, pch = 19, col = "firebrick")
+segments(x0 = -2, y0 = 0, x1 = -2, y1 = pnorm(-2, 0, 1), col = "firebrick")
+
+points(x = 0, y = 0, pch = 19, col = "black")
+segments(x0 = 0, y0 = 0, x1 = 0, y1 = pnorm(0, 0, 1), col = "black")
+
+points(x = 1, y = 0, pch = 19, col = "dodgerblue")
+segments(x0 = 1, y0 = 0, x1 = 1, y1 = pnorm(1, 0, 1), col = "dodgerblue")
+```
+
+## Inverse Cumulative distribution
+
+The `q` function is basically the inverse of the `p` function. We want to know which is the `x` value associated with a given cumulative probability. One is just the inverse of the other.
+
+```{r}
+#| echo: true
+p <- pnorm(-0.5, 0, 1)
+p # % of area on the left of -0.5 (given mu and sigma)
+q <- qnorm(p, 0, 1)
+q # value associated with p%  of cumulative probability 
+```
+
+If you remember from Psychometrics courses, these are respectively the percentile and the rank percentile.
+
+## Generating numbers
+
+Finally the `r` function can generate random numbers, fixing the parameters values. This is the core of Monte Carlo simulations.
+
+```{r}
+#| echo: true
+x <- rnorm(100, 10, 5)
+head(x)
+summary(x)
+# new values everytime you run the command
+summary(rnorm(100, 10, 5))
+```
+
+## Discrete distributions
+
+The same functions can also be used with discrete probability distributions. For example the Binomial or the Poisson distributions.
+
+```{r}
+#| echo: true
+rpois(n = 10, lambda = 20)
+dpois(x = 10, lambda = 20)
+ppois(q = 10, lambda = 20)
+qpois(p = 0.5, lambda = 20)
+```
+
+## Discrete distributions, Poisson
+
+In the Poisson distributions we are counting the number of events. We can have 10 or 11 events, not 10.5.
+
+```{r}
+x <- seq(0, 40, 1)
+y <- dpois(x, lambda = 20)
+plot(x, y, type = "h")
+```
+
+## Discrete distributions, Binomial
+
+In the Binomial distribution we are counting the number of successes for a total number of trials. Also here we can have 10 successes or 11, not 10.5.
+
+```{r}
+x <- seq(0, 20, 1)
+y <- dbinom(x, size = 20, prob = 0.6)
+plot(x, y, type = "h")
 ```
