@@ -1,0 +1,9 @@
+\frametitle{Assumptions of the linear model}
+\phantomsection\label{assumptions-of-the-linear-model}
+More practicaly, we are saying that the model allows for varying the
+mean i.e., each \texttt{x} value can be associated with a different
+\(\mu\) but with a fixed (and estimated) \(\sigma\).
+
+\begin{center}
+\pandocbounded{\includegraphics[keepaspectratio]{bayesian-glm_files/mediabag/bayesian-glm_files/figure-beamer/unnamed-chunk-11-1.pdf}}
+\end{center}

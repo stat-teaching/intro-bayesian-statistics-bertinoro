@@ -1,24 +1,17 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Introduction to Bayesian Statistics",
+    "objectID": "exercises/well-being.html",
+    "href": "exercises/well-being.html",
+    "title": "Well-being and Psychological Predictors",
     "section": "",
-    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 6 -  - Rnw"
+    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
   },
   {
-    "objectID": "index.html#slides",
-    "href": "index.html#slides",
-    "title": "Introduction to Bayesian Statistics",
+    "objectID": "exercises/well-being.html#dataset-description",
+    "href": "exercises/well-being.html#dataset-description",
+    "title": "Well-being and Psychological Predictors",
     "section": "",
-    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 6 -  - Rnw"
-  },
-  {
-    "objectID": "index.html#exercises",
-    "href": "index.html#exercises",
-    "title": "Introduction to Bayesian Statistics",
-    "section": "Exercises",
-    "text": "Exercises\n\nEsercises -"
+    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
   },
   {
     "objectID": "slides/bayesian-glm.html#almost-everything-is-a-linear-model",
@@ -33,34 +26,6 @@
     "title": "Generalized Linear Models with brms",
     "section": "What is a linear model?",
     "text": "What is a linear model?\nLet’s start with a single variable y. We assume that the variable comes from a Normal distribution:"
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#including-a-predictor",
-    "href": "slides/bayesian-glm.html#including-a-predictor",
-    "title": "Generalized Linear Models with brms",
-    "section": "Including a predictor",
-    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.91080    0.08303   119.4  &lt; 2e-16 ***\n#&gt; x            0.46897    0.09195     5.1 1.66e-06 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.6875356)\n#&gt; \n#&gt;     Null deviance: 85.264  on 99  degrees of freedom\n#&gt; Residual deviance: 67.378  on 98  degrees of freedom\n#&gt; AIC: 250.3\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model-1",
-    "href": "slides/bayesian-glm.html#assumptions-of-the-linear-model-1",
-    "title": "Generalized Linear Models with brms",
-    "section": "Assumptions of the linear model",
-    "text": "Assumptions of the linear model\ninclude here"
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model-2",
-    "href": "slides/bayesian-glm.html#assumptions-of-the-linear-model-2",
-    "title": "Generalized Linear Models with brms",
-    "section": "Assumptions of the linear model",
-    "text": "Assumptions of the linear model\nMore practicaly, we are saying that the model allows for varying the mean i.e., each x value can be associated with a different \\(\\mu\\) but with a fixed (and estimated) \\(\\sigma\\)."
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#rstanarm",
-    "href": "slides/bayesian-glm.html#rstanarm",
-    "title": "Generalized Linear Models with brms",
-    "section": "rstanarm",
-    "text": "rstanarm\nLet’s fit the same model but with rstanarm. I’m using rstanarm just because is faster, but the idea (and the result) is the same using brms.\n\n\n#&gt; \n#&gt; SAMPLING FOR MODEL 'continuous' NOW (CHAIN 1).\n#&gt; Chain 1: \n#&gt; Chain 1: Gradient evaluation took 3.7e-05 seconds\n#&gt; Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.37 seconds.\n#&gt; Chain 1: Adjust your expectations accordingly!\n#&gt; Chain 1: \n#&gt; Chain 1: \n#&gt; Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)\n#&gt; Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)\n#&gt; Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)\n#&gt; Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)\n#&gt; Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)\n#&gt; Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)\n#&gt; Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)\n#&gt; Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)\n#&gt; Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)\n#&gt; Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)\n#&gt; Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)\n#&gt; Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)\n#&gt; Chain 1: \n#&gt; Chain 1:  Elapsed Time: 0.028 seconds (Warm-up)\n#&gt; Chain 1:                0.031 seconds (Sampling)\n#&gt; Chain 1:                0.059 seconds (Total)\n#&gt; Chain 1: \n#&gt; \n#&gt; SAMPLING FOR MODEL 'continuous' NOW (CHAIN 2).\n#&gt; Chain 2: \n#&gt; Chain 2: Gradient evaluation took 1.9e-05 seconds\n#&gt; Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.19 seconds.\n#&gt; Chain 2: Adjust your expectations accordingly!\n#&gt; Chain 2: \n#&gt; Chain 2: \n#&gt; Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)\n#&gt; Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)\n#&gt; Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)\n#&gt; Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)\n#&gt; Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)\n#&gt; Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)\n#&gt; Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)\n#&gt; Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)\n#&gt; Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)\n#&gt; Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)\n#&gt; Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)\n#&gt; Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)\n#&gt; Chain 2: \n#&gt; Chain 2:  Elapsed Time: 0.027 seconds (Warm-up)\n#&gt; Chain 2:                0.032 seconds (Sampling)\n#&gt; Chain 2:                0.059 seconds (Total)\n#&gt; Chain 2: \n#&gt; \n#&gt; SAMPLING FOR MODEL 'continuous' NOW (CHAIN 3).\n#&gt; Chain 3: \n#&gt; Chain 3: Gradient evaluation took 9e-06 seconds\n#&gt; Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.09 seconds.\n#&gt; Chain 3: Adjust your expectations accordingly!\n#&gt; Chain 3: \n#&gt; Chain 3: \n#&gt; Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)\n#&gt; Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)\n#&gt; Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)\n#&gt; Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)\n#&gt; Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)\n#&gt; Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)\n#&gt; Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)\n#&gt; Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)\n#&gt; Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)\n#&gt; Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)\n#&gt; Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)\n#&gt; Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)\n#&gt; Chain 3: \n#&gt; Chain 3:  Elapsed Time: 0.026 seconds (Warm-up)\n#&gt; Chain 3:                0.032 seconds (Sampling)\n#&gt; Chain 3:                0.058 seconds (Total)\n#&gt; Chain 3: \n#&gt; \n#&gt; SAMPLING FOR MODEL 'continuous' NOW (CHAIN 4).\n#&gt; Chain 4: \n#&gt; Chain 4: Gradient evaluation took 1e-05 seconds\n#&gt; Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.\n#&gt; Chain 4: Adjust your expectations accordingly!\n#&gt; Chain 4: \n#&gt; Chain 4: \n#&gt; Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)\n#&gt; Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)\n#&gt; Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)\n#&gt; Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)\n#&gt; Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)\n#&gt; Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)\n#&gt; Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)\n#&gt; Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)\n#&gt; Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)\n#&gt; Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)\n#&gt; Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)\n#&gt; Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)\n#&gt; Chain 4: \n#&gt; Chain 4:  Elapsed Time: 0.028 seconds (Warm-up)\n#&gt; Chain 4:                0.034 seconds (Sampling)\n#&gt; Chain 4:                0.062 seconds (Total)\n#&gt; Chain 4:\n\n\n#&gt; \n#&gt; Model Info:\n#&gt;  function:     stan_glm\n#&gt;  family:       gaussian [identity]\n#&gt;  formula:      y ~ x\n#&gt;  algorithm:    sampling\n#&gt;  sample:       4000 (posterior sample size)\n#&gt;  priors:       see help('prior_summary')\n#&gt;  observations: 100\n#&gt;  predictors:   2\n#&gt; \n#&gt; Estimates:\n#&gt;               mean   sd   10%   50%   90%\n#&gt; (Intercept)  9.9    0.1  9.8   9.9  10.0 \n#&gt; x            0.5    0.1  0.4   0.5   0.6 \n#&gt; sigma        0.9    0.1  0.8   0.8   0.9 \n#&gt; \n#&gt; Fit Diagnostics:\n#&gt;            mean   sd   10%   50%   90%\n#&gt; mean_PPD  9.9    0.1  9.7   9.9  10.1 \n#&gt; \n#&gt; The mean_ppd is the sample average posterior predictive distribution of the outcome variable (for details see help('summary.stanreg')).\n#&gt; \n#&gt; MCMC diagnostics\n#&gt;               mcse Rhat n_eff\n#&gt; (Intercept)   0.0  1.0  4021 \n#&gt; x             0.0  1.0  4003 \n#&gt; sigma         0.0  1.0  3286 \n#&gt; mean_PPD      0.0  1.0  3943 \n#&gt; log-posterior 0.0  1.0  1543 \n#&gt; \n#&gt; For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).\n\n\n#&gt; # A draws_df: 1000 iterations, 4 chains, and 3 variables\n#&gt;    (Intercept)    x sigma\n#&gt; 1          9.8 0.53  0.79\n#&gt; 2          9.9 0.31  0.94\n#&gt; 3          9.9 0.46  0.80\n#&gt; 4          9.8 0.61  0.86\n#&gt; 5         10.0 0.48  0.84\n#&gt; 6          9.8 0.54  0.84\n#&gt; 7          9.9 0.65  0.84\n#&gt; 8          9.9 0.55  0.80\n#&gt; 9          9.8 0.58  0.81\n#&gt; 10        10.0 0.67  0.82\n#&gt; # ... with 3990 more draws\n#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}"
   },
   {
     "objectID": "slides/bayesian-glm.html#what-is-a-linear-model-1",
@@ -105,11 +70,18 @@
     "text": "What is a linear model?\nThus, with the estimates of glm, we have this model fitted on the data:"
   },
   {
-    "objectID": "slides/bayesian-glm.html#generalized-linear-models-glm",
-    "href": "slides/bayesian-glm.html#generalized-linear-models-glm",
+    "objectID": "slides/bayesian-glm.html#including-a-predictor",
+    "href": "slides/bayesian-glm.html#including-a-predictor",
     "title": "Generalized Linear Models with brms",
-    "section": "Generalized linear models (GLM)",
-    "text": "Generalized linear models (GLM)\nThe GLM is the big family of models. The usual linear regression (t-test, ANOVA, etc.) are special types of GLM.\nThe recipe of a GLM is:\n\nSystematic component\nLink function\nRandom component"
+    "section": "Including a predictor",
+    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  10.0602     0.1092  92.132  &lt; 2e-16 ***\n#&gt; x             0.4744     0.1236   3.838  0.00022 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 1.170067)\n#&gt; \n#&gt;     Null deviance: 131.90  on 99  degrees of freedom\n#&gt; Residual deviance: 114.67  on 98  degrees of freedom\n#&gt; AIC: 303.47\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
+    "href": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
+    "title": "Generalized Linear Models with brms",
+    "section": "Assumptions of the linear model",
+    "text": "Assumptions of the linear model\nMore practicaly, we are saying that the model allows for varying the mean i.e., each x value can be associated with a different \\(\\mu\\) but with a fixed (and estimated) \\(\\sigma\\)."
   },
   {
     "objectID": "slides/bayesian-glm.html#recipe-for-a-glm",
@@ -126,32 +98,11 @@
     "text": "Random Component\nThe random component of a GLM identify the response variable \\(y\\) coming from a certain probability distribution."
   },
   {
-    "objectID": "slides/bayesian-glm.html#systematic-component",
-    "href": "slides/bayesian-glm.html#systematic-component",
-    "title": "Generalized Linear Models with brms",
-    "section": "Systematic Component",
-    "text": "Systematic Component\nThe systematic component of a GLM is the combination of predictors (i.e., independent variables) that we want to include in the model.\nThe systematic component is also called linear predictor \\(\\eta\\) and is usually written in equation terms as: \\[\n\\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]\nNote that I am omitting the \\(+ \\epsilon_i\\) that you usually find at the end because this is the combination of predictors without errors."
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#link-function",
-    "href": "slides/bayesian-glm.html#link-function",
-    "title": "Generalized Linear Models with brms",
-    "section": "Link Function",
-    "text": "Link Function\nThe final element is the link function. The idea is that we need a way to connect the systematic component \\(\\eta\\) to the random component mean \\(\\mu\\).\nThe link function \\(g(\\mu)\\) is an invertible function that connects the mean \\(\\mu\\) of the random component with the linear combination of predictors.\nThus \\(\\eta_i = g(\\mu_i)\\) and \\(\\mu_i = g(\\eta_i)^{-1}\\). The systematic component is not affected by \\(g()\\) while the relationship between \\(\\mu\\) and \\(\\eta\\) changes using different link functions.\n\\[\ng(\\mu_i) = \\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]\n\\[\n\\mu_i = g(\\eta_i)^{-1} = \\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]"
-  },
-  {
     "objectID": "slides/bayesian-glm.html#random-component-1",
     "href": "slides/bayesian-glm.html#random-component-1",
     "title": "Generalized Linear Models with brms",
     "section": "Random Component",
     "text": "Random Component\n\nIn practice, by definition the GLM is a model where the random component is a distribution of the Exponential Family. For example the Gaussian distribution, the Gamma distribution or the Binomial are part of the Exponential Family.\nThese distribution can be described using a location parameter (e.g., the mean) and a scale parameter (e.g., the variance).\nThe distributions are defined by parameters (e.g., \\(\\mu\\) and \\(\\sigma\\) for the Gaussian or \\(\\lambda\\) for the Poisson). The location (or mean) can be directly one of the parameter or a combination of parameters."
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#random-component-2",
-    "href": "slides/bayesian-glm.html#random-component-2",
-    "title": "Generalized Linear Models with brms",
-    "section": "Random Component",
-    "text": "Random Component\nTo sum-up, the random component represents the assumption about the nature of our response variable. With GLM we want to include predictors to explain systematic changes of the mean (but also the scale/variance) of the random component.\nAssuming a Gaussian distribution, we try to explain how the mean of the Gaussian distribution change according to our predictors. For the Poisson, we include predictors on the \\(\\lambda\\) parameters for example.\nThe Random Component is called random, beacause it determines how the error term \\(\\epsilon\\) of our model is distributed."
   },
   {
     "objectID": "slides/bayesian-glm.html#random-component-poisson-example",
@@ -168,11 +119,18 @@
     "text": "Random Component, Poisson example\nThe mean or location of the Poisson is \\(\\lambda\\) and also the scale or variance is \\(\\lambda\\). Compared to the Gaussian, there are no two parameters."
   },
   {
-    "objectID": "slides/bayesian-glm.html#systematic-component-1",
-    "href": "slides/bayesian-glm.html#systematic-component-1",
+    "objectID": "slides/bayesian-glm.html#random-component-2",
+    "href": "slides/bayesian-glm.html#random-component-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Random Component",
+    "text": "Random Component\nTo sum-up, the random component represents the assumption about the nature of our response variable. With GLM we want to include predictors to explain systematic changes of the mean (but also the scale/variance) of the random component.\nAssuming a Gaussian distribution, we try to explain how the mean of the Gaussian distribution change according to our predictors. For the Poisson, we include predictors on the \\(\\lambda\\) parameters for example.\nThe Random Component is called random, beacause it determines how the error term \\(\\epsilon\\) of our model is distributed."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#systematic-component",
+    "href": "slides/bayesian-glm.html#systematic-component",
     "title": "Generalized Linear Models with brms",
     "section": "Systematic Component",
-    "text": "Systematic Component\nTo sum-up, the systematic component is the combination of predictors that are used to predict the mean of the distribution that is used as random component. The errors part of the model is distributed as the random component."
+    "text": "Systematic Component\nThe systematic component of a GLM is the combination of predictors (i.e., independent variables) that we want to include in the model.\nThe systematic component is also called linear predictor \\(\\eta\\) and is usually written in equation terms as: \\[\n\\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]\nNote that I am omitting the \\(+ \\epsilon_i\\) that you usually find at the end because this is the combination of predictors without errors."
   },
   {
     "objectID": "slides/bayesian-glm.html#systematic-component-an-example",
@@ -187,6 +145,20 @@
     "title": "Generalized Linear Models with brms",
     "section": "Systematic Component, an example",
     "text": "Systematic Component, an example\nAnother example, assuming we have the same depression score and we want to predict it with an anxiety score. The blue line is the true/estimated regression line where \\(\\eta_i\\) is the expected value for the observation \\(x_i\\). The red segments are the errors or residuals i.e., the random component."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#systematic-component-1",
+    "href": "slides/bayesian-glm.html#systematic-component-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Systematic Component",
+    "text": "Systematic Component\nTo sum-up, the systematic component is the combination of predictors that are used to predict the mean of the distribution that is used as random component. The errors part of the model is distributed as the random component."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#link-function",
+    "href": "slides/bayesian-glm.html#link-function",
+    "title": "Generalized Linear Models with brms",
+    "section": "Link Function",
+    "text": "Link Function\nThe final element is the link function. The idea is that we need a way to connect the systematic component \\(\\eta\\) to the random component mean \\(\\mu\\).\nThe link function \\(g(\\mu)\\) is an invertible function that connects the mean \\(\\mu\\) of the random component with the linear combination of predictors.\nThus \\(\\eta_i = g(\\mu_i)\\) and \\(\\mu_i = g(\\eta_i)^{-1}\\). The systematic component is not affected by \\(g()\\) while the relationship between \\(\\mu\\) and \\(\\eta\\) changes using different link functions.\n\\[\ng(\\mu_i) = \\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]\n\\[\n\\mu_i = g(\\eta_i)^{-1} = \\eta_i = \\beta_0 + \\beta_1 x_{i1} + \\beta_2 x_{i2} + \\cdots + \\beta_p x_{ip}\n\\]"
   },
   {
     "objectID": "slides/bayesian-glm.html#link-function-1",
@@ -354,14 +326,14 @@
     "href": "slides/bayesian-glm.html#rescaling-1",
     "title": "Generalized Linear Models with brms",
     "section": "Rescaling",
-    "text": "Rescaling\nLet’s fit a simple regression:\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark \n#&gt;    Data: dat_mark (Number of observations: 100) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept    -5.52      0.68    -6.84    -4.18 1.00     4291     3057\n#&gt; mark          0.10      0.01     0.08     0.11 1.00     4247     3025\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     0.95      0.07     0.83     1.10 1.00     3666     2836\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1)."
+    "text": "Rescaling\nLet’s fit a simple regression:\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark \n#&gt;    Data: dat_mark (Number of observations: 30) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept    -7.96      2.10   -12.20    -3.85 1.00     3159     2822\n#&gt; mark          0.13      0.02     0.09     0.18 1.00     3186     2813\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     1.63      0.22     1.27     2.11 1.00     2741     2599\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1)."
   },
   {
     "objectID": "slides/bayesian-glm.html#rescaling-problems",
     "href": "slides/bayesian-glm.html#rescaling-problems",
     "title": "Generalized Linear Models with brms",
     "section": "Rescaling, problems?",
-    "text": "Rescaling, problems?\nWe are using the default priors that are basically non-informative. What about setting appropriate or more informative priors?\n\n\n#&gt;                   prior     class coef group resp dpar nlpar lb ub       source\n#&gt;                  (flat)         b                                       default\n#&gt;                  (flat)         b mark                             (vectorized)\n#&gt;  student_t(3, 3.5, 2.5) Intercept                                       default\n#&gt;    student_t(3, 0, 2.5)     sigma                             0         default"
+    "text": "Rescaling, problems?\nWe are using the default priors that are basically non-informative. What about setting appropriate or more informative priors?\n\n\n#&gt;                   prior     class coef group resp dpar nlpar lb ub       source\n#&gt;                  (flat)         b                                       default\n#&gt;                  (flat)         b mark                             (vectorized)\n#&gt;  student_t(3, 3.9, 2.5) Intercept                                       default\n#&gt;    student_t(3, 0, 2.5)     sigma                             0         default"
   },
   {
     "objectID": "slides/bayesian-glm.html#rescaling-problems-1",
@@ -417,7 +389,7 @@
     "href": "slides/bayesian-glm.html#refitting-the-model",
     "title": "Generalized Linear Models with brms",
     "section": "Refitting the model1",
-    "text": "Refitting the model1\nWe can now refit the model using our priors and rescaling/centering\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark10c \n#&gt;    Data: dat_mark (Number of observations: 100) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     3.44      0.10     3.25     3.62 1.00     4087     2922\n#&gt; mark10c       1.00      0.07     0.85     1.14 1.00     3928     2731\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     0.96      0.07     0.83     1.10 1.00     3723     2499\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).\n\n\nFor the residual standard deviation, brms is already doing a good job with default priors, mainly escluding negative values."
+    "text": "Refitting the model1\nWe can now refit the model using our priors and rescaling/centering\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark10c \n#&gt;    Data: dat_mark (Number of observations: 30) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     3.58      0.32     2.95     4.23 1.00     3172     2437\n#&gt; mark10c       0.60      0.21     0.18     0.99 1.00     3775     2708\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     1.75      0.24     1.35     2.31 1.00     3378     2792\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).\n\n\nFor the residual standard deviation, brms is already doing a good job with default priors, mainly escluding negative values."
   },
   {
     "objectID": "slides/bayesian-glm.html#contrasts-coding",
@@ -469,10 +441,248 @@
     "text": "More on contrasts coding\nThere are few very useful papers about contrasts coding:\n\nSchad et al. (2020): comprehensive and (difficult) paper about contrasts coding\nGranziol et al. (2025): amazing work by our colleagues in Padova"
   },
   {
+    "objectID": "slides/bayesian-glm.html#hypothesis-testing",
+    "href": "slides/bayesian-glm.html#hypothesis-testing",
+    "title": "Generalized Linear Models with brms",
+    "section": "Hypothesis testing",
+    "text": "Hypothesis testing\nThe easiest way to test an hypothesis similarly to the frequentist framework is by checking if the null value of a certain test is contaned or not in the Credible Interval or the Highest Posterior Density Interval.\nIn the frequentist framework, the p value lower than \\(\\alpha\\) corresponds to a confidence interval to \\(1 - \\alpha\\) level that does not contains the null value (e.g., 0)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#brmshypothesis",
+    "href": "slides/bayesian-glm.html#brmshypothesis",
+    "title": "Generalized Linear Models with brms",
+    "section": "brms::hypothesis()",
+    "text": "brms::hypothesis()\nThe brms::hypothesis() function is a very nice way to test hypotheses into a bayesian framework."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayesian-r2-gelman2019-hp",
+    "href": "slides/bayesian-glm.html#bayesian-r2-gelman2019-hp",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayesian \\(R^2\\) (Gelman et al. 2019)",
+    "text": "Bayesian \\(R^2\\) (Gelman et al. 2019)\nGelman et al. (2019) explained a generalization of the common \\(R^2\\) to be applied for Bayesian Generalized Linear Models.\n\\[\n\\text{Bayesian } R^2_s =\n\\frac{\n\\mathrm{Var}_{n=1}^{N}\\left( y_n^{\\text{pred}, s} \\right)\n}{\n\\mathrm{Var}_{n=1}^{N}\\left( y_n^{\\text{pred}, s} \\right) + \\mathrm{Var}_{\\text{res}}^s\n}\n\\]\nThere are few important points:\n\nThis works for any GLM (unlike the usual \\(R^2\\))\nDifferent models on the same dataset cannot be compared  https://avehtari.github.io/bayes_R2/bayes_R2.html"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#extracting-posteriors",
+    "href": "slides/bayesian-glm.html#extracting-posteriors",
+    "title": "Generalized Linear Models with brms",
+    "section": "Extracting posteriors",
+    "text": "Extracting posteriors\nhttps://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/ https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayes-factor",
+    "href": "slides/bayesian-glm.html#bayes-factor",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayes Factor",
+    "text": "Bayes Factor\nAs an example we can start with the classical coin-flip experiment. We need to guess if a coin is fair or not. Firstly let’s formalize our prior beliefs in probabilistic terms:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayes-factor-1",
+    "href": "slides/bayesian-glm.html#bayes-factor-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayes Factor",
+    "text": "Bayes Factor\nNow we collect data and we observe \\(x = 40\\) tails out of \\(k = 50\\) trials thus \\(\\hat{\\pi} = 0.8\\) and compute the likelihood:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayes-factor-2",
+    "href": "slides/bayesian-glm.html#bayes-factor-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayes Factor",
+    "text": "Bayes Factor\nFinally we combine, using the Bayes rule, prior and likelihood to obtain the posterior distribution:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayes-factor-3",
+    "href": "slides/bayesian-glm.html#bayes-factor-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayes Factor",
+    "text": "Bayes Factor\nThe Bayes Factor (BF) — also called the likelihood ratio, for obvious reasons — is a measure of the relative support that the evidence provides for two competing hypotheses, \\(H_0\\) and \\(H_1\\) (~ \\(\\pi\\) in our previous example). It plays a key role in the following odds form of Bayes’s theorem.\n\\[\n\\frac{p(H_0|D)}{p(H_1|D)} = \\frac{p(D|H_0)}{p(D|H_1)} \\times \\frac{p(H_0)}{p(H_1)}\n\\]\nThe ratio of the priors \\(\\frac{p(H_0)}{p(H_1)}\\) is called the prior odds of the hypotheses; and, the ratio of the poosteriors \\(\\frac{p(H_0| D)}{p(H_1 | D)}\\) is called the posterior odds of the hypotheses. Thus, the above (odds form) of Bayes’s Theorem can be paraphrased as follows\n\\[\n\\text{posterior odds} = \\text{Bayes Factor} \\times \\text{prior odds}\n\\]"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr",
+    "href": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr",
+    "title": "Generalized Linear Models with brms",
+    "section": "Calculating the Bayes Factor using the SDR",
+    "text": "Calculating the Bayes Factor using the SDR\nCalculating the BF can be challenging in some situations. The Savage-Dickey density ratio (SDR) is a convenient shortcut to calculate the Bayes Factor (Wagenmakers et al. 2010). The idea is that the ratio of the prior and posterior density distribution for hypothesis \\(H_1\\) is an estimate of the Bayes factor calculated in the standard way.\n\\[\nBF_{01} = \\frac{p(D|H_0)}{p(D|H_1)} \\approx \\frac{p(\\pi = x|D, H_1)}{p(\\pi = x | H_1)}\n\\]\nWhere \\(\\pi\\) is the parameter of interest and \\(x\\) is the null value under \\(H_0\\) (e.g., 0). and \\(D\\) are the data."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr-1",
+    "href": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Calculating the Bayes Factor using the SDR",
+    "text": "Calculating the Bayes Factor using the SDR\nFollowing the previous example \\(H_0: \\pi = 0.5\\). Under \\(H_1\\) we use a vague prior by setting \\(\\pi \\sim Beta(1, 1)\\).\nSay we flipped the coin 20 times and we found that \\(\\hat \\pi = 0.75\\)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr-2",
+    "href": "slides/bayesian-glm.html#calculating-the-bayes-factor-using-the-sdr-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Calculating the Bayes Factor using the SDR",
+    "text": "Calculating the Bayes Factor using the SDR\nThe ratio between the two black dots is the Bayes Factor."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayes-factor-in-brms",
+    "href": "slides/bayesian-glm.html#bayes-factor-in-brms",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayes Factor in brms",
+    "text": "Bayes Factor in brms\nhttps://vuorre.com/posts/2017-03-21-bayes-factors-with-brms/ https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#:~:text=For%20the%20computation%20of%20Bayes,flat%20priors%20the%20null%20is"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#be-careful-with-the-bayes-factor",
+    "href": "slides/bayesian-glm.html#be-careful-with-the-bayes-factor",
+    "title": "Generalized Linear Models with brms",
+    "section": "Be careful with the Bayes Factor",
+    "text": "Be careful with the Bayes Factor\nThe Bayes Factor computed with hypothesis() or in general the SDR method is highly sensitive to the priors. See also the bayestestR documentation. In general:\n\nThe Bayes Factor requires informative or at least non-flat priors. Remember that in brms the default prior is flat\nAs the prior scale (e.g., standard deviation) increase, the Bayes Factor tends to suggest evidence for the null hypothesis, even when the null hypothesis is false\n\nThis is called Lindley’s paradox. (see Wagenmakers and Ly 2023)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#lindleys-paradox-a-simulation",
+    "href": "slides/bayesian-glm.html#lindleys-paradox-a-simulation",
+    "title": "Generalized Linear Models with brms",
+    "section": "Lindley’s paradox, a simulation",
+    "text": "Lindley’s paradox, a simulation\nWe can just simulate a t-test (or equivalently a parameter of a model) and run the Bayesian model with different prior distribution scale.\nFor a t-test we are focused on the prior for the (standardized) difference between the means. We can set a prior centered on 0 with different scale.\nHere I’m using the BayesFactor package just because is faster for simple model if we are interested in the Bayes Factor pointnull (the same as brms::hypothesis(x, \"b = 0\"))."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#lindleys-paradox-a-simulation-1",
+    "href": "slides/bayesian-glm.html#lindleys-paradox-a-simulation-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Lindley’s paradox, a simulation",
+    "text": "Lindley’s paradox, a simulation"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-sensitivity-check",
+    "href": "slides/bayesian-glm.html#prior-sensitivity-check",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior Sensitivity Check",
+    "text": "Prior Sensitivity Check\nGiven the sensitivity of Bayesian models to the prior, especially when informative is always a good idea to check the actual impact of priors. Not only for Bayes Factors but also for the posterior distributions.\n\nRun your model with the prior that are more plausible for you\nRun the same model with priors that are more and less informative\nCheck the impact of the prior on your posterior distributions and conclusions"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-predictive-check",
+    "href": "slides/bayesian-glm.html#prior-predictive-check",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior Predictive Check",
+    "text": "Prior Predictive Check\nThe prior predictive check is an important process when setting the priors in a regression model. The basic idea is that the posterior distribution is the combination between priors and likelihood (i.e., the data). If we remove likelihood from the equation, we obtain a “posterior” only using information in the prior.\nThe advantage is that we can simulate data to check if our priors are reasonable according to our model, phenomenon, etc.\nIn brms there is an argument called sample_prior that can be set to \"only\" to fit a model ignoring the data:\n\nbrm(\n  y ~ x,\n  data = dat, # not used\n  sample_prior = \"only\"\n)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-predictive-check-1",
+    "href": "slides/bayesian-glm.html#prior-predictive-check-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior predictive check",
+    "text": "Prior predictive check\nAssuming to have a simple model with a continous and categorical predictor:\n\n\n#&gt;            y          x g\n#&gt; 1  0.7812706  0.6207567 0\n#&gt; 2 -1.1101886  0.0356414 0\n#&gt; 3  0.3243795  0.7731545 0\n#&gt; 4  1.8243161  1.2724891 0\n#&gt; 5  0.6446891  0.3709754 0\n#&gt; 6  1.0857640 -0.1628543 0"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-predictive-check-2",
+    "href": "slides/bayesian-glm.html#prior-predictive-check-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior predictive check",
+    "text": "Prior predictive check\nWe know that x and y are standandardized thus we can think about the effect g in terms of Cohen’s \\(d\\) and the effect of x in terms of units of standard deviations. Let’s set some priors for \\(\\beta_1\\) and \\(\\beta_2\\).\n\nget_prior(y ~ x + g, data = dat)\n\n#&gt;                 prior     class coef group resp dpar nlpar lb ub       source\n#&gt;                (flat)         b                                       default\n#&gt;                (flat)         b    g                             (vectorized)\n#&gt;                (flat)         b    x                             (vectorized)\n#&gt;  student_t(3, 0, 2.5) Intercept                                       default\n#&gt;  student_t(3, 0, 2.5)     sigma                             0         default"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-predictive-check-3",
+    "href": "slides/bayesian-glm.html#prior-predictive-check-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior predictive check",
+    "text": "Prior predictive check\n\npriors &lt;- c(\n  prior(normal(0, 1), class = \"b\", coef = \"g\"),\n  prior(normal(0, 2), class = \"b\", coef = \"x\")\n)\n\nfit_prior &lt;- brm(y ~ x + g, data = dat, sample_prior = \"only\", prior = priors, file = here(\"slides\", \"objects\", \"fit_prior.rds\"))\nsummary(fit_prior)\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: y ~ x + g \n#&gt;    Data: dat (Number of observations: 50) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     0.30      5.00    -8.67     8.82 1.00     2585     1590\n#&gt; x             0.03      2.04    -4.00     3.96 1.00     2844     2449\n#&gt; g            -0.02      1.00    -2.05     1.91 1.00     3089     2397\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     2.79      3.83     0.08    10.10 1.00     2647     1440\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#prior-predictive-check-4",
+    "href": "slides/bayesian-glm.html#prior-predictive-check-4",
+    "title": "Generalized Linear Models with brms",
+    "section": "Prior predictive check",
+    "text": "Prior predictive check"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions",
+    "href": "slides/bayesian-glm.html#extracting-posterior-distributions",
+    "title": "Generalized Linear Models with brms",
+    "section": "Extracting Posterior Distributions",
+    "text": "Extracting Posterior Distributions\nWhen running a model with lm and glm, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.\n\nfit_lm_example &lt;- lm(Sepal.Length ~ Petal.Width + Species, data = iris)\nsummary(fit_lm_example)\n\n#&gt; \n#&gt; Call:\n#&gt; lm(formula = Sepal.Length ~ Petal.Width + Species, data = iris)\n#&gt; \n#&gt; Residuals:\n#&gt;     Min      1Q  Median      3Q     Max \n#&gt; -1.3891 -0.3043 -0.0472  0.2528  1.3358 \n#&gt; \n#&gt; Coefficients:\n#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)        4.78044    0.08308  57.543  &lt; 2e-16 ***\n#&gt; Petal.Width        0.91690    0.19386   4.730 5.25e-06 ***\n#&gt; Speciesversicolor -0.06025    0.23041  -0.262    0.794    \n#&gt; Speciesvirginica  -0.05009    0.35823  -0.140    0.889    \n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; Residual standard error: 0.481 on 146 degrees of freedom\n#&gt; Multiple R-squared:  0.6694, Adjusted R-squared:  0.6626 \n#&gt; F-statistic: 98.53 on 3 and 146 DF,  p-value: &lt; 2.2e-16"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions-1",
+    "href": "slides/bayesian-glm.html#extracting-posterior-distributions-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Extracting Posterior Distributions",
+    "text": "Extracting Posterior Distributions\nWith Bayesian models we have posterior distributions that can be summarised in different ways. There are several methods and packages to work with posteriors:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions-2",
+    "href": "slides/bayesian-glm.html#extracting-posterior-distributions-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Extracting Posterior Distributions",
+    "text": "Extracting Posterior Distributions\nWith the as_draws_df we can extract all the samples from the posterior distribution:\n\n\n#&gt; # A draws_df: 6 iterations, 1 chains, and 6 variables\n#&gt;   b_Intercept b_mark sigma Intercept lprior lp__\n#&gt; 1        -9.6   0.15   1.5       4.3   -3.4  -59\n#&gt; 2       -10.2   0.16   1.4       4.1   -3.3  -59\n#&gt; 3        -9.0   0.15   1.5       4.6   -3.4  -62\n#&gt; 4        -9.0   0.15   1.4       4.3   -3.4  -60\n#&gt; 5        -8.7   0.14   1.5       3.8   -3.4  -59\n#&gt; 6        -8.0   0.13   1.4       3.7   -3.3  -60\n#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions-3",
+    "href": "slides/bayesian-glm.html#extracting-posterior-distributions-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Extracting Posterior Distributions",
+    "text": "Extracting Posterior Distributions\n\nas_draws_df(fit_mark) |&gt; \n  select(starts_with(\"b\"), sigma) |&gt; \n  posterior::summarise_draws()\n\n#&gt; # A tibble: 3 × 10\n#&gt;   variable     mean median     sd    mad       q5    q95  rhat ess_bulk ess_tail\n#&gt;   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;\n#&gt; 1 b_Interce… -7.96  -7.98  2.10   2.05   -11.5    -4.49   1.00    3049.    2798.\n#&gt; 2 b_mark      0.133  0.133 0.0230 0.0227   0.0954  0.172  1.00    3064.    2776.\n#&gt; 3 sigma       1.63   1.60  0.217  0.211    1.32    2.03   1.00    2706.    2588."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#hpdi-with-bayestestr",
+    "href": "slides/bayesian-glm.html#hpdi-with-bayestestr",
+    "title": "Generalized Linear Models with brms",
+    "section": "HPDI with bayestestR",
+    "text": "HPDI with bayestestR\nThe bayestestR contains a lot of functions to do inference and post-processing on brms (and also other) models:\n\nbayestestR::hdi(fit_mark)\n\n#&gt; Highest Density Interval\n#&gt; \n#&gt; Parameter   |         95% HDI\n#&gt; -----------------------------\n#&gt; (Intercept) | [-12.24, -3.92]\n#&gt; mark        | [  0.09,  0.18]\n\nplot(bayestestR::hdi(fit_mark))"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#the-broom-package",
+    "href": "slides/bayesian-glm.html#the-broom-package",
+    "title": "Generalized Linear Models with brms",
+    "section": "The broom package",
+    "text": "The broom package\nThe broom.mixed package automatically provide the summary() into a data.frame format:\n\nlibrary(broom.mixed)\nbroom.mixed::tidy(fit_mark)\n\n#&gt; # A tibble: 3 × 8\n#&gt;   effect   component group    term         estimate std.error conf.low conf.high\n#&gt;   &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;\n#&gt; 1 fixed    cond      &lt;NA&gt;     (Intercept)    -7.96     2.10   -12.2       -3.85 \n#&gt; 2 fixed    cond      &lt;NA&gt;     mark            0.133    0.0230   0.0882     0.179\n#&gt; 3 ran_pars cond      Residual sd__Observa…    1.63     0.217    1.27       2.11"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#more-on-bayestestr",
+    "href": "slides/bayesian-glm.html#more-on-bayestestr",
+    "title": "Generalized Linear Models with brms",
+    "section": "More on bayestestR",
+    "text": "More on bayestestR\nThis is a really amazing package, have a look at the Features section because contains functions and explanations about different ways of summarizing the posterior distribution."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#bayesian-workflow",
+    "href": "slides/bayesian-glm.html#bayesian-workflow",
+    "title": "Generalized Linear Models with brms",
+    "section": "Bayesian Workflow",
+    "text": "Bayesian Workflow\n\nNice paper about the Bayesian Workflow: https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf"
+  },
+  {
     "objectID": "slides/bayesian-glm.html#references",
     "href": "slides/bayesian-glm.html#references",
     "title": "Generalized Linear Models with brms",
     "section": "References",
-    "text": "References\n\n\n\n\nGranziol, Umberto, Maximilian Rabe, Marcello Gallucci, Andrea Spoto, and Giulio Vidotto. 2025. “Not Another Post Hoc Paper: A New Look at Contrast Analysis and Planned Comparisons.” Advances in Methods and Practices in Psychological Science 8 (January). https://doi.org/10.1177/25152459241293110.\n\n\nSchad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. “How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.” Journal of Memory and Language 110 (February): 104038. https://doi.org/10.1016/j.jml.2019.104038."
+    "text": "References\n\n\n\n\nGelman, Andrew, Ben Goodrich, Jonah Gabry, and Aki Vehtari. 2019. “R-Squared for Bayesian Regression Models.” The American Statistician 73: 307–9. https://doi.org/10.1080/00031305.2018.1549100.\n\n\nGranziol, Umberto, Maximilian Rabe, Marcello Gallucci, Andrea Spoto, and Giulio Vidotto. 2025. “Not Another Post Hoc Paper: A New Look at Contrast Analysis and Planned Comparisons.” Advances in Methods and Practices in Psychological Science 8 (January). https://doi.org/10.1177/25152459241293110.\n\n\nSchad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. “How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.” Journal of Memory and Language 110 (February): 104038. https://doi.org/10.1016/j.jml.2019.104038.\n\n\nWagenmakers, Eric-Jan, Tom Lodewyckx, Himanshu Kuriyal, and Raoul Grasman. 2010. “Bayesian Hypothesis Testing for Psychologists: A Tutorial on the Savage–Dickey Method.” Cognitive Psychology 60 (May): 158–89. https://doi.org/10.1016/j.cogpsych.2009.12.001.\n\n\nWagenmakers, Eric-Jan, and Alexander Ly. 2023. “History and Nature of the Jeffreys-Lindley Paradox.” Archive for History of Exact Sciences 77: 25–72. https://doi.org/10.1007/s00407-022-00298-3."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "",
+    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 5 - html\nParte 6 -  - Rnw"
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "",
+    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 5 - html\nParte 6 -  - Rnw"
+  },
+  {
+    "objectID": "index.html#other-materials",
+    "href": "index.html#other-materials",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Other Materials",
+    "text": "Other Materials\n\nParte 1 - Introduzione a R1\nParte 5 - Generalized Linear Models2"
+  },
+  {
+    "objectID": "index.html#exercises",
+    "href": "index.html#exercises",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Exercises",
+    "text": "Exercises\n\nEsercises - \nWell-being dataset"
+  },
+  {
+    "objectID": "index.html#footnotes",
+    "href": "index.html#footnotes",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nThis is an intensive course about R, we will see some useful elements↩︎\nThis is an intensive PhD level course about GLMs↩︎"
   }
 ]

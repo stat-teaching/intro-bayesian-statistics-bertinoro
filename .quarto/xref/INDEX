@@ -10,6 +10,10 @@
   },
   "slides/bayesian-glm.qmd": {
     "bayesian-glm.typ": "dcc6f0c4",
-    "bayesian-glm.html": "2116a6b9"
+    "bayesian-glm.html": "2116a6b9",
+    "bayesian-glm.tex": "c8549135"
+  },
+  "exercises/well-being.qmd": {
+    "well-being.html": "413faf67"
   }
 }

@@ -273,12 +273,6 @@ summary(fit)
 plot(allEffects(fit))
 ```
 
-# Assumptions of the linear model
-
-## Assumptions of the linear model
-
-include here
-
 ## Assumptions of the linear model
 
 More practicaly, we are saying that the model allows for varying the mean i.e., each `x` value can be associated with a different $\mu$ but with a fixed (and estimated) $\sigma$.
@@ -1248,9 +1242,132 @@ Given the sensitivity of Bayesian models to the prior, especially when informati
 
 ## Prior Predictive Check
 
-## Packages
+The prior predictive check is an important process when setting the priors in a regression model. The basic idea is that the posterior distribution is the combination between priors and likelihood (i.e., the data). If we remove likelihood from the equation, we obtain a "posterior" only using information in the prior.
 
-- broom
+The advantage is that we can simulate data to check if our priors are reasonable according to our model, phenomenon, etc.
 
+In `brms` there is an argument called `sample_prior` that can be set to `"only"` to fit a model ignoring the data:
+
+```{r}
+#| eval: false
+#| echo: true
+brm(
+  y ~ x,
+  data = dat, # not used
+  sample_prior = "only"
+)
+```
+
+## Prior predictive check
+
+Assuming to have a simple model with a continous and categorical predictor:
+
+```{r}
+N <- 50
+g <- rep(0:1, each = N/2)
+x <- rnorm(N)
+y <- 0.1 + 0.3 * g + 0.5 * x + rnorm(N)
+
+dat <- data.frame(
+  y, x, g
+)
+
+head(dat)
+```
+
+## Prior predictive check
+
+We know that `x` and `y` are standandardized thus we can think about the effect `g` in terms of Cohen's $d$ and the effect of `x` in terms of units of standard deviations. Let's set some priors for $\beta_1$ and $\beta_2$.
+
+```{r}
+#| echo: true
+get_prior(y ~ x + g, data = dat)
+```
+
+## Prior predictive check
+
+```{r}
+#| echo: true
+priors <- c(
+  prior(normal(0, 1), class = "b", coef = "g"),
+  prior(normal(0, 2), class = "b", coef = "x")
+)
+
+fit_prior <- brm(y ~ x + g, data = dat, sample_prior = "only", prior = priors, file = here("slides", "objects", "fit_prior.rds"))
+summary(fit_prior)
+```
+
+## Prior predictive check
+
+```{r}
+pp_check(fit_prior, ndraws = 100)
+```
+
+## Extracting Posterior Distributions
+
+When running a model with `lm` and `glm`, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.
+
+```{r}
+#| echo: true
+fit_lm_example <- lm(Sepal.Length ~ Petal.Width + Species, data = iris)
+summary(fit_lm_example)
+```
+
+## Extracting Posterior Distributions
+
+With Bayesian models we have posterior distributions that can be summarised in different ways. There are several methods and packages to work with posteriors:
+
+```{r}
+fit_mark <- brm(se ~ mark,
+                data = dat_mark, 
+                family = gaussian(link = "identity"),
+                file = here("slides", "objects", "fit_mark.rds"))
+```
+
+## Extracting Posterior Distributions
+
+With the `as_draws_df` we can extract all the samples from the posterior distribution:
+
+```{r}
+as_draws_df(fit_mark) |> 
+  head()
+```
+
+## Extracting Posterior Distributions
+
+```{r}
+#| echo: true
+as_draws_df(fit_mark) |> 
+  select(starts_with("b"), sigma) |> 
+  posterior::summarise_draws()
+```
+
+## HPDI with `bayestestR`
+
+The `bayestestR` contains a lot of functions to do inference and post-processing on `brms` (and also other) models:
+
+```{r}
+#| echo: true
+bayestestR::hdi(fit_mark)
+plot(bayestestR::hdi(fit_mark))
+```
+
+## The `broom` package
+
+The `broom.mixed` package automatically provide the `summary()` into a data.frame format:
+
+```{r}
+#| echo: true
+library(broom.mixed)
+broom.mixed::tidy(fit_mark)
+```
+
+## More on `bayestestR`
+
+This is a really amazing package, have a look at the `Features` section because contains functions and explanations about different ways of summarizing the posterior distribution.
+
+## Bayesian Workflow
+
+- Nice paper about the Bayesian Workflow: [https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf](https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf)
 
 ## References {.refs}

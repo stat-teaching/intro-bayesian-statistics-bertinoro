@@ -1,0 +1,82 @@
+---
+title: "Well-being and Psychological Predictors"
+execute: 
+  echo: false
+---
+
+## Dataset Description
+
+This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.
+
+### Variables
+
+| Variable           | Type         | Description                                                  |
+|--------------------|--------------|--------------------------------------------------------------|
+| `age`              | Continuous   | Age in years                                                 |
+| `gender`           | Categorical  | Male, Female, or Other                                       |
+| `income`           | Continuous   | Annual income in €                                           |
+| `exercise_freq`    | Count        | Times exercising per week                                    |
+| `social_support`   | Continuous   | Perceived social support (0–10 scale)                        |
+| `therapy`          | Categorical  | Whether the individual is in therapy                         |
+| `well_being`       | Continuous   | Self-reported well-being (10 to 100)                         |
+
+### Hypotheses to Test
+
+We generated the data based on the following **hypotheses**:
+
+1. **H1**: Higher income is associated with higher well-being.
+2. **H2**: Greater social support is associated with higher well-being.
+3. **H3**: More frequent exercise is associated with higher well-being.
+4. **H4**: Individuals in therapy report higher well-being.
+5. **H5**: Age is negatively associated with well-being.
+6. **H6**: Therapy is especially beneficial for individuals with low social support (*interaction*).
+7. **H7**: The positive effect of exercise on well-being increases with income (*interaction*).
+8. **H8**: Gender has no effect on well-being (test of a null effect).
+
+---
+
+```{r}
+#| echo: false
+set.seed(42)
+n <- 300
+
+age <- rnorm(n, 35, 10)
+age[age < 18] <- 18
+
+gender <- sample(c("Male", "Female", "Other"), n, replace = TRUE, prob = c(0.45, 0.45, 0.10))
+income <- rnorm(n, 30000, 10000)
+income[income < 5000] <- 5000
+
+exercise_freq <- rpois(n, 3)
+social_support <- rnorm(n, 5, 2)
+social_support <- pmin(pmax(social_support + 0.3 * (exercise_freq - mean(exercise_freq)), 0), 10)
+
+therapy <- sample(c("Yes", "No"), n, replace = TRUE, prob = c(0.3, 0.7))
+therapy_binary <- ifelse(therapy == "Yes", 1, 0)
+
+# Interactions
+interaction_1 <- therapy_binary * (10 - social_support)
+interaction_2 <- exercise_freq * income / 10000
+
+well_being <- 0.0008 * income + 2.5 * social_support + 3 * therapy_binary +
+              1.5 * exercise_freq - 0.1 * age +
+              1.5 * interaction_1 + 0.5 * interaction_2 +
+              rnorm(n, 0, 5)
+well_being <- pmin(pmax(well_being, 10), 100)
+
+df <- data.frame(age, gender, income, exercise_freq, social_support, therapy, well_being)
+
+# Add missing data
+for (col in c("income", "social_support", "exercise_freq")) {
+  idx <- sample(1:n, size = floor(0.05 * n))
+  df[idx, col] <- NA
+}
+
+write.csv(df, here::here("data", "clean", "well_being_data.csv"), row.names = FALSE)
+```
+
+```{r}
+head(df)
+```
+
+You can find the dataset [here](../data/clean/well_being_data.csv)

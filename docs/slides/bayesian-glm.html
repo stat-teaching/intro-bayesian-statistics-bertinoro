@@ -317,16 +317,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)  9.91080    0.08303   119.4  &lt; 2e-16 ***
-#&gt; x            0.46897    0.09195     5.1 1.66e-06 ***
+#&gt; (Intercept)  10.0602     0.1092  92.132  &lt; 2e-16 ***
+#&gt; x             0.4744     0.1236   3.838  0.00022 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 0.6875356)
+#&gt; (Dispersion parameter for gaussian family taken to be 1.170067)
 #&gt; 
-#&gt;     Null deviance: 85.264  on 99  degrees of freedom
-#&gt; Residual deviance: 67.378  on 98  degrees of freedom
-#&gt; AIC: 250.3
+#&gt;     Null deviance: 131.90  on 99  degrees of freedom
+#&gt; Residual deviance: 114.67  on 98  degrees of freedom
+#&gt; AIC: 303.47
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -340,17 +340,8 @@
 </div>
 </div>
 </div>
-</section></section>
-<section>
-<section id="assumptions-of-the-linear-model" class="title-slide slide level1 center">
-<h1>Assumptions of the linear model</h1>
-
 </section>
-<section id="assumptions-of-the-linear-model-1" class="slide level2">
-<h2>Assumptions of the linear model</h2>
-<p>include here</p>
-</section>
-<section id="assumptions-of-the-linear-model-2" class="slide level2">
+<section id="assumptions-of-the-linear-model" class="slide level2">
 <h2>Assumptions of the linear model</h2>
 <p>More practicaly, we are saying that the model allows for varying the mean i.e., each <code>x</code> value can be associated with a different <span class="math inline">\(\mu\)</span> but with a fixed (and estimated) <span class="math inline">\(\sigma\)</span>.</p>
 
@@ -1273,18 +1264,18 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <pre><code>#&gt;  Family: gaussian 
 #&gt;   Links: mu = identity; sigma = identity 
 #&gt; Formula: se ~ mark 
-#&gt;    Data: dat_mark (Number of observations: 100) 
+#&gt;    Data: dat_mark (Number of observations: 30) 
 #&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
 #&gt;          total post-warmup draws = 4000
 #&gt; 
 #&gt; Regression Coefficients:
 #&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#&gt; Intercept    -5.52      0.68    -6.84    -4.18 1.00     4291     3057
-#&gt; mark          0.10      0.01     0.08     0.11 1.00     4247     3025
+#&gt; Intercept    -7.96      2.10   -12.20    -3.85 1.00     3159     2822
+#&gt; mark          0.13      0.02     0.09     0.18 1.00     3186     2813
 #&gt; 
 #&gt; Further Distributional Parameters:
 #&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#&gt; sigma     0.95      0.07     0.83     1.10 1.00     3666     2836
+#&gt; sigma     1.63      0.22     1.27     2.11 1.00     2741     2599
 #&gt; 
 #&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 #&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1300,7 +1291,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <pre><code>#&gt;                   prior     class coef group resp dpar nlpar lb ub       source
 #&gt;                  (flat)         b                                       default
 #&gt;                  (flat)         b mark                             (vectorized)
-#&gt;  student_t(3, 3.5, 2.5) Intercept                                       default
+#&gt;  student_t(3, 3.9, 2.5) Intercept                                       default
 #&gt;    student_t(3, 0, 2.5)     sigma                             0         default</code></pre>
 </div>
 </div>
@@ -1354,18 +1345,18 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <pre><code>#&gt;  Family: gaussian 
 #&gt;   Links: mu = identity; sigma = identity 
 #&gt; Formula: se ~ mark10c 
-#&gt;    Data: dat_mark (Number of observations: 100) 
+#&gt;    Data: dat_mark (Number of observations: 30) 
 #&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
 #&gt;          total post-warmup draws = 4000
 #&gt; 
 #&gt; Regression Coefficients:
 #&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#&gt; Intercept     3.44      0.10     3.25     3.62 1.00     4087     2922
-#&gt; mark10c       1.00      0.07     0.85     1.14 1.00     3928     2731
+#&gt; Intercept     3.58      0.32     2.95     4.23 1.00     3172     2437
+#&gt; mark10c       0.60      0.21     0.18     0.99 1.00     3775     2708
 #&gt; 
 #&gt; Further Distributional Parameters:
 #&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-#&gt; sigma     0.96      0.07     0.83     1.10 1.00     3723     2499
+#&gt; sigma     1.75      0.24     1.35     2.31 1.00     3378     2792
 #&gt; 
 #&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 #&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1520,17 +1511,330 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <li><span class="citation" data-cites="Schad2020-ht">Schad et al. (<a href="#/references" role="doc-biblioref" onclick="">2020</a>)</span>: comprehensive and (difficult) paper about contrasts coding</li>
 <li><span class="citation" data-cites="Granziol2025-sy">Granziol et al. (<a href="#/references" role="doc-biblioref" onclick="">2025</a>)</span>: amazing work by our colleagues in Padova</li>
 </ul>
+</section></section>
+<section>
+<section id="hypothesis-testing-and-effect-size" class="title-slide slide level1 center">
+<h1>Hypothesis testing and effect size</h1>
+
+</section>
+<section id="hypothesis-testing" class="slide level2">
+<h2>Hypothesis testing</h2>
+<p>The easiest way to test an hypothesis similarly to the frequentist framework is by checking if the null value of a certain test is contaned or not in the Credible Interval or the Highest Posterior Density Interval.</p>
+<p>In the frequentist framework, the p value lower than <span class="math inline">\(\alpha\)</span> corresponds to a confidence interval to <span class="math inline">\(1 - \alpha\)</span> level that does not contains the null value (e.g., 0).</p>
+</section>
+<section id="brmshypothesis" class="slide level2">
+<h2><code>brms::hypothesis()</code></h2>
+<p>The <code>brms::hypothesis()</code> function is a very nice way to test hypotheses into a bayesian framework.</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-54-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="bayesian-r2-gelman2019-hp" class="slide level2">
+<h2>Bayesian <span class="math inline">\(R^2\)</span> <span class="citation" data-cites="Gelman2019-hp">(<a href="#/references" role="doc-biblioref" onclick="">Gelman et al. 2019</a>)</span></h2>
+<p><span class="citation" data-cites="Gelman2019-hp">Gelman et al. (<a href="#/references" role="doc-biblioref" onclick="">2019</a>)</span> explained a generalization of the common <span class="math inline">\(R^2\)</span> to be applied for Bayesian Generalized Linear Models.</p>
+<p><span class="math display">\[
+\text{Bayesian } R^2_s =
+\frac{
+\mathrm{Var}_{n=1}^{N}\left( y_n^{\text{pred}, s} \right)
+}{
+\mathrm{Var}_{n=1}^{N}\left( y_n^{\text{pred}, s} \right) + \mathrm{Var}_{\text{res}}^s
+}
+\]</span></p>
+<p>There are few important points:</p>
+<ul>
+<li>This works for any GLM (unlike the usual <span class="math inline">\(R^2\)</span>)</li>
+<li>Different models on the same dataset cannot be compared <!-- TODO rivedi questo --> https://avehtari.github.io/bayes_R2/bayes_R2.html</li>
+</ul>
+</section>
+<section id="extracting-posteriors" class="slide level2">
+<h2>Extracting posteriors</h2>
+<p>https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/ https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet</p>
+</section>
+<section id="bayes-factor" class="slide level2">
+<h2>Bayes Factor</h2>
+<p>As an example we can start with the classical coin-flip experiment. We need to guess if a coin is fair or not. Firstly let’s formalize our prior beliefs in probabilistic terms:</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-55-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="bayes-factor-1" class="slide level2">
+<h2>Bayes Factor</h2>
+<p>Now we collect data and we observe <span class="math inline">\(x = 40\)</span> tails out of <span class="math inline">\(k = 50\)</span> trials thus <span class="math inline">\(\hat{\pi} = 0.8\)</span> and compute the <em>likelihood</em>:</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-56-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="bayes-factor-2" class="slide level2">
+<h2>Bayes Factor</h2>
+<p>Finally we combine, using the Bayes rule, <strong>prior</strong> and <strong>likelihood</strong> to obtain the <strong>posterior</strong> distribution:</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-57-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="bayes-factor-3" class="slide level2">
+<h2>Bayes Factor</h2>
+<p>The <strong>Bayes Factor</strong> (BF) — also called the <strong>likelihood ratio</strong>, for obvious reasons — is a measure of the relative support that the evidence provides for two competing hypotheses, <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span> (~ <span class="math inline">\(\pi\)</span> in our previous example). It plays a key role in the following <em>odds form</em> of Bayes’s theorem.</p>
+<p><span class="math display">\[
+\frac{p(H_0|D)}{p(H_1|D)} = \frac{p(D|H_0)}{p(D|H_1)} \times \frac{p(H_0)}{p(H_1)}
+\]</span></p>
+<p>The ratio of the priors <span class="math inline">\(\frac{p(H_0)}{p(H_1)}\)</span> is called the <strong>prior odds</strong> of the hypotheses; and, the ratio of the poosteriors <span class="math inline">\(\frac{p(H_0| D)}{p(H_1 | D)}\)</span> is called the <strong>posterior odds</strong> of the hypotheses. Thus, the above (odds form) of Bayes’s Theorem can be paraphrased as follows</p>
+<p><span class="math display">\[
+\text{posterior odds} = \text{Bayes Factor} \times \text{prior odds}
+\]</span></p>
+</section>
+<section id="calculating-the-bayes-factor-using-the-sdr" class="slide level2">
+<h2>Calculating the Bayes Factor using the SDR</h2>
+<p>Calculating the BF can be challenging in some situations. The Savage-Dickey density ratio (SDR) is a convenient shortcut to calculate the Bayes Factor <span class="citation" data-cites="Wagenmakers2010-fj">(<a href="#/references" role="doc-biblioref" onclick="">Wagenmakers et al. 2010</a>)</span>. The idea is that the ratio of the prior and posterior density distribution for hypothesis <span class="math inline">\(H_1\)</span> is an estimate of the Bayes factor calculated in the standard way.</p>
+<p><span class="math display">\[
+BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x | H_1)}
+\]</span></p>
+<p>Where <span class="math inline">\(\pi\)</span> is the parameter of interest and <span class="math inline">\(x\)</span> is the null value under <span class="math inline">\(H_0\)</span> (e.g., 0). and <span class="math inline">\(D\)</span> are the data.</p>
+</section>
+<section id="calculating-the-bayes-factor-using-the-sdr-1" class="slide level2">
+<h2>Calculating the Bayes Factor using the SDR</h2>
+<p>Following the previous example <span class="math inline">\(H_0: \pi = 0.5\)</span>. Under <span class="math inline">\(H_1\)</span> we use a vague prior by setting <span class="math inline">\(\pi \sim Beta(1, 1)\)</span>.</p>
+<p>Say we flipped the coin 20 times and we found that <span class="math inline">\(\hat \pi = 0.75\)</span>.</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-58-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="calculating-the-bayes-factor-using-the-sdr-2" class="slide level2">
+<h2>Calculating the Bayes Factor using the SDR</h2>
+<p>The ratio between the two black dots is the Bayes Factor.</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-59-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="bayes-factor-in-brms" class="slide level2">
+<h2>Bayes Factor in <code>brms</code></h2>
+<p>https://vuorre.com/posts/2017-03-21-bayes-factors-with-brms/ https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#:~:text=For%20the%20computation%20of%20Bayes,flat%20priors%20the%20null%20is</p>
+</section>
+<section id="be-careful-with-the-bayes-factor" class="slide level2">
+<h2>Be careful with the Bayes Factor</h2>
+<p>The Bayes Factor computed with <code>hypothesis()</code> or in general the SDR method is highly sensitive to the priors. See also the <code>bayestestR</code> <a href="https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#setting-the-correct-prior">documentation</a>. In general:</p>
+<ul>
+<li>The Bayes Factor requires informative or at least non-flat priors. Remember that in <code>brms</code> the default prior is flat</li>
+<li>As the prior scale (e.g., standard deviation) increase, the Bayes Factor tends to suggest evidence for the null hypothesis, even when the null hypothesis is false</li>
+</ul>
+<p>This is called <a href="https://en.wikipedia.org/wiki/Lindley%27s_paradox">Lindley’s paradox</a>. <span class="citation" data-cites="Wagenmakers2023-ll">(see <a href="#/references" role="doc-biblioref" onclick="">Wagenmakers and Ly 2023</a>)</span>.</p>
+</section>
+<section id="lindleys-paradox-a-simulation" class="slide level2">
+<h2>Lindley’s paradox, a simulation</h2>
+<p>We can just simulate a t-test (or equivalently a parameter of a model) and run the Bayesian model with different prior distribution scale.</p>
+<p>For a t-test we are focused on the prior for the (standardized) difference between the means. We can set a prior centered on 0 with different scale.</p>
+<p>Here I’m using the <code>BayesFactor</code> package just because is faster for simple model if we are interested in the Bayes Factor pointnull (the same as <code>brms::hypothesis(x, "b = 0")</code>).</p>
+</section>
+<section id="lindleys-paradox-a-simulation-1" class="slide level2">
+<h2>Lindley’s paradox, a simulation</h2>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-60-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="prior-sensitivity-check" class="slide level2">
+<h2>Prior Sensitivity Check</h2>
+<p>Given the sensitivity of Bayesian models to the prior, especially when informative is always a good idea to check the actual impact of priors. Not only for Bayes Factors but also for the posterior distributions.</p>
+<ul>
+<li>Run your model with the prior that are more plausible for you</li>
+<li>Run the same model with priors that are more and less informative</li>
+<li>Check the impact of the prior on your posterior distributions and conclusions</li>
+</ul>
+</section>
+<section id="prior-predictive-check" class="slide level2">
+<h2>Prior Predictive Check</h2>
+<p>The prior predictive check is an important process when setting the priors in a regression model. The basic idea is that the posterior distribution is the combination between priors and likelihood (i.e., the data). If we remove likelihood from the equation, we obtain a “posterior” only using information in the prior.</p>
+<p>The advantage is that we can simulate data to check if our priors are reasonable according to our model, phenomenon, etc.</p>
+<p>In <code>brms</code> there is an argument called <code>sample_prior</code> that can be set to <code>"only"</code> to fit a model ignoring the data:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">brm</span>(</span>
+<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> x,</span>
+<span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="co"># not used</span></span>
+<span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sample_prior =</span> <span class="st">"only"</span></span>
+<span id="cb53-5"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="prior-predictive-check-1" class="slide level2">
+<h2>Prior predictive check</h2>
+<p>Assuming to have a simple model with a continous and categorical predictor:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;            y          x g
+#&gt; 1  0.7812706  0.6207567 0
+#&gt; 2 -1.1101886  0.0356414 0
+#&gt; 3  0.3243795  0.7731545 0
+#&gt; 4  1.8243161  1.2724891 0
+#&gt; 5  0.6446891  0.3709754 0
+#&gt; 6  1.0857640 -0.1628543 0</code></pre>
+</div>
+</div>
+</section>
+<section id="prior-predictive-check-2" class="slide level2">
+<h2>Prior predictive check</h2>
+<p>We know that <code>x</code> and <code>y</code> are standandardized thus we can think about the effect <code>g</code> in terms of Cohen’s <span class="math inline">\(d\)</span> and the effect of <code>x</code> in terms of units of standard deviations. Let’s set some priors for <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">get_prior</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;                 prior     class coef group resp dpar nlpar lb ub       source
+#&gt;                (flat)         b                                       default
+#&gt;                (flat)         b    g                             (vectorized)
+#&gt;                (flat)         b    x                             (vectorized)
+#&gt;  student_t(3, 0, 2.5) Intercept                                       default
+#&gt;  student_t(3, 0, 2.5)     sigma                             0         default</code></pre>
+</div>
+</div>
+</section>
+<section id="prior-predictive-check-3" class="slide level2">
+<h2>Prior predictive check</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"g"</span>),</span>
+<span id="cb57-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"x"</span>)</span>
+<span id="cb57-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb57-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-6"><a aria-hidden="true" tabindex="-1"></a>fit_prior <span class="ot">&lt;-</span> <span class="fu">brm</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat, <span class="at">sample_prior =</span> <span class="st">"only"</span>, <span class="at">prior =</span> priors, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"objects"</span>, <span class="st">"fit_prior.rds"</span>))</span>
+<span id="cb57-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;  Family: gaussian 
+#&gt;   Links: mu = identity; sigma = identity 
+#&gt; Formula: y ~ x + g 
+#&gt;    Data: dat (Number of observations: 50) 
+#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+#&gt;          total post-warmup draws = 4000
+#&gt; 
+#&gt; Regression Coefficients:
+#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+#&gt; Intercept     0.30      5.00    -8.67     8.82 1.00     2585     1590
+#&gt; x             0.03      2.04    -4.00     3.96 1.00     2844     2449
+#&gt; g            -0.02      1.00    -2.05     1.91 1.00     3089     2397
+#&gt; 
+#&gt; Further Distributional Parameters:
+#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+#&gt; sigma     2.79      3.83     0.08    10.10 1.00     2647     1440
+#&gt; 
+#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential
+#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+</section>
+<section id="prior-predictive-check-4" class="slide level2">
+<h2>Prior predictive check</h2>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-65-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="extracting-posterior-distributions" class="slide level2">
+<h2>Extracting Posterior Distributions</h2>
+<p>When running a model with <code>lm</code> and <code>glm</code>, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>fit_lm_example <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Petal.Width <span class="sc">+</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb59-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_lm_example)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; 
+#&gt; Call:
+#&gt; lm(formula = Sepal.Length ~ Petal.Width + Species, data = iris)
+#&gt; 
+#&gt; Residuals:
+#&gt;     Min      1Q  Median      3Q     Max 
+#&gt; -1.3891 -0.3043 -0.0472  0.2528  1.3358 
+#&gt; 
+#&gt; Coefficients:
+#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    
+#&gt; (Intercept)        4.78044    0.08308  57.543  &lt; 2e-16 ***
+#&gt; Petal.Width        0.91690    0.19386   4.730 5.25e-06 ***
+#&gt; Speciesversicolor -0.06025    0.23041  -0.262    0.794    
+#&gt; Speciesvirginica  -0.05009    0.35823  -0.140    0.889    
+#&gt; ---
+#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#&gt; 
+#&gt; Residual standard error: 0.481 on 146 degrees of freedom
+#&gt; Multiple R-squared:  0.6694, Adjusted R-squared:  0.6626 
+#&gt; F-statistic: 98.53 on 3 and 146 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="extracting-posterior-distributions-1" class="slide level2">
+<h2>Extracting Posterior Distributions</h2>
+<p>With Bayesian models we have posterior distributions that can be summarised in different ways. There are several methods and packages to work with posteriors:</p>
+</section>
+<section id="extracting-posterior-distributions-2" class="slide level2">
+<h2>Extracting Posterior Distributions</h2>
+<p>With the <code>as_draws_df</code> we can extract all the samples from the posterior distribution:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A draws_df: 6 iterations, 1 chains, and 6 variables
+#&gt;   b_Intercept b_mark sigma Intercept lprior lp__
+#&gt; 1        -9.6   0.15   1.5       4.3   -3.4  -59
+#&gt; 2       -10.2   0.16   1.4       4.1   -3.3  -59
+#&gt; 3        -9.0   0.15   1.5       4.6   -3.4  -62
+#&gt; 4        -9.0   0.15   1.4       4.3   -3.4  -60
+#&gt; 5        -8.7   0.14   1.5       3.8   -3.4  -59
+#&gt; 6        -8.0   0.13   1.4       3.7   -3.3  -60
+#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}</code></pre>
+</div>
+</div>
+</section>
+<section id="extracting-posterior-distributions-3" class="slide level2">
+<h2>Extracting Posterior Distributions</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as_draws_df</span>(fit_mark) <span class="sc">|&gt;</span> </span>
+<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"b"</span>), sigma) <span class="sc">|&gt;</span> </span>
+<span id="cb62-3"><a aria-hidden="true" tabindex="-1"></a>  posterior<span class="sc">::</span><span class="fu">summarise_draws</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A tibble: 3 × 10
+#&gt;   variable     mean median     sd    mad       q5    q95  rhat ess_bulk ess_tail
+#&gt;   &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+#&gt; 1 b_Interce… -7.96  -7.98  2.10   2.05   -11.5    -4.49   1.00    3049.    2798.
+#&gt; 2 b_mark      0.133  0.133 0.0230 0.0227   0.0954  0.172  1.00    3064.    2776.
+#&gt; 3 sigma       1.63   1.60  0.217  0.211    1.32    2.03   1.00    2706.    2588.</code></pre>
+</div>
+</div>
+</section>
+<section id="hpdi-with-bayestestr" class="slide level2">
+<h2>HPDI with <code>bayestestR</code></h2>
+<p>The <code>bayestestR</code> contains a lot of functions to do inference and post-processing on <code>brms</code> (and also other) models:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a>bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Highest Density Interval
+#&gt; 
+#&gt; Parameter   |         95% HDI
+#&gt; -----------------------------
+#&gt; (Intercept) | [-12.24, -3.92]
+#&gt; mark        | [  0.09,  0.18]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-70-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="the-broom-package" class="slide level2">
+<h2>The <code>broom</code> package</h2>
+<p>The <code>broom.mixed</code> package automatically provide the <code>summary()</code> into a data.frame format:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom.mixed)</span>
+<span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   effect   component group    term         estimate std.error conf.low conf.high
+#&gt;   &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+#&gt; 1 fixed    cond      &lt;NA&gt;     (Intercept)    -7.96     2.10   -12.2       -3.85 
+#&gt; 2 fixed    cond      &lt;NA&gt;     mark            0.133    0.0230   0.0882     0.179
+#&gt; 3 ran_pars cond      Residual sd__Observa…    1.63     0.217    1.27       2.11</code></pre>
+</div>
+</div>
+</section>
+<section id="more-on-bayestestr" class="slide level2">
+<h2>More on <code>bayestestR</code></h2>
+<p>This is a really amazing package, have a look at the <code>Features</code> section because contains functions and explanations about different ways of summarizing the posterior distribution.</p>
+</section>
+<section id="bayesian-workflow" class="slide level2">
+<h2>Bayesian Workflow</h2>
+<ul>
+<li>Nice paper about the Bayesian Workflow: <a href="https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf">https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf</a></li>
+</ul>
 </section>
 <section id="references" class="slide level2 refs smaller scrollable">
 <h2>References</h2>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Gelman2019-hp" class="csl-entry" role="listitem">
+Gelman, Andrew, Ben Goodrich, Jonah Gabry, and Aki Vehtari. 2019. <span>“R-Squared for Bayesian Regression Models.”</span> <em>The American Statistician</em> 73: 307–9. <a href="https://doi.org/10.1080/00031305.2018.1549100">https://doi.org/10.1080/00031305.2018.1549100</a>.
+</div>
 <div id="ref-Granziol2025-sy" class="csl-entry" role="listitem">
 Granziol, Umberto, Maximilian Rabe, Marcello Gallucci, Andrea Spoto, and Giulio Vidotto. 2025. <span>“Not Another Post Hoc Paper: A New Look at Contrast Analysis and Planned Comparisons.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 8 (January). <a href="https://doi.org/10.1177/25152459241293110">https://doi.org/10.1177/25152459241293110</a>.
 </div>
 <div id="ref-Schad2020-ht" class="csl-entry" role="listitem">
 Schad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. <span>“How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.”</span> <em>Journal of Memory and Language</em> 110 (February): 104038. <a href="https://doi.org/10.1016/j.jml.2019.104038">https://doi.org/10.1016/j.jml.2019.104038</a>.
+</div>
+<div id="ref-Wagenmakers2010-fj" class="csl-entry" role="listitem">
+Wagenmakers, Eric-Jan, Tom Lodewyckx, Himanshu Kuriyal, and Raoul Grasman. 2010. <span>“Bayesian Hypothesis Testing for Psychologists: A Tutorial on the Savage–Dickey Method.”</span> <em>Cognitive Psychology</em> 60 (May): 158–89. <a href="https://doi.org/10.1016/j.cogpsych.2009.12.001">https://doi.org/10.1016/j.cogpsych.2009.12.001</a>.
+</div>
+<div id="ref-Wagenmakers2023-ll" class="csl-entry" role="listitem">
+Wagenmakers, Eric-Jan, and Alexander Ly. 2023. <span>“History and Nature of the Jeffreys-Lindley Paradox.”</span> <em>Archive for History of Exact Sciences</em> 77: 25–72. <a href="https://doi.org/10.1007/s00407-022-00298-3">https://doi.org/10.1007/s00407-022-00298-3</a>.
 </div>
 </div>
 </section></section>
