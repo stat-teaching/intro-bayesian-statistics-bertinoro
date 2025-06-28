@@ -992,6 +992,262 @@ https://avehtari.github.io/bayes_R2/bayes_R2.html
 https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/
 https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet
 
+## Bayes Factor
+
+As an example we can start with the classical coin-flip experiment. We need to guess if a coin is fair or not. Firstly let's formalize our prior beliefs in probabilistic terms:
+
+```{r}
+#| echo: false
+
+k = 50 # number of trials
+x = 0:k # theta
+p = x/k # p
+d = 40 # observed data
+
+prior = dbeta(p, 15, 15) 
+likelihood = dbinom(d, k, p)
+posterior = (prior * likelihood) / sum(prior * likelihood)
+
+prior = prior / sum(prior)
+likelihood = likelihood/ sum(likelihood)
+
+ylim = c(0, max(c(prior, likelihood, posterior)))
+
+plot(p, prior, 
+     type = "l", 
+     ylim = ylim, 
+     lwd = 2, 
+     xlab = latex2exp::TeX("$\\pi$"), 
+     ylab = "Probability",
+     col = "darkgreen")
+```
+
+## Bayes Factor
+
+Now we collect data and we observe $x = 40$ tails out of $k = 50$ trials thus $\hat{\pi} = 0.8$ and compute the *likelihood*:
+
+```{r}
+#| echo: false
+
+plot(p, prior, 
+     type = "l", 
+     ylim = ylim, 
+     lwd = 2, 
+     xlab = latex2exp::TeX("$\\pi$"), 
+     ylab = "Probability", col = "darkgreen")
+lines(p, likelihood, col = "black", lwd = 2)
+points(d/k, 0, pch = 19, col = "firebrick", cex = 1.5)
+```
+
+## Bayes Factor
+
+Finally we combine, using the Bayes rule, **prior** and **likelihood** to obtain the **posterior** distribution:
+
+```{r}
+#| echo: false
+
+plot(p, prior, 
+     type = "l", 
+     ylim = ylim, 
+     lwd = 2, 
+     xlab = latex2exp::TeX("$\\pi$"), 
+     ylab = "Probability",
+     col = "darkgreen")
+lines(p, likelihood, col = "black", lwd = 2)
+lines(p, posterior, lwd = 2, col = "dodgerblue")
+legend("topleft", legend = c("Prior", "Likelihood", "Posterior"), fill = c("darkgreen", "black", "dodgerblue"))
+points(d/k, 0, pch = 19, col = "firebrick", cex = 1.5)
+```
+
+## Bayes Factor
+
+The **Bayes Factor** (BF) --- also called the **likelihood ratio**, for obvious reasons --- is a measure of the relative support that the evidence provides for two competing hypotheses, $H_0$ and $H_1$ (~ $\pi$ in our previous example).  It plays a key role in the following *odds form* of Bayes's theorem.
+
+$$
+\frac{p(H_0|D)}{p(H_1|D)} = \frac{p(D|H_0)}{p(D|H_1)} \times \frac{p(H_0)}{p(H_1)}
+$$
+
+The ratio of the priors $\frac{p(H_0)}{p(H_1)}$ is called the **prior odds** of the hypotheses; and, the ratio of the poosteriors $\frac{p(H_0| D)}{p(H_1 | D)}$ is called the **posterior odds** of the hypotheses. Thus, the above (odds form) of Bayes's Theorem can be paraphrased as follows
+
+$$
+\text{posterior odds} = \text{Bayes Factor} \times \text{prior odds}
+$$
+
+## Calculating the Bayes Factor using the SDR
+
+Calculating the BF can be challenging in some situations. The Savage-Dickey density ratio (SDR) is a convenient shortcut to calculate the Bayes Factor [@Wagenmakers2010-fj]. The idea is that the ratio of the prior and posterior density distribution for hypothesis $H_1$ is an estimate of the Bayes factor calculated in the standard way.
+    
+$$
+BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x | H_1)}
+$$
+
+Where $\pi$ is the parameter of interest and $x$ is the null value under $H_0$ (e.g., 0). and $D$ are the data. 
+
+## Calculating the Bayes Factor using the SDR
+
+Following the previous example $H_0: \pi = 0.5$. Under $H_1$ we use a vague prior by setting $\pi \sim Beta(1, 1)$.
+
+Say we flipped the coin 20 times and we found that $\hat \pi = 0.75$.
+
+```{r}
+#| echo: false
+
+curve(dbeta(x, 1, 1), 
+      lwd = 2, 
+      col = "darkgreen", 
+      xlab = latex2exp::TeX("$\\pi$"),
+      ylab = "Density",
+      main = latex2exp::TeX("Prior distribution for $\\pi$"),
+      cex.lab = 1.3,
+      cex.main = 1.3,
+      cex.axis = 1.3)
+```
+
+## Calculating the Bayes Factor using the SDR
+
+The ratio between the two black dots is the Bayes Factor.
+
+```{r}
+#| echo: false
+par(mfrow = c(1,2))
+
+ps <- seq(0, 1, 0.01)
+
+# theta = 0.75
+k <- 20
+x <- 15
+theta <- x/k
+prior <- rep(1/length(ps), length(ps))
+likelihood <- dbinom(x, k, ps)
+posterior <- (prior * likelihood) / sum(prior * likelihood)
+
+title <- latex2exp::TeX("$x = 15$, $k = 20$, $\\hat{\\pi} = 0.75$, $\\hat{\\pi_0} = 0.5$")
+plot(ps, prior, ylim = c(0, 0.05), type = "l", col = "darkgreen", lwd = 3,
+     main = title,
+     xlab = latex2exp::TeX("\\pi"),
+     ylab = "Density")
+abline(v = 0.75, lty = "dashed", col = "grey")
+lines(ps, posterior, col = "#619CFF", lwd = 3)
+legend("topleft",
+       legend = c("Prior","Posterior"),
+       pch = 15,
+       col = c("darkgreen","#619CFF"))
+text(0.75+0.05, 0.015, latex2exp::TeX("$\\hat{\\pi}$"))
+#segments(0.5, 0, 0.5, posterior[ps == 0.5])
+points(0.5, posterior[ps == 0.5], cex = 2, pch = 19)
+points(0.5, prior[ps == 0.5], cex = 2, pch = 19)
+points(0.75, 0, cex = 1, pch = 19, col = "firebrick")
+
+# theta = 0.5
+k <- 20
+x <- 10
+theta <- x/k
+
+prior <- rep(1/length(ps), length(ps))
+likelihood <- dbinom(x, k, ps)
+posterior <- (prior * likelihood) / sum(prior * likelihood)
+
+title <- latex2exp::TeX("$x = 10$, $k = 20$, $\\hat{\\pi} = 0.5$, $\\hat{\\pi_0} = 0.5$")
+plot(ps, prior, ylim = c(0, 0.05), type = "l", col = "darkgreen", lwd = 3,
+     main = title,
+     xlab = latex2exp::TeX("\\pi"),
+     ylab = "Density")
+abline(v = 0.5, lty = "dashed", col = "grey")
+lines(ps, posterior, col = "#619CFF", lwd = 3)
+legend("topleft",
+       legend = c("Prior","Posterior"),
+       pch = 15,
+       col = c("darkgreen","#619CFF"))
+text(0.5+0.05, 0.015, latex2exp::TeX("$\\hat{\\pi}$"))
+points(0.5, posterior[ps == 0.5], cex = 2, pch = 19)
+points(0.5, prior[ps == 0.5], cex = 2, pch = 19)
+points(0.5, 0, cex = 1, pch = 19, col = "firebrick")
+```
+
+## Bayes Factor in `brms`
+
+https://vuorre.com/posts/2017-03-21-bayes-factors-with-brms/
+https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#:~:text=For%20the%20computation%20of%20Bayes,flat%20priors%20the%20null%20is
+
+## Be careful with the Bayes Factor
+
+The Bayes Factor computed with `hypothesis()` or in general the SDR method is highly sensitive to the priors. See also the `bayestestR` [documentation](https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#setting-the-correct-prior). In general:
+
+- The Bayes Factor requires informative or at least non-flat priors. Remember that in `brms` the default prior is flat
+- As the prior scale (e.g., standard deviation) increase, the Bayes Factor tends to suggest evidence for the null hypothesis, even when the null hypothesis is false
+
+This is called [Lindley's paradox](https://en.wikipedia.org/wiki/Lindley%27s_paradox). [see @Wagenmakers2023-ll].
+
+## Lindley's paradox, a simulation
+
+We can just simulate a t-test (or equivalently a parameter of a model) and run the Bayesian model with different prior distribution scale.
+
+For a t-test we are focused on the prior for the (standardized) difference between the means. We can set a prior centered on 0 with different scale.
+
+Here I'm using the `BayesFactor` package just because is faster for simple model if we are interested in the Bayes Factor pointnull (the same as `brms::hypothesis(x, "b = 0")`).
+
+## Lindley's paradox, a simulation
+
+```{r}
+#| code-fold: true
+library(BayesFactor)
+
+set.seed(2025)
+n <- 100
+d <- 0.5
+nsim <- 1000
+rscale <- c(0.1, 1, 2, 5, 10, 20, 100, 500, 1000)
+
+ttest_sim <- function(n, d, rscale = 1, nsim = 1000){
+    res <- vector(mode = "list")
+    for(i in 1:nsim){
+        x <- rep(0:1, each = n)
+        y <- d * x + rnorm(n*2)
+        dat <- data.frame(y, x)
+        bf <- ttestBF(formula = y ~ x, data = dat, rscale = rscale)
+        res[[i]] <- data.frame(bf@bayesFactor)
+    }
+    res <- do.call(rbind, res)
+    rownames(res) <- NULL
+    res
+}
+
+if(!file.exists(here("slides", "objects", "bf_prior.rds"))){
+  bf <- lapply(rscale, function(r) ttest_sim(n = n, d = d, rscale = r))
+  saveRDS(bf, here("slides", "objects", "bf_prior.rds"))
+} else{
+  bf <- readRDS(here("slides", "objects", "bf_prior.rds"))
+}
+
+names(bf) <- rscale
+bfd <- dplyr::bind_rows(bf, .id = "rscale")
+
+bfd |>
+    group_by(rscale) |> 
+    summarise(log_bf10 = mean(bf),
+              bf10 = exp(log_bf10)) |> 
+    ggplot(aes(x = as.numeric(rscale), y = log_bf10)) +
+    geom_point() +
+    geom_line() +
+    geom_hline(yintercept = 0, lwd = 0.5, lty = "dashed") +
+    annotate("text", y = -1.5, x = 1100, label = "Evidence for H0", angle = 90) +
+    annotate("text", y = 1.5, x = 1100, label = "Evidence for H1", angle = 90) +
+    ylim(-5, 5) +
+    xlab("Prior Distribution Scale") +
+    ylab("log BF H1/H0") +
+    ggtitle("d = 0.5, n = 100")
+```
+
+## Prior Sensitivity Check
+
+Given the sensitivity of Bayesian models to the prior, especially when informative is always a good idea to check the actual impact of priors. Not only for Bayes Factors but also for the posterior distributions.
+
+- Run your model with the prior that are more plausible for you
+- Run the same model with priors that are more and less informative
+- Check the impact of the prior on your posterior distributions and conclusions
+
+## Prior Predictive Check
+
 ## Packages
 
 - broom
