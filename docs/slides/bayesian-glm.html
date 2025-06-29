@@ -236,7 +236,7 @@
 <h2>What is a linear model?</h2>
 <p>Let’s start with a single variable <code>y</code>. We assume that the variable comes from a Normal distribution:</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-2-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-3-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="what-is-a-linear-model-1" class="slide level2">
 <h2>What is a linear model?</h2>
 <p>What we can do with this variable? We can estimate the parameters that define the Normal distribution thus <span class="math inline">\(\mu\)</span> (the mean) and <span class="math inline">\(\sigma\)</span> (the standard deviation).</p>
@@ -283,17 +283,17 @@
 <section id="what-is-a-linear-model-4" class="slide level2">
 <h2>What is a linear model?</h2>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-5-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-6-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="what-is-a-linear-model-5" class="slide level2">
 <h2>What is a linear model?</h2>
 <p>And assuming that we know <span class="math inline">\(\sigma\)</span> (thus fixing it at 50):</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-6-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-7-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="what-is-a-linear-model-6" class="slide level2">
 <h2>What is a linear model?</h2>
 <p>Thus, with the estimates of <code>glm</code>, we have this model fitted on the data:</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-7-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-8-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="including-a-predictor" class="slide level2">
 <h2>Including a predictor</h2>
 <p>When we include a predictor, we are actually try to explain the variability of <code>y</code> using a variable <code>x</code>. For example, this is an hypothetical relationship:</p>
@@ -301,7 +301,7 @@
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-8-1.svg" class="quarto-figure quarto-figure-center" width="960"></p>
+<p><img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-9-1.svg" class="quarto-figure quarto-figure-center" width="960"></p>
 </figure>
 </div>
 </div>
@@ -317,16 +317,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)  10.0602     0.1092  92.132  &lt; 2e-16 ***
-#&gt; x             0.4744     0.1236   3.838  0.00022 ***
+#&gt; (Intercept)   9.8697     0.1118  88.267  &lt; 2e-16 ***
+#&gt; x             0.5122     0.1140   4.493 1.92e-05 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 1.170067)
+#&gt; (Dispersion parameter for gaussian family taken to be 1.202647)
 #&gt; 
-#&gt;     Null deviance: 131.90  on 99  degrees of freedom
-#&gt; Residual deviance: 114.67  on 98  degrees of freedom
-#&gt; AIC: 303.47
+#&gt;     Null deviance: 142.14  on 99  degrees of freedom
+#&gt; Residual deviance: 117.86  on 98  degrees of freedom
+#&gt; AIC: 306.22
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -335,7 +335,7 @@
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-10-1.svg" class="quarto-figure quarto-figure-center" width="960"></p>
+<p><img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-11-1.svg" class="quarto-figure quarto-figure-center" width="960"></p>
 </figure>
 </div>
 </div>
@@ -345,7 +345,7 @@
 <h2>Assumptions of the linear model</h2>
 <p>More practicaly, we are saying that the model allows for varying the mean i.e., each <code>x</code> value can be associated with a different <span class="math inline">\(\mu\)</span> but with a fixed (and estimated) <span class="math inline">\(\sigma\)</span>.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-11-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-12-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section></section>
 <section>
 <section id="generalized-linear-models" class="title-slide slide level1 center">
 <h1>Generalized linear models</h1>
@@ -363,7 +363,7 @@
 <h2>Random Component</h2>
 <p>The <strong>random component</strong> of a GLM identify the response variable <span class="math inline">\(y\)</span> coming from a certain probability distribution.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-12-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:50.0%"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-13-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:50.0%"></section>
 <section id="random-component-1" class="slide level2">
 <h2>Random Component</h2>
 <ul>
@@ -384,7 +384,7 @@ f(k,\lambda) = Pr(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
 <h2>Random Component, Poisson example</h2>
 <p>The mean or location of the Poisson is <span class="math inline">\(\lambda\)</span> and also the scale or variance is <span class="math inline">\(\lambda\)</span>. Compared to the Gaussian, there are no two parameters.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-13-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-14-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="random-component-2" class="slide level2">
 <h2>Random Component</h2>
 <p>To sum-up, the random component represents the assumption about the nature of our response variable. <strong>With GLM we want to include predictors to explain <em>systematic</em> changes of the mean (but also the scale/variance) of the random component</strong>.</p>
@@ -412,7 +412,7 @@ f(k,\lambda) = Pr(X = k) = \frac{\lambda^k e^{-\lambda}}{k!}
 <h2>Systematic Component, an example</h2>
 <p>Another example, assuming we have the same depression score and we want to predict it with an anxiety score. The blue line is the true/estimated regression line where <span class="math inline">\(\eta_i\)</span> is the expected value for the observation <span class="math inline">\(x_i\)</span>. The red segments are the errors or residuals i.e., the random component.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-14-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-15-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="systematic-component-1" class="slide level2">
 <h2>Systematic Component</h2>
 <p>To sum-up, the systematic component is the combination of predictors that are used to predict the mean of the distribution that is used as random component. The errors part of the model is distributed as the random component.</p>
@@ -940,7 +940,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 #&gt; 
 #&gt; Coefficients:
 #&gt; (Intercept)            x  
-#&gt;      0.3312       0.4032</code></pre>
+#&gt;      0.2368       0.3688</code></pre>
 </div>
 </div>
 </div><div class="column">
@@ -952,11 +952,11 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 #&gt; 
 #&gt; Coefficients:
 #&gt; (Intercept)            x  
-#&gt;      0.3312       0.4032  
+#&gt;      0.2368       0.3688  
 #&gt; 
 #&gt; Degrees of Freedom: 99 Total (i.e. Null);  98 Residual
-#&gt; Null Deviance:       134.2 
-#&gt; Residual Deviance: 118.7     AIC: 306.9</code></pre>
+#&gt; Null Deviance:       109.6 
+#&gt; Residual Deviance: 96.23     AIC: 285.9</code></pre>
 </div>
 </div>
 </div></div>
@@ -976,13 +976,13 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <span id="cb10-9"><a aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(anxiety, b0, b1, eta)</span>
 <span id="cb10-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>#&gt;       anxiety  b0  b1          eta
-#&gt; 1 -1.29805810 0.3 0.5 -0.349029052
-#&gt; 2 -0.42833018 0.3 0.5  0.085834912
-#&gt; 3 -0.74321134 0.3 0.5 -0.071605672
-#&gt; 4  0.09864705 0.3 0.5  0.349323525
-#&gt; 5  0.17454823 0.3 0.5  0.387274117
-#&gt; 6 -0.60786521 0.3 0.5 -0.003932605</code></pre>
+<pre><code>#&gt;      anxiety  b0  b1         eta
+#&gt; 1  0.4892000 0.3 0.5  0.54460001
+#&gt; 2 -1.5912630 0.3 0.5 -0.49563148
+#&gt; 3 -0.4770213 0.3 0.5  0.06148934
+#&gt; 4 -1.8916850 0.3 0.5 -0.64584248
+#&gt; 5 -0.4024015 0.3 0.5  0.09879926
+#&gt; 6  0.7335647 0.3 0.5  0.66678234</code></pre>
 </div>
 </div>
 </section>
@@ -990,7 +990,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Gaussian GLM, a simple simulation</h2>
 <p><code>eta</code> is the linear predictor (without errors):</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-20-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Thus the expected value of a person with <span class="math inline">\(\mbox{anxiety} = -1\)</span> is <span class="math inline">\(\beta_0 + \beta_1\times(-1)\)</span> thus -0.2.</p>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-21-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"><p>Thus the expected value of a person with <span class="math inline">\(\mbox{anxiety} = -1\)</span> is <span class="math inline">\(\beta_0 + \beta_1\times(-1)\)</span> thus -0.2.</p>
 </section>
 <section id="gaussian-glm-a-simple-simulation-2" class="slide level2">
 <h2>Gaussian GLM, a simple simulation</h2>
@@ -1006,12 +1006,12 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Gaussian GLM, a simple simulation</h2>
 <p>This is the simulated dataset. The blue line is the linear predictor and the red segments are the Gaussian residuals.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-22-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-23-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="gaussian-glm-a-simple-simulation-4" class="slide level2">
 <h2>Gaussian GLM, a simple simulation</h2>
 <p>If we plot the red segments we have roughly a Gaussian distribution. This is the assumption of the GLM with a Gaussian random component.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-23-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-24-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="what-about-the-link-function" class="slide level2">
 <h2>What about the link function?</h2>
 <p>The link function for the Gaussian GLM is by default the <em>identity</em>. Identity means that <span class="math inline">\(\eta_i = \mu_i\)</span>, thus there is no transformation. Within each distribution object in R there is the link function and the inverse:</p>
@@ -1039,13 +1039,11 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> fam<span class="sc">$</span><span class="fu">linkinv</span>(b0 <span class="sc">+</span> b1 <span class="sc">*</span> anxiety)</span>
 <span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>#&gt; [1] -0.349029052  0.085834912 -0.071605672  0.349323525  0.387274117
-#&gt; [6] -0.003932605</code></pre>
+<pre><code>#&gt; [1]  0.54460001 -0.49563148  0.06148934 -0.64584248  0.09879926  0.66678234</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fam<span class="sc">$</span><span class="fu">linkfun</span>(mu))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>#&gt; [1] -0.349029052  0.085834912 -0.071605672  0.349323525  0.387274117
-#&gt; [6] -0.003932605</code></pre>
+<pre><code>#&gt; [1]  0.54460001 -0.49563148  0.06148934 -0.64584248  0.09879926  0.66678234</code></pre>
 </div>
 </div>
 <p>But with other GLMs, (e.g., logistic regression) the link function is the core element.</p>
@@ -1193,12 +1191,12 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-32-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-33-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="model-checking-using-simulations" class="slide level2">
 <h2>Model checking using simulations</h2>
 <p>We can check the model fit using simulations. In Bayesian terms this is called Posterior Predictive Checks. For standard models we use only the likelihood.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-33-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-34-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="model-checking-using-simulations-1" class="slide level2">
 <h2>Model checking using simulations</h2>
 <p>With the Bayesian models we can just use the <code>brms::pp_check()</code> function that compute the posterior predictive checks:</p>
@@ -1206,7 +1204,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(fit_group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-34-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-35-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="setting-priors" class="slide level2">
 <h2>Setting priors</h2>
 <p>By default <code>brms</code> use some priors. You can see the actual used priors using:</p>
@@ -1255,7 +1253,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Rescaling</h2>
 <p>For example, let’s assume to have the relationship between self-esteem (from 0 to 20) and the graduation mark from 66 to 111 (110 cum laude):</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-38-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-39-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="rescaling-1" class="slide level2">
 <h2>Rescaling</h2>
 <p>Let’s fit a simple regression:</p>
@@ -1309,12 +1307,12 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Rescaling, problems?</h2>
 <p>The first problem is that the <code>Intercept</code> is meaningless. Thus we can, for example, mean-center the <code>mark</code> variable. The slope is the same, we are only shifting the <code>x</code>. The intercept is different.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-41-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-42-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="intercept-prior" class="slide level2">
 <h2>Intercept prior</h2>
 <p>Now the intercept is the expected self esteem value when <code>mark</code> is on average. Given that the values ranges from 0 to 20, we could put less probability of extreme values (for average marks, around 88) we could imagine also average value for self-esteem (around 10).</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-42-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-43-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="intercept-prior-centering" class="slide level2">
 <h2>Intercept prior, centering</h2>
 <div class="cell" data-layout-align="center">
@@ -1327,12 +1325,12 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Slope prior, rescaling</h2>
 <p>Then for the slope, probably there is too much granularity in the <code>mark</code> variable. 1 point increase is very tiny. To improve the model interpretation we can rescale the variable giving more weight to the unit increase.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-44-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-45-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="slope-prior-rescaling-1" class="slide level2">
 <h2>Slope prior, rescaling</h2>
 <p>Now we have a more practical idea of size of the slope. We can use a very vague but not flat prior (the default) considering that 0 means no effect. Remember that now the slope is the increase in self-esteem for incrase of 10 points in the mark.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-45-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-46-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="slope-prior-rescaling-2" class="slide level2">
 <h2>Slope prior, rescaling</h2>
 <p>The previus prior is very uninformative but is simply excluding impossible values. A slope of 10 means that increasing by 10 points would produce an increase that ranges the entire available scale.</p>
@@ -1526,7 +1524,7 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2><code>brms::hypothesis()</code></h2>
 <p>The <code>brms::hypothesis()</code> function is a very nice way to test hypotheses into a bayesian framework.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-54-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-55-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayesian-r2-gelman2019-hp" class="slide level2">
 <h2>Bayesian <span class="math inline">\(R^2\)</span> <span class="citation" data-cites="Gelman2019-hp">(<a href="#/references" role="doc-biblioref" onclick="">Gelman et al. 2019</a>)</span></h2>
 <p><span class="citation" data-cites="Gelman2019-hp">Gelman et al. (<a href="#/references" role="doc-biblioref" onclick="">2019</a>)</span> explained a generalization of the common <span class="math inline">\(R^2\)</span> to be applied for Bayesian Generalized Linear Models.</p>
@@ -1552,17 +1550,17 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Bayes Factor</h2>
 <p>As an example we can start with the classical coin-flip experiment. We need to guess if a coin is fair or not. Firstly let’s formalize our prior beliefs in probabilistic terms:</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-55-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-56-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayes-factor-1" class="slide level2">
 <h2>Bayes Factor</h2>
 <p>Now we collect data and we observe <span class="math inline">\(x = 40\)</span> tails out of <span class="math inline">\(k = 50\)</span> trials thus <span class="math inline">\(\hat{\pi} = 0.8\)</span> and compute the <em>likelihood</em>:</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-56-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-57-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayes-factor-2" class="slide level2">
 <h2>Bayes Factor</h2>
 <p>Finally we combine, using the Bayes rule, <strong>prior</strong> and <strong>likelihood</strong> to obtain the <strong>posterior</strong> distribution:</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-57-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-58-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayes-factor-3" class="slide level2">
 <h2>Bayes Factor</h2>
 <p>The <strong>Bayes Factor</strong> (BF) — also called the <strong>likelihood ratio</strong>, for obvious reasons — is a measure of the relative support that the evidence provides for two competing hypotheses, <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span> (~ <span class="math inline">\(\pi\)</span> in our previous example). It plays a key role in the following <em>odds form</em> of Bayes’s theorem.</p>
@@ -1587,12 +1585,12 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <p>Following the previous example <span class="math inline">\(H_0: \pi = 0.5\)</span>. Under <span class="math inline">\(H_1\)</span> we use a vague prior by setting <span class="math inline">\(\pi \sim Beta(1, 1)\)</span>.</p>
 <p>Say we flipped the coin 20 times and we found that <span class="math inline">\(\hat \pi = 0.75\)</span>.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-58-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-59-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="calculating-the-bayes-factor-using-the-sdr-2" class="slide level2">
 <h2>Calculating the Bayes Factor using the SDR</h2>
 <p>The ratio between the two black dots is the Bayes Factor.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-59-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-60-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayes-factor-in-brms" class="slide level2">
 <h2>Bayes Factor in <code>brms</code></h2>
 <p>https://vuorre.com/posts/2017-03-21-bayes-factors-with-brms/ https://easystats.github.io/bayestestR/reference/bayesfactor_parameters.html#:~:text=For%20the%20computation%20of%20Bayes,flat%20priors%20the%20null%20is</p>
@@ -1615,7 +1613,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="lindleys-paradox-a-simulation-1" class="slide level2">
 <h2>Lindley’s paradox, a simulation</h2>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-60-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-61-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="prior-sensitivity-check" class="slide level2">
 <h2>Prior Sensitivity Check</h2>
 <p>Given the sensitivity of Bayesian models to the prior, especially when informative is always a good idea to check the actual impact of priors. Not only for Bayes Factors but also for the posterior distributions.</p>
@@ -1705,7 +1703,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="prior-predictive-check-4" class="slide level2">
 <h2>Prior predictive check</h2>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-65-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-66-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="extracting-posterior-distributions" class="slide level2">
 <h2>Extracting Posterior Distributions</h2>
 <p>When running a model with <code>lm</code> and <code>glm</code>, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.</p>
@@ -1789,7 +1787,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-70-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-71-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="the-broom-package" class="slide level2">
 <h2>The <code>broom</code> package</h2>
 <p>The <code>broom.mixed</code> package automatically provide the <code>summary()</code> into a data.frame format:</p>

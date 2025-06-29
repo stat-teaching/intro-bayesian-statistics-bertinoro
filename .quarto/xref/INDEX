@@ -15,5 +15,11 @@
   },
   "exercises/well-being.qmd": {
     "well-being.html": "413faf67"
+  },
+  "exercises/glm.qmd": {
+    "glm.html": "5894cedc"
+  },
+  "exercises/phd-stress.qmd": {
+    "phd-stress.html": "59ad8f5f"
   }
 }

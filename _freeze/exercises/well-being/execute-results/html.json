@@ -1,0 +1,15 @@
+{
+  "hash": "fd459093e863b04c3fd7a41f27297807",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Well-being and Psychological Predictors\"\nexecute: \n  echo: false\n---\n\n## Dataset Description\n\nThis dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n### Variables\n\n| Variable           | Type         | Description                                                  |\n|--------------------|--------------|--------------------------------------------------------------|\n| `age`              | Continuous   | Age in years                                                 |\n| `gender`           | Categorical  | Male, Female, or Other                                       |\n| `income`           | Continuous   | Annual income in €                                           |\n| `exercise_freq`    | Count        | Times exercising per week                                    |\n| `social_support`   | Continuous   | Perceived social support (0–10 scale)                        |\n| `therapy`          | Categorical  | Whether the individual is in therapy                         |\n| `well_being`       | Continuous   | Self-reported well-being (10 to 100)                         |\n\n### Hypotheses to Test\n\nWe generated the data based on the following **hypotheses**:\n\n1. **H1**: Higher income is associated with higher well-being.\n2. **H2**: Greater social support is associated with higher well-being.\n3. **H3**: More frequent exercise is associated with higher well-being.\n4. **H4**: Individuals in therapy report higher well-being.\n5. **H5**: Age is negatively associated with well-being.\n6. **H6**: Therapy is especially beneficial for individuals with low social support (*interaction*).\n7. **H7**: The positive effect of exercise on well-being increases with income (*interaction*).\n8. **H8**: Gender has no effect on well-being (test of a null effect).\n\n---\n\n\n::: {.cell}\n\n:::\n\n\n\n::: {.cell}\n::: {.cell-output .cell-output-stdout}\n\n```\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n```\n\n\n:::\n:::\n\n\nYou can find the dataset [here](../data/clean/well_being_data.csv)",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

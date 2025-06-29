@@ -1,0 +1,44 @@
+---
+title: "PhD Stress Level Dataset and Exercises"
+---
+
+# Dataset Description
+
+This dataset contains information on PhD students' stress levels (scale 0 to 100) along with several predictors:
+
+- **Coffee:** Number of coffee cups consumed per day (integer)  
+- **Spritz:** Number of spritz (aperitif) consumed per week (integer)  
+- **Statistical Knowledge:** Self-assessed score from 0 to 10  
+- **Software Used:** Statistical software used (`R`, `SPSS`, `Excel`)
+
+You can download the dataset [here](data/clean/phd.csv)
+
+# Exercises
+
+These exercises will help you explore the dataset, understand relationships, and fit a linear regression model.
+
+### 1. Load and Explore the Data
+
+- Load the dataset.  
+- Fix problems in the dataset, impute missing numerical values with the mean and missing categorical variables with a random value from the available values.
+- Calculate means, medians, standard deviations, and ranges for all numeric variables.  
+- Examine the distribution of the categorical variable `software_used` with counts and proportions.
+
+### 2. Visualize the Data
+
+- Plot histograms or density plots for the numeric variables (stress, coffee, spritz, statistical knowledge).  
+- Create boxplots of stress by `software_used`.  
+- Create scatterplots:
+  - Stress vs Coffee  
+  - Stress vs Spritz (color points by `software_used`)  
+  - Stress vs Statistical Knowledge  
+
+### 3. Check Relationships and Correlations
+
+- Compute correlation coefficients between numeric variables.  
+- Comment on the strength and direction of relationships between stress and each predictor.
+
+### 4. Fit a Linear Regression Model
+
+- Fit a linear regression model predicting stress from coffee, spritz, statistical knowledge, `software_used`, and the interaction between spritz and software
+- Examine the model summary and interpret the coefficients, especially the interaction terms

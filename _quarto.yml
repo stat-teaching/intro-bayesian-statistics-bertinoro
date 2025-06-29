@@ -5,6 +5,9 @@ project:
 resources:
   - "exercises/*"
 
+execute:
+  freeze: auto  # re-render only when source changes
+
 website:
   title: "Introduction to Bayesian Statistics"
   navbar:

@@ -20,3 +20,4 @@ title: "Introduction to Bayesian Statistics"
 
 - Esercises - [{{< fa file-pdf >}}](exercises/esercizi.pdf)
 - [Well-being dataset](exercises/well-being.qmd)
+- [PhD stress dataset](exercises/phd-stress.qmd)
