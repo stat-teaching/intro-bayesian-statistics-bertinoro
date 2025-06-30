@@ -30,4 +30,4 @@ title: "Introduction to Bayesian Statistics"
 
 ## Datasets
 
-You can find all the datasets [here](data/clean)
+You can find all the datasets [here](https://github.com/stat-teaching/intro-bayesian-statistics-bertinoro/tree/main/data/clean).
