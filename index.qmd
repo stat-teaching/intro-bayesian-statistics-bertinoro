@@ -8,7 +8,7 @@ title: "Introduction to Bayesian Statistics"
 
 ## Slides
 
-- Parte 1 - [{{< fa file-pdf >}}](slides/parte1.pdf) - [Rnw](source/parte1.Rnw)
+- Parte 1 - [{{< fa file-pdf >}}](slides/parte1.pdf)
 <!--
 - Parte 2 - [{{< fa file-pdf >}}](slides/parte2.pdf) - [Rnw](source/parte2.Rnw)
 - Parte 3 - [{{< fa file-pdf >}}](slides/parte3.pdf) - [Rnw](source/parte3.Rnw)
