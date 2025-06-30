@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>PhD Stress Level Dataset and Exercises – Introduction to Bayesian Statistics</title>
+<title>Teddy Child – Introduction to Bayesian Statistics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -111,28 +146,15 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#dataset-description" id="toc-dataset-description" class="nav-link active" data-scroll-target="#dataset-description">Dataset Description</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a>
-  <ul class="collapse">
-  <li><a href="#load-and-explore-the-data" id="toc-load-and-explore-the-data" class="nav-link" data-scroll-target="#load-and-explore-the-data">1. Load and Explore the Data</a></li>
-  <li><a href="#visualize-the-data" id="toc-visualize-the-data" class="nav-link" data-scroll-target="#visualize-the-data">2. Visualize the Data</a></li>
-  <li><a href="#check-relationships-and-correlations" id="toc-check-relationships-and-correlations" class="nav-link" data-scroll-target="#check-relationships-and-correlations">3. Check Relationships and Correlations</a></li>
-  <li><a href="#fit-a-linear-regression-model" id="toc-fit-a-linear-regression-model" class="nav-link" data-scroll-target="#fit-a-linear-regression-model">4. Fit a Linear Regression Model</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">PhD Stress Level Dataset and Exercises</h1>
+<h1 class="title">Teddy Child</h1>
 </div>
 
 
@@ -149,71 +171,65 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="dataset-description" class="level1">
-<h1>Dataset Description</h1>
-<p>This dataset contains information on PhD students’ stress levels (scale 0 to 100) along with several predictors:</p>
-<ul>
-<li><strong>Coffee:</strong> Number of coffee cups consumed per day (integer)<br>
-</li>
-<li><strong>Spritz:</strong> Number of spritz (aperitif) consumed per week (integer)<br>
-</li>
-<li><strong>Statistical Knowledge:</strong> Self-assessed score from 0 to 10<br>
-</li>
-<li><strong>Software Used:</strong> Statistical software used (<code>R</code>, <code>SPSS</code>, <code>Excel</code>)</li>
-</ul>
-<p>You can download the dataset <a href="data/clean/phd.csv">here</a></p>
-</section>
-<section id="exercises" class="level1">
-<h1>Exercises</h1>
-<p>These exercises will help you explore the dataset, understand relationships, and fit a linear regression model.</p>
-<section id="load-and-explore-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="load-and-explore-the-data">1. Load and Explore the Data</h3>
-<ul>
-<li>Load the dataset.<br>
-</li>
-<li>Fix problems in the dataset, impute missing numerical values with the mean and missing categorical variables with a random value from the available values.</li>
-<li>Calculate means, medians, standard deviations, and ranges for all numeric variables.<br>
-</li>
-<li>Examine the distribution of the categorical variable <code>software_used</code> with counts and proportions.</li>
-</ul>
-</section>
-<section id="visualize-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="visualize-the-data">2. Visualize the Data</h3>
-<ul>
-<li>Plot histograms or density plots for the numeric variables (stress, coffee, spritz, statistical knowledge).<br>
-</li>
-<li>Create boxplots of stress by <code>software_used</code>.<br>
-</li>
-<li>Create scatterplots:
-<ul>
-<li>Stress vs Coffee<br>
-</li>
-<li>Stress vs Spritz (color points by <code>software_used</code>)<br>
-</li>
-<li>Stress vs Statistical Knowledge</li>
-</ul></li>
-</ul>
-</section>
-<section id="check-relationships-and-correlations" class="level3">
-<h3 class="anchored" data-anchor-id="check-relationships-and-correlations">3. Check Relationships and Correlations</h3>
-<ul>
-<li>Compute correlation coefficients between numeric variables.<br>
-</li>
-<li>Comment on the strength and direction of relationships between stress and each predictor.</li>
-</ul>
-</section>
-<section id="fit-a-linear-regression-model" class="level3">
-<h3 class="anchored" data-anchor-id="fit-a-linear-regression-model">4. Fit a Linear Regression Model</h3>
-<ul>
-<li>Fit a linear regression model predicting stress from coffee, spritz, statistical knowledge, <code>software_used</code>, and the interaction between spritz and software</li>
-<li>Examine the model summary and interpret the coefficients, especially the interaction terms</li>
-</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/filippogambarota/work/teaching-projects/intro-bayesian-statistics-bertinoro</code></pre>
+</div>
+</div>
+<p>We can use as an example the Study conducted by the University of Padua (TEDDY Child Study, 2020)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Within the study, researchers asked the participants (mothers of a young child) about the presence of post-partum depression and measured the parental stress using the PSI-Parenting Stress Index.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>teddy <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data/clean/teddy_child.csv"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID Children Fam_status        Education Occupation Age Smoking_status
+1  1        1    Married      High school  Full-time  42             No
+2  2        1    Married      High school  Full-time  42             No
+3  3        1    Married      High school  Full-time  44             No
+4  4        2    Married      High school  Full-time  48             No
+5  5        3    Married Degree or higher  Full-time  39            Yes
+6  6        2    Married Degree or higher  Full-time  38      Ex-smoker
+  Alcool_status Depression_pp Parental_stress Alabama_involvment MSPSS_total
+1            No            No              75                 36    6.500000
+2            No            No              51                 41    5.500000
+3            No            No              76                 42    1.416667
+4            No            No              88                 39    1.083333
+5           Yes            No              67                 35    7.000000
+6            No            No              61                 36    3.333333
+  LTE Partner_cohesion Family_cohesion
+1   5         4.333333        2.916667
+2   5         4.166667        3.000000
+3   4         3.000000        2.500000
+4   4         2.166667        2.666667
+5   2         4.166667        2.666667
+6   0         3.000000        2.583333</code></pre>
+</div>
+</div>
+<p>Exploring the dataset try to fit Bayesian models predicting the <code>Parental_stress</code> with a set of predictors using additive effects and interactions.</p>
+<p>Exploring the dataset try to fit Bayesian models predicting the <code>Depression_pp</code> with a set of predictors using additive effects and interactions.</p>
 
 
-</section>
-</section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Thanks to Prof.&nbsp;Paolo Girardi for the example, see https://teddychild.dpss.psy.unipd.it/ for information<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

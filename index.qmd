@@ -2,6 +2,10 @@
 title: "Introduction to Bayesian Statistics"
 ---
 
+<center>
+{{< qrcode https://stat-teaching.github.io/intro-bayesian-statistics-bertinoro width=300 height=300 >}}
+</center>
+
 ## Slides
 
 - Parte 1 - [{{< fa file-pdf >}}](slides/parte1.pdf) - [Rnw](source/parte1.Rnw)
@@ -23,3 +27,7 @@ title: "Introduction to Bayesian Statistics"
 - Esercises - [{{< fa file-pdf >}}](exercises/esercizi.pdf)
 - [Well-being dataset](exercises/well-being.qmd)
 - [PhD stress dataset](exercises/phd-stress.qmd)
+
+## Datasets
+
+You can find all the datasets [here](data/clean)

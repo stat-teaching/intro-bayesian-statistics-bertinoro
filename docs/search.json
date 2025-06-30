@@ -7,6 +7,55 @@
     "text": "Dataset Description\nThis dataset contains information on PhD students’ stress levels (scale 0 to 100) along with several predictors:\n\nCoffee: Number of coffee cups consumed per day (integer)\n\nSpritz: Number of spritz (aperitif) consumed per week (integer)\n\nStatistical Knowledge: Self-assessed score from 0 to 10\n\nSoftware Used: Statistical software used (R, SPSS, Excel)\n\nYou can download the dataset here\n\n\nExercises\nThese exercises will help you explore the dataset, understand relationships, and fit a linear regression model.\n\n1. Load and Explore the Data\n\nLoad the dataset.\n\nFix problems in the dataset, impute missing numerical values with the mean and missing categorical variables with a random value from the available values.\nCalculate means, medians, standard deviations, and ranges for all numeric variables.\n\nExamine the distribution of the categorical variable software_used with counts and proportions.\n\n\n\n2. Visualize the Data\n\nPlot histograms or density plots for the numeric variables (stress, coffee, spritz, statistical knowledge).\n\nCreate boxplots of stress by software_used.\n\nCreate scatterplots:\n\nStress vs Coffee\n\nStress vs Spritz (color points by software_used)\n\nStress vs Statistical Knowledge\n\n\n\n\n3. Check Relationships and Correlations\n\nCompute correlation coefficients between numeric variables.\n\nComment on the strength and direction of relationships between stress and each predictor.\n\n\n\n4. Fit a Linear Regression Model\n\nFit a linear regression model predicting stress from coffee, spritz, statistical knowledge, software_used, and the interaction between spritz and software\nExamine the model summary and interpret the coefficients, especially the interaction terms"
   },
   {
+    "objectID": "exercises/well-being.html",
+    "href": "exercises/well-being.html",
+    "title": "Well-being and Psychological Predictors",
+    "section": "",
+    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
+  },
+  {
+    "objectID": "exercises/well-being.html#dataset-description",
+    "href": "exercises/well-being.html#dataset-description",
+    "title": "Well-being and Psychological Predictors",
+    "section": "",
+    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Slides",
+    "text": "Slides\n\nParte 1 -  - Rnw"
+  },
+  {
+    "objectID": "index.html#other-materials",
+    "href": "index.html#other-materials",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Other Materials",
+    "text": "Other Materials\n\nParte 1 - Introduzione a R1\nParte 5 - Generalized Linear Models2"
+  },
+  {
+    "objectID": "index.html#exercises",
+    "href": "index.html#exercises",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Exercises",
+    "text": "Exercises\n\nEsercises - \nWell-being dataset\nPhD stress dataset"
+  },
+  {
+    "objectID": "index.html#datasets",
+    "href": "index.html#datasets",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Datasets",
+    "text": "Datasets\nYou can find all the datasets here"
+  },
+  {
+    "objectID": "index.html#footnotes",
+    "href": "index.html#footnotes",
+    "title": "Introduction to Bayesian Statistics",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nThis is an intensive course about R, we will see some useful elements↩︎\nThis is an intensive PhD level course about GLMs↩︎"
+  },
+  {
     "objectID": "slides/bayesian-glm.html#almost-everything-is-a-linear-model",
     "href": "slides/bayesian-glm.html#almost-everything-is-a-linear-model",
     "title": "Generalized Linear Models with brms",
@@ -67,7 +116,7 @@
     "href": "slides/bayesian-glm.html#including-a-predictor",
     "title": "Generalized Linear Models with brms",
     "section": "Including a predictor",
-    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.98942    0.09345 106.891  &lt; 2e-16 ***\n#&gt; x            0.41294    0.09829   4.201 5.86e-05 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.8668227)\n#&gt; \n#&gt;     Null deviance: 100.249  on 99  degrees of freedom\n#&gt; Residual deviance:  84.949  on 98  degrees of freedom\n#&gt; AIC: 273.48\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
+    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.93465    0.09996  99.383  &lt; 2e-16 ***\n#&gt; x            0.36029    0.08750   4.118 7.99e-05 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.9971643)\n#&gt; \n#&gt;     Null deviance: 114.629  on 99  degrees of freedom\n#&gt; Residual deviance:  97.722  on 98  degrees of freedom\n#&gt; AIC: 287.48\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
   },
   {
     "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
@@ -630,6 +679,125 @@
     "text": "More on bayestestR\nThis is a really amazing package, have a look at the Features section because contains functions and explanations about different ways of summarizing the posterior distribution."
   },
   {
+    "objectID": "slides/bayesian-glm.html#plotting-effects",
+    "href": "slides/bayesian-glm.html#plotting-effects",
+    "title": "Generalized Linear Models with brms",
+    "section": "Plotting effects",
+    "text": "Plotting effects\nThe brms package contains some functions to plot the effects, such as the conditional_effects() function.\n\nconditional_effects(fit_mark)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-1",
+    "href": "slides/bayesian-glm.html#factorial-design-example-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nWe can make a very easy example with a 3x2 factorial design. Let’s load some data:\n\ndat_factorial &lt;- readRDS(here(\"data\", \"clean\", \"factorial.rds\"))\nhead(dat_factorial)\n\n#&gt;     Group Anxiety         DV\n#&gt; 1 Control     Low 0.82075674\n#&gt; 2 Control     Low 0.23564140\n#&gt; 3 Control     Low 0.97315448\n#&gt; 4 Control     Low 1.47248909\n#&gt; 5 Control     Low 0.57097543\n#&gt; 6 Control     Low 0.03714566"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-2",
+    "href": "slides/bayesian-glm.html#factorial-design-example-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nWe can fit our model with interaction:\n\nfit_factorial &lt;- brm(\n  DV ~ Group * Anxiety,\n  file = here(\"slides\", \"objects\", \"fit_factorial.rds\"),\n  data = dat_factorial\n)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-3",
+    "href": "slides/bayesian-glm.html#factorial-design-example-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nWe can create the grid of values:\n\ngrid &lt;- expand.grid(\n  Group = unique(dat_factorial$Group),\n  Anxiety = unique(dat_factorial$Anxiety)\n)\n\nhead(grid)\n\n#&gt;          Group Anxiety\n#&gt; 1      Control     Low\n#&gt; 2 Experimental     Low\n#&gt; 3      Control  Medium\n#&gt; 4 Experimental  Medium\n#&gt; 5      Control    High\n#&gt; 6 Experimental    High"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-4",
+    "href": "slides/bayesian-glm.html#factorial-design-example-4",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nWe can calculate the cell-means for the Group, averaging over the level of the other factor i.e. the main effect. We can use the tidybayes package.\n\nlibrary(tidybayes)\ngrid |&gt; \n  add_epred_draws(object = fit_factorial) |&gt; \n  group_by(Group, .draw) |&gt; \n  summarise(y = mean(.epred)) |&gt; \n  group_by(Group) |&gt; \n  summarise(median_hdci(y)) |&gt; \n  head()\n\n#&gt; # A tibble: 2 × 7\n#&gt;   Group            y    ymin  ymax .width .point .interval\n#&gt;   &lt;fct&gt;        &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    \n#&gt; 1 Control      0.185 -0.0671 0.446   0.95 median hdci     \n#&gt; 2 Experimental 0.128 -0.125  0.395   0.95 median hdci"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-5",
+    "href": "slides/bayesian-glm.html#factorial-design-example-5",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nSame but using emmeans:\n\nlibrary(emmeans)\nemmeans(fit_factorial, ~ Group)\n\n#&gt;  Group        emmean lower.HPD upper.HPD\n#&gt;  Control       0.185   -0.0638     0.448\n#&gt;  Experimental  0.128   -0.1315     0.386\n#&gt; \n#&gt; Results are averaged over the levels of: Anxiety \n#&gt; Point estimate displayed: median \n#&gt; HPD interval probability: 0.95"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-example-1",
+    "href": "slides/bayesian-glm.html#logistic-regression-example-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression example",
+    "text": "Logistic regression example\nFor an overview of the logistic regression we can refer to this material."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nWe can fit the same model of the previous slides using the teddy data.\n\nteddy &lt;- read.csv(here(\"data/clean/teddy_child.csv\"))\nhead(teddy)\n\n#&gt;   ID Children Fam_status        Education Occupation Age Smoking_status\n#&gt; 1  1        1    Married      High school  Full-time  42             No\n#&gt; 2  2        1    Married      High school  Full-time  42             No\n#&gt; 3  3        1    Married      High school  Full-time  44             No\n#&gt; 4  4        2    Married      High school  Full-time  48             No\n#&gt; 5  5        3    Married Degree or higher  Full-time  39            Yes\n#&gt; 6  6        2    Married Degree or higher  Full-time  38      Ex-smoker\n#&gt;   Alcool_status Depression_pp Parental_stress Alabama_involvment MSPSS_total\n#&gt; 1            No            No              75                 36    6.500000\n#&gt; 2            No            No              51                 41    5.500000\n#&gt; 3            No            No              76                 42    1.416667\n#&gt; 4            No            No              88                 39    1.083333\n#&gt; 5           Yes            No              67                 35    7.000000\n#&gt; 6            No            No              61                 36    3.333333\n#&gt;   LTE Partner_cohesion Family_cohesion\n#&gt; 1   5         4.333333        2.916667\n#&gt; 2   5         4.166667        3.000000\n#&gt; 3   4         3.000000        2.500000\n#&gt; 4   4         2.166667        2.666667\n#&gt; 5   2         4.166667        2.666667\n#&gt; 6   0         3.000000        2.583333"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-1",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nLet’s convert the response variable Depression_pp to a binary variable:\n\nteddy$Depression_pp01 &lt;- ifelse(teddy$Depression_pp == \"Yes\", 1, 0)\n\nfit_teddy &lt;- brm(\n  Depression_pp01 ~ Parental_stress,\n  data = teddy,\n  family = bernoulli(link = \"logit\"),\n  file = here(\"slides\", \"objects\", \"fit_teddy.rds\")\n)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-2",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\n\nsummary(fit_teddy)\n\n#&gt;  Family: bernoulli \n#&gt;   Links: mu = logit \n#&gt; Formula: Depression_pp01 ~ Parental_stress \n#&gt;    Data: teddy (Number of observations: 379) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept          -4.34      0.70    -5.71    -3.01 1.00     2570     2509\n#&gt; Parental_stress     0.04      0.01     0.02     0.06 1.00     2937     2486\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-3",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\n\nplot(fit_teddy)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-4",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-4",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nThe posterior draws, by default, are always on the linear predictor scale. For the Gaussian model this is not relevant, but here everything is in logit.s\n\n\n#&gt; # A draws_df: 6 iterations, 1 chains, and 5 variables\n#&gt;   b_Intercept b_Parental_stress Intercept lprior lp__\n#&gt; 1        -4.9             0.045      -2.1   -2.3 -138\n#&gt; 2        -5.2             0.050      -2.1   -2.3 -139\n#&gt; 3        -3.6             0.024      -2.1   -2.3 -139\n#&gt; 4        -4.0             0.031      -2.1   -2.3 -138\n#&gt; 5        -3.9             0.029      -2.0   -2.3 -138\n#&gt; 6        -5.7             0.057      -2.0   -2.3 -141\n#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-5",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-5",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nThe intercept is the logit of the probability of success when all predictors are zero."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-6",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-6",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nThe Parental_stress coefficient is the increase in the log-odds of success for a unit increase in the Parental stress."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-7",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-7",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\nWhen plotting the effects with conditional_effects() we are working on the probability space:\n\nconditional_effects(fit_teddy)"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-8",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-8",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms\n\nlibrary(tidybayes)\npp &lt;- data.frame(Parental_stress = c(40, 80, 120))\npredict(fit_teddy, newdata = pp)\n\n#&gt;      Estimate Est.Error Q2.5 Q97.5\n#&gt; [1,]  0.05800 0.2337727    0     1\n#&gt; [2,]  0.19525 0.3964426    0     1\n#&gt; [3,]  0.49100 0.4999815    0     1"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-9",
+    "href": "slides/bayesian-glm.html#logistic-regression-using-brms-9",
+    "title": "Generalized Linear Models with brms",
+    "section": "Logistic regression using brms",
+    "text": "Logistic regression using brms"
+  },
+  {
     "objectID": "slides/bayesian-glm.html#bayesian-workflow",
     "href": "slides/bayesian-glm.html#bayesian-workflow",
     "title": "Generalized Linear Models with brms",
@@ -644,52 +812,17 @@
     "text": "References\n\n\n\n\nGelman, Andrew, Ben Goodrich, Jonah Gabry, and Aki Vehtari. 2019. “R-Squared for Bayesian Regression Models.” The American Statistician 73: 307–9. https://doi.org/10.1080/00031305.2018.1549100.\n\n\nGranziol, Umberto, Maximilian Rabe, Marcello Gallucci, Andrea Spoto, and Giulio Vidotto. 2025. “Not Another Post Hoc Paper: A New Look at Contrast Analysis and Planned Comparisons.” Advances in Methods and Practices in Psychological Science 8 (January). https://doi.org/10.1177/25152459241293110.\n\n\nSchad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. “How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.” Journal of Memory and Language 110 (February): 104038. https://doi.org/10.1016/j.jml.2019.104038.\n\n\nWagenmakers, Eric-Jan, Tom Lodewyckx, Himanshu Kuriyal, and Raoul Grasman. 2010. “Bayesian Hypothesis Testing for Psychologists: A Tutorial on the Savage–Dickey Method.” Cognitive Psychology 60 (May): 158–89. https://doi.org/10.1016/j.cogpsych.2009.12.001.\n\n\nWagenmakers, Eric-Jan, and Alexander Ly. 2023. “History and Nature of the Jeffreys-Lindley Paradox.” Archive for History of Exact Sciences 77: 25–72. https://doi.org/10.1007/s00407-022-00298-3."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Introduction to Bayesian Statistics",
+    "objectID": "exercises/teddy.html",
+    "href": "exercises/teddy.html",
+    "title": "Teddy Child",
     "section": "",
-    "text": "Parte 1 -  - Rnw"
+    "text": "library(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.5.1     ✔ tibble    3.2.1\n✔ lubridate 1.9.4     ✔ tidyr     1.3.1\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(here)\n\nhere() starts at /Users/filippogambarota/work/teaching-projects/intro-bayesian-statistics-bertinoro\nWe can use as an example the Study conducted by the University of Padua (TEDDY Child Study, 2020)1. Within the study, researchers asked the participants (mothers of a young child) about the presence of post-partum depression and measured the parental stress using the PSI-Parenting Stress Index.\nteddy &lt;- read.csv(here(\"data/clean/teddy_child.csv\"))\nhead(teddy)\n\n  ID Children Fam_status        Education Occupation Age Smoking_status\n1  1        1    Married      High school  Full-time  42             No\n2  2        1    Married      High school  Full-time  42             No\n3  3        1    Married      High school  Full-time  44             No\n4  4        2    Married      High school  Full-time  48             No\n5  5        3    Married Degree or higher  Full-time  39            Yes\n6  6        2    Married Degree or higher  Full-time  38      Ex-smoker\n  Alcool_status Depression_pp Parental_stress Alabama_involvment MSPSS_total\n1            No            No              75                 36    6.500000\n2            No            No              51                 41    5.500000\n3            No            No              76                 42    1.416667\n4            No            No              88                 39    1.083333\n5           Yes            No              67                 35    7.000000\n6            No            No              61                 36    3.333333\n  LTE Partner_cohesion Family_cohesion\n1   5         4.333333        2.916667\n2   5         4.166667        3.000000\n3   4         3.000000        2.500000\n4   4         2.166667        2.666667\n5   2         4.166667        2.666667\n6   0         3.000000        2.583333\nExploring the dataset try to fit Bayesian models predicting the Parental_stress with a set of predictors using additive effects and interactions.\nExploring the dataset try to fit Bayesian models predicting the Depression_pp with a set of predictors using additive effects and interactions."
   },
   {
-    "objectID": "index.html#slides",
-    "href": "index.html#slides",
-    "title": "Introduction to Bayesian Statistics",
-    "section": "",
-    "text": "Parte 1 -  - Rnw"
-  },
-  {
-    "objectID": "index.html#other-materials",
-    "href": "index.html#other-materials",
-    "title": "Introduction to Bayesian Statistics",
-    "section": "Other Materials",
-    "text": "Other Materials\n\nParte 1 - Introduzione a R1\nParte 5 - Generalized Linear Models2"
-  },
-  {
-    "objectID": "index.html#exercises",
-    "href": "index.html#exercises",
-    "title": "Introduction to Bayesian Statistics",
-    "section": "Exercises",
-    "text": "Exercises\n\nEsercises - \nWell-being dataset\nPhD stress dataset"
-  },
-  {
-    "objectID": "index.html#footnotes",
-    "href": "index.html#footnotes",
-    "title": "Introduction to Bayesian Statistics",
+    "objectID": "exercises/teddy.html#footnotes",
+    "href": "exercises/teddy.html#footnotes",
+    "title": "Teddy Child",
     "section": "Footnotes",
-    "text": "Footnotes\n\n\nThis is an intensive course about R, we will see some useful elements↩︎\nThis is an intensive PhD level course about GLMs↩︎"
-  },
-  {
-    "objectID": "exercises/well-being.html",
-    "href": "exercises/well-being.html",
-    "title": "Well-being and Psychological Predictors",
-    "section": "",
-    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
-  },
-  {
-    "objectID": "exercises/well-being.html#dataset-description",
-    "href": "exercises/well-being.html#dataset-description",
-    "title": "Well-being and Psychological Predictors",
-    "section": "",
-    "text": "This dataset is about well-being scores (range: 10–100) with a series of psychological, behavioral, and demographic predictors.\n\n\n\n\n\n\n\n\n\n\nVariable\nType\nDescription\n\n\n\n\nage\nContinuous\nAge in years\n\n\ngender\nCategorical\nMale, Female, or Other\n\n\nincome\nContinuous\nAnnual income in €\n\n\nexercise_freq\nCount\nTimes exercising per week\n\n\nsocial_support\nContinuous\nPerceived social support (0–10 scale)\n\n\ntherapy\nCategorical\nWhether the individual is in therapy\n\n\nwell_being\nContinuous\nSelf-reported well-being (10 to 100)\n\n\n\n\n\n\nWe generated the data based on the following hypotheses:\n\nH1: Higher income is associated with higher well-being.\nH2: Greater social support is associated with higher well-being.\nH3: More frequent exercise is associated with higher well-being.\nH4: Individuals in therapy report higher well-being.\nH5: Age is negatively associated with well-being.\nH6: Therapy is especially beneficial for individuals with low social support (interaction).\nH7: The positive effect of exercise on well-being increases with income (interaction).\nH8: Gender has no effect on well-being (test of a null effect).\n\n\n\n\n       age gender   income exercise_freq social_support therapy well_being\n1 48.70958   Male 16961.79             1       6.301848      No   24.77800\n2 29.35302 Female 27490.86             6       5.420772      No   49.12772\n3 38.63128   Male 31710.07             0       4.310958      No   35.87966\n4 41.32863 Female 25965.33             6       5.050138      No   43.59889\n5 39.04268   Male 31046.59             2       9.075336      No   52.10580\n6 33.93875   Male 26811.19             4       0.000000     Yes   50.28308\n\n\nYou can find the dataset here"
+    "text": "Footnotes\n\n\nThanks to Prof. Paolo Girardi for the example, see https://teddychild.dpss.psy.unipd.it/ for information↩︎"
   }
 ]

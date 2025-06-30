@@ -1,0 +1,20 @@
+---
+title: "Teddy Child"
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+We can use as an example the Study conducted by the University of Padua (TEDDY Child
+Study, 2020)^[Thanks to Prof. Paolo Girardi for the example, see https://teddychild.dpss.psy.unipd.it/ for information]. Within the study, researchers asked the participants (mothers of a young child) about the presence of post-partum depression and measured the parental stress using the PSI-Parenting Stress Index.
+
+```{r}
+teddy <- read.csv(here("data/clean/teddy_child.csv"))
+head(teddy)
+```
+
+Exploring the dataset try to fit Bayesian models predicting the `Parental_stress` with a set of predictors using additive effects and interactions.
+
+Exploring the dataset try to fit Bayesian models predicting the `Depression_pp` with a set of predictors using additive effects and interactions.

@@ -1367,6 +1367,183 @@ broom.mixed::tidy(fit_mark)
 
 This is a really amazing package, have a look at the `Features` section because contains functions and explanations about different ways of summarizing the posterior distribution.
 
+## Plotting effects
+
+The `brms` package contains some functions to plot the effects, such as the `conditional_effects()` function.
+
+```{r}
+#| echo: true
+conditional_effects(fit_mark)
+```
+
+# Factorial design example
+
+## Factorial design example
+
+We can make a very easy example with a 3x2 factorial design. Let's load some data:
+
+```{r}
+#| echo: true
+dat_factorial <- readRDS(here("data", "clean", "factorial.rds"))
+head(dat_factorial)
+```
+
+## Factorial design example
+
+We can fit our model with interaction:
+
+```{r}
+#| echo: true
+fit_factorial <- brm(
+  DV ~ Group * Anxiety,
+  file = here("slides", "objects", "fit_factorial.rds"),
+  data = dat_factorial
+)
+```
+
+## Factorial design example
+
+We can create the grid of values:
+
+```{r}
+#| echo: true
+grid <- expand.grid(
+  Group = unique(dat_factorial$Group),
+  Anxiety = unique(dat_factorial$Anxiety)
+)
+
+head(grid)
+```
+
+## Factorial design example
+
+We can calculate the cell-means for the Group, averaging over the level of the other factor i.e. the main effect. We can use the [`tidybayes`](https://mjskay.github.io/tidybayes/) package.
+
+```{r}
+#| echo: true
+library(tidybayes)
+grid |> 
+  add_epred_draws(object = fit_factorial) |> 
+  group_by(Group, .draw) |> 
+  summarise(y = mean(.epred)) |> 
+  group_by(Group) |> 
+  summarise(median_hdci(y)) |> 
+  head()
+```
+
+## Factorial design example
+
+Same but using `emmeans`:
+
+```{r}
+#| echo: true
+library(emmeans)
+emmeans(fit_factorial, ~ Group)
+```
+
+# Logistic regression example
+
+## Logistic regression example
+
+For an overview of the logistic regression we can refer to this [material](https://stat-teaching.github.io/GLMphd/slides/02-binomial-glm/02-binomial-glm.html#/title-slide).
+
+## Logistic regression using `brms`
+
+We can fit the same model of the previous slides using the `teddy` data.
+
+```{r}
+#| echo: true
+teddy <- read.csv(here("data/clean/teddy_child.csv"))
+head(teddy)
+```
+
+## Logistic regression using `brms`
+
+Let's convert the response variable `Depression_pp` to a binary variable:
+
+```{r}
+#| echo: true
+teddy$Depression_pp01 <- ifelse(teddy$Depression_pp == "Yes", 1, 0)
+
+fit_teddy <- brm(
+  Depression_pp01 ~ Parental_stress,
+  data = teddy,
+  family = bernoulli(link = "logit"),
+  file = here("slides", "objects", "fit_teddy.rds")
+)
+```
+
+## Logistic regression using `brms`
+
+```{r}
+#| echo: true
+summary(fit_teddy)
+```
+
+## Logistic regression using `brms`
+
+```{r}
+#| echo: true
+plot(fit_teddy)
+```
+
+## Logistic regression using `brms`
+
+The posterior draws, by default, are always on the linear predictor scale. For the Gaussian model this is not relevant, but here everything is in logit.s
+
+```{r}
+post <- as_draws_df(fit_teddy)
+head(post)
+```
+
+## Logistic regression using `brms`
+
+The intercept is the logit of the probability of success when all predictors are zero.
+
+```{r}
+#| code-fold: true
+par(mfrow = c(1,2))
+hist(post$b_Intercept)
+hist(plogis(post$b_Intercept))
+```
+
+## Logistic regression using `brms`
+
+The `Parental_stress` coefficient is the increase in the log-odds of success for a unit increase in the Parental stress.
+
+```{r}
+#| code-fold: true
+par(mfrow = c(1,2))
+hist(post$b_Parental_stress)
+hist(exp(post$b_Parental_stress))
+```
+
+## Logistic regression using `brms`
+
+When plotting the effects with `conditional_effects()` we are working on the probability space:
+
+```{r}
+#| echo: true
+conditional_effects(fit_teddy)
+```
+
+## Logistic regression using `brms`
+
+```{r}
+#| echo: true
+library(tidybayes)
+pp <- data.frame(Parental_stress = c(40, 80, 120))
+predict(fit_teddy, newdata = pp)
+```
+
+## Logistic regression using `brms`
+
+```{r}
+add_epred_draws(pp, fit_teddy) |> 
+  ggplot(aes(x = Parental_stress, y = .epred)) +
+  stat_halfeye()
+```
+
 ## Bayesian Workflow
 
 - Nice paper about the Bayesian Workflow: [https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf](https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf)
