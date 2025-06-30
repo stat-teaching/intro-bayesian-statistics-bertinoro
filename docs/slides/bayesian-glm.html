@@ -317,16 +317,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)  9.93465    0.09996  99.383  &lt; 2e-16 ***
-#&gt; x            0.36029    0.08750   4.118 7.99e-05 ***
+#&gt; (Intercept)  9.92771    0.10092  98.375  &lt; 2e-16 ***
+#&gt; x            0.59076    0.09355   6.315 7.94e-09 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 0.9971643)
+#&gt; (Dispersion parameter for gaussian family taken to be 1.018061)
 #&gt; 
-#&gt;     Null deviance: 114.629  on 99  degrees of freedom
-#&gt; Residual deviance:  97.722  on 98  degrees of freedom
-#&gt; AIC: 287.48
+#&gt;     Null deviance: 140.36  on 99  degrees of freedom
+#&gt; Residual deviance:  99.77  on 98  degrees of freedom
+#&gt; AIC: 289.56
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -1912,6 +1912,102 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 #&gt; HPD interval probability: 0.95</code></pre>
 </div>
 </div>
+</section>
+<section id="factorial-design-example-6" class="slide level2">
+<h2>Factorial design example</h2>
+<p>How about effect sizes? We can calculate a Cohen’s <span class="math inline">\(d\)</span> using the posterior distributions:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>effectsize<span class="sc">::</span><span class="fu">cohens_d</span>(DV <span class="sc">~</span> Group, <span class="at">data =</span> dat_factorial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Cohen's d |        95% CI
+#&gt; -------------------------
+#&gt; 0.05      | [-0.30, 0.41]
+#&gt; 
+#&gt; - Estimated using pooled SD.</code></pre>
+</div>
+</div>
+</section>
+<section id="factorial-design-example-7" class="slide level2">
+<h2>Factorial design example</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a>grid <span class="sc">|&gt;</span> </span>
+<span id="cb82-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_epred_draws</span>(<span class="at">object =</span> fit_factorial, <span class="at">dpar =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb82-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Group, .draw) <span class="sc">|&gt;</span> </span>
+<span id="cb82-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">y =</span> <span class="fu">mean</span>(.epred),</span>
+<span id="cb82-5"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">sigma =</span> <span class="fu">mean</span>(sigma)) <span class="sc">|&gt;</span> </span>
+<span id="cb82-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Group, <span class="at">values_from =</span> y) <span class="sc">|&gt;</span> </span>
+<span id="cb82-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diff =</span> Control <span class="sc">-</span> Experimental,</span>
+<span id="cb82-8"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">d =</span> diff <span class="sc">/</span> sigma) <span class="sc">|&gt;</span> </span>
+<span id="cb82-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">median_hdi</span>(d))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A tibble: 1 × 6
+#&gt;        y   ymin  ymax .width .point .interval
+#&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+#&gt; 1 0.0564 -0.311 0.409   0.95 median hdi</code></pre>
+</div>
+</div>
+</section>
+<section id="factorial-design-example-t-test" class="slide level2">
+<h2>Factorial design example, t-test</h2>
+<p>Even easier with a t-test, we can do it directly from the model parameters:</p>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-81-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="factorial-design-example-t-test-1" class="slide level2">
+<h2>Factorial design example, t-test</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt;  Family: gaussian 
+#&gt;   Links: mu = identity; sigma = identity 
+#&gt; Formula: y ~ x 
+#&gt;    Data: dat_t (Number of observations: 100) 
+#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+#&gt;          total post-warmup draws = 4000
+#&gt; 
+#&gt; Regression Coefficients:
+#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+#&gt; Intercept     0.07      0.15    -0.23     0.37 1.00     4608     3224
+#&gt; x             0.40      0.22    -0.04     0.83 1.00     4228     2771
+#&gt; 
+#&gt; Further Distributional Parameters:
+#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+#&gt; sigma     1.06      0.08     0.92     1.23 1.00     3959     2430
+#&gt; 
+#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
+#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential
+#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+</section>
+<section id="factorial-design-example-t-test-2" class="slide level2">
+<h2>Factorial design example, t-test</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A draws_df: 6 iterations, 1 chains, and 6 variables
+#&gt;   b_Intercept   b_x sigma Intercept lprior lp__
+#&gt; 1      -0.016 0.764   1.0      0.37   -3.3 -151
+#&gt; 2      -0.014 0.503   1.1      0.24   -3.3 -149
+#&gt; 3      -0.155 0.704   1.0      0.20   -3.2 -150
+#&gt; 4       0.326 0.097   1.1      0.37   -3.3 -151
+#&gt; 5       0.282 0.107   1.2      0.34   -3.3 -151
+#&gt; 6       0.313 0.151   1.2      0.39   -3.3 -151
+#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}</code></pre>
+</div>
+</div>
+</section>
+<section id="factorial-design-example-t-test-3" class="slide level2">
+<h2>Factorial design example, t-test</h2>
+
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-84-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="factorial-design-example-t-test-4" class="slide level2">
+<h2>Factorial design example, t-test</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; # A tibble: 1 × 6
+#&gt;       y    ymin  ymax .width .point .interval
+#&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    
+#&gt; 1 0.381 -0.0241 0.787   0.95 median hdi</code></pre>
+</div>
+</div>
 </section></section>
 <section>
 <section id="logistic-regression-example" class="title-slide slide level1 center">
@@ -1926,8 +2022,8 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>Logistic regression using <code>brms</code></h2>
 <p>We can fit the same model of the previous slides using the <code>teddy</code> data.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>teddy <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data/clean/teddy_child.csv"</span>))</span>
-<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a>teddy <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data/clean/teddy_child.csv"</span>))</span>
+<span id="cb87-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;   ID Children Fam_status        Education Occupation Age Smoking_status
 #&gt; 1  1        1    Married      High school  Full-time  42             No
@@ -1957,20 +2053,20 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>Logistic regression using <code>brms</code></h2>
 <p>Let’s convert the response variable <code>Depression_pp</code> to a binary variable:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a>teddy<span class="sc">$</span>Depression_pp01 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(teddy<span class="sc">$</span>Depression_pp <span class="sc">==</span> <span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb82-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb82-3"><a aria-hidden="true" tabindex="-1"></a>fit_teddy <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb82-4"><a aria-hidden="true" tabindex="-1"></a>  Depression_pp01 <span class="sc">~</span> Parental_stress,</span>
-<span id="cb82-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> teddy,</span>
-<span id="cb82-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">bernoulli</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
-<span id="cb82-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"objects"</span>, <span class="st">"fit_teddy.rds"</span>)</span>
-<span id="cb82-8"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a aria-hidden="true" tabindex="-1"></a>teddy<span class="sc">$</span>Depression_pp01 <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(teddy<span class="sc">$</span>Depression_pp <span class="sc">==</span> <span class="st">"Yes"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb89-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-3"><a aria-hidden="true" tabindex="-1"></a>fit_teddy <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb89-4"><a aria-hidden="true" tabindex="-1"></a>  Depression_pp01 <span class="sc">~</span> Parental_stress,</span>
+<span id="cb89-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> teddy,</span>
+<span id="cb89-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">bernoulli</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
+<span id="cb89-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"objects"</span>, <span class="st">"fit_teddy.rds"</span>)</span>
+<span id="cb89-8"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="logistic-regression-using-brms-2" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;  Family: bernoulli 
 #&gt;   Links: mu = logit 
@@ -1993,10 +2089,10 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="logistic-regression-using-brms-3" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-82-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-89-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="logistic-regression-using-brms-4" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <p>The posterior draws, by default, are always on the linear predictor scale. For the Gaussian model this is not relevant, but here everything is in logit.s</p>
@@ -2018,38 +2114,38 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>Logistic regression using <code>brms</code></h2>
 <p>The intercept is the logit of the probability of success when all predictors are zero.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-84-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-91-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="logistic-regression-using-brms-6" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <p>The <code>Parental_stress</code> coefficient is the increase in the log-odds of success for a unit increase in the Parental stress.</p>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-85-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-92-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="logistic-regression-using-brms-7" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <p>When plotting the effects with <code>conditional_effects()</code> we are working on the probability space:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">conditional_effects</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">conditional_effects</span>(fit_teddy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-86-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-93-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="logistic-regression-using-brms-8" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybayes)</span>
-<span id="cb88-2"><a aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Parental_stress =</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">80</span>, <span class="dv">120</span>))</span>
-<span id="cb88-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit_teddy, <span class="at">newdata =</span> pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybayes)</span>
+<span id="cb95-2"><a aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Parental_stress =</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">80</span>, <span class="dv">120</span>))</span>
+<span id="cb95-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(fit_teddy, <span class="at">newdata =</span> pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;      Estimate Est.Error Q2.5 Q97.5
-#&gt; [1,]  0.05800 0.2337727    0     1
-#&gt; [2,]  0.19525 0.3964426    0     1
-#&gt; [3,]  0.49100 0.4999815    0     1</code></pre>
+#&gt; [1,]  0.05875 0.2351856    0     1
+#&gt; [2,]  0.20125 0.4009846    0     1
+#&gt; [3,]  0.49250 0.5000063    0     1</code></pre>
 </div>
 </div>
 </section>
 <section id="logistic-regression-using-brms-9" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-88-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-95-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
 <section id="bayesian-workflow" class="slide level2">
 <h2>Bayesian Workflow</h2>
 <ul>

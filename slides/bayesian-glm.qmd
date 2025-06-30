@@ -35,6 +35,7 @@ library(showtext)
 library(effects)
 library(brms)
 library(here)
+library(tidybayes)
 
 qhist <- function(x, fill = "grey"){
     xn <- deparse(substitute(x))
@@ -1439,6 +1440,75 @@ Same but using `emmeans`:
 #| echo: true
 library(emmeans)
 emmeans(fit_factorial, ~ Group)
+```
+
+## Factorial design example
+
+How about effect sizes? We can calculate a Cohen's $d$ using the posterior distributions:
+
+```{r}
+#| echo: true
+effectsize::cohens_d(DV ~ Group, data = dat_factorial)
+```
+
+## Factorial design example
+
+```{r}
+#| echo: true
+grid |> 
+  add_epred_draws(object = fit_factorial, dpar = TRUE) |> 
+  group_by(Group, .draw) |> 
+  summarise(y = mean(.epred),
+            sigma = mean(sigma)) |> 
+  pivot_wider(names_from = Group, values_from = y) |> 
+  mutate(diff = Control - Experimental,
+         d = diff / sigma) |> 
+  summarise(median_hdi(d))
+```
+
+## Factorial design example, t-test
+
+Even easier with a t-test, we can do it directly from the model parameters:
+
+```{r}
+#| code-fold: true
+x <- rep(0:1, each = 50)
+y <- 0.5 * x + rnorm(length(x))
+dat_t <- data.frame(y, x)
+boxplot(y ~ x, data = dat_t)
+```
+
+## Factorial design example, t-test
+
+```{r}
+fit_t <- brm(
+  y ~ x,
+  file = here("slides", "objects", "fit_t.rds"),
+  data = dat_t
+)
+
+summary(fit_t)
+```
+
+## Factorial design example, t-test
+
+```{r}
+post <- as_draws_df(fit_t)
+head(post)
+```
+
+## Factorial design example, t-test
+
+```{r}
+hist(post$b_x / post$sigma)
+```
+
+## Factorial design example, t-test
+
+```{r}
+post |>
+  mutate(d = b_x / sigma) |>
+  summarise(median_hdi(d))
 ```
 
 # Logistic regression example

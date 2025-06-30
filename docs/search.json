@@ -116,7 +116,7 @@
     "href": "slides/bayesian-glm.html#including-a-predictor",
     "title": "Generalized Linear Models with brms",
     "section": "Including a predictor",
-    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.93465    0.09996  99.383  &lt; 2e-16 ***\n#&gt; x            0.36029    0.08750   4.118 7.99e-05 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.9971643)\n#&gt; \n#&gt;     Null deviance: 114.629  on 99  degrees of freedom\n#&gt; Residual deviance:  97.722  on 98  degrees of freedom\n#&gt; AIC: 287.48\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
+    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.92771    0.10092  98.375  &lt; 2e-16 ***\n#&gt; x            0.59076    0.09355   6.315 7.94e-09 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 1.018061)\n#&gt; \n#&gt;     Null deviance: 140.36  on 99  degrees of freedom\n#&gt; Residual deviance:  99.77  on 98  degrees of freedom\n#&gt; AIC: 289.56\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
   },
   {
     "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
@@ -721,6 +721,55 @@
     "text": "Factorial design example\nSame but using emmeans:\n\nlibrary(emmeans)\nemmeans(fit_factorial, ~ Group)\n\n#&gt;  Group        emmean lower.HPD upper.HPD\n#&gt;  Control       0.185   -0.0638     0.448\n#&gt;  Experimental  0.128   -0.1315     0.386\n#&gt; \n#&gt; Results are averaged over the levels of: Anxiety \n#&gt; Point estimate displayed: median \n#&gt; HPD interval probability: 0.95"
   },
   {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-6",
+    "href": "slides/bayesian-glm.html#factorial-design-example-6",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\nHow about effect sizes? We can calculate a Cohen’s \\(d\\) using the posterior distributions:\n\neffectsize::cohens_d(DV ~ Group, data = dat_factorial)\n\n#&gt; Cohen's d |        95% CI\n#&gt; -------------------------\n#&gt; 0.05      | [-0.30, 0.41]\n#&gt; \n#&gt; - Estimated using pooled SD."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-7",
+    "href": "slides/bayesian-glm.html#factorial-design-example-7",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example",
+    "text": "Factorial design example\n\ngrid |&gt; \n  add_epred_draws(object = fit_factorial, dpar = TRUE) |&gt; \n  group_by(Group, .draw) |&gt; \n  summarise(y = mean(.epred),\n            sigma = mean(sigma)) |&gt; \n  pivot_wider(names_from = Group, values_from = y) |&gt; \n  mutate(diff = Control - Experimental,\n         d = diff / sigma) |&gt; \n  summarise(median_hdi(d))\n\n#&gt; # A tibble: 1 × 6\n#&gt;        y   ymin  ymax .width .point .interval\n#&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    \n#&gt; 1 0.0564 -0.311 0.409   0.95 median hdi"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-t-test",
+    "href": "slides/bayesian-glm.html#factorial-design-example-t-test",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example, t-test",
+    "text": "Factorial design example, t-test\nEven easier with a t-test, we can do it directly from the model parameters:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-t-test-1",
+    "href": "slides/bayesian-glm.html#factorial-design-example-t-test-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example, t-test",
+    "text": "Factorial design example, t-test\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: y ~ x \n#&gt;    Data: dat_t (Number of observations: 100) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     0.07      0.15    -0.23     0.37 1.00     4608     3224\n#&gt; x             0.40      0.22    -0.04     0.83 1.00     4228     2771\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     1.06      0.08     0.92     1.23 1.00     3959     2430\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1)."
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-t-test-2",
+    "href": "slides/bayesian-glm.html#factorial-design-example-t-test-2",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example, t-test",
+    "text": "Factorial design example, t-test\n\n\n#&gt; # A draws_df: 6 iterations, 1 chains, and 6 variables\n#&gt;   b_Intercept   b_x sigma Intercept lprior lp__\n#&gt; 1      -0.016 0.764   1.0      0.37   -3.3 -151\n#&gt; 2      -0.014 0.503   1.1      0.24   -3.3 -149\n#&gt; 3      -0.155 0.704   1.0      0.20   -3.2 -150\n#&gt; 4       0.326 0.097   1.1      0.37   -3.3 -151\n#&gt; 5       0.282 0.107   1.2      0.34   -3.3 -151\n#&gt; 6       0.313 0.151   1.2      0.39   -3.3 -151\n#&gt; # ... hidden reserved variables {'.chain', '.iteration', '.draw'}"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-t-test-3",
+    "href": "slides/bayesian-glm.html#factorial-design-example-t-test-3",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example, t-test",
+    "text": "Factorial design example, t-test"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#factorial-design-example-t-test-4",
+    "href": "slides/bayesian-glm.html#factorial-design-example-t-test-4",
+    "title": "Generalized Linear Models with brms",
+    "section": "Factorial design example, t-test",
+    "text": "Factorial design example, t-test\n\n\n#&gt; # A tibble: 1 × 6\n#&gt;       y    ymin  ymax .width .point .interval\n#&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;    \n#&gt; 1 0.381 -0.0241 0.787   0.95 median hdi"
+  },
+  {
     "objectID": "slides/bayesian-glm.html#logistic-regression-example-1",
     "href": "slides/bayesian-glm.html#logistic-regression-example-1",
     "title": "Generalized Linear Models with brms",
@@ -788,7 +837,7 @@
     "href": "slides/bayesian-glm.html#logistic-regression-using-brms-8",
     "title": "Generalized Linear Models with brms",
     "section": "Logistic regression using brms",
-    "text": "Logistic regression using brms\n\nlibrary(tidybayes)\npp &lt;- data.frame(Parental_stress = c(40, 80, 120))\npredict(fit_teddy, newdata = pp)\n\n#&gt;      Estimate Est.Error Q2.5 Q97.5\n#&gt; [1,]  0.05800 0.2337727    0     1\n#&gt; [2,]  0.19525 0.3964426    0     1\n#&gt; [3,]  0.49100 0.4999815    0     1"
+    "text": "Logistic regression using brms\n\nlibrary(tidybayes)\npp &lt;- data.frame(Parental_stress = c(40, 80, 120))\npredict(fit_teddy, newdata = pp)\n\n#&gt;      Estimate Est.Error Q2.5 Q97.5\n#&gt; [1,]  0.05875 0.2351856    0     1\n#&gt; [2,]  0.20125 0.4009846    0     1\n#&gt; [3,]  0.49250 0.5000063    0     1"
   },
   {
     "objectID": "slides/bayesian-glm.html#logistic-regression-using-brms-9",

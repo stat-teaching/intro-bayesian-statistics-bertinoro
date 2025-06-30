@@ -278,6 +278,18 @@
       ],
       "Hash": "2288423bb0f20a457800d7fc47f6aa54"
     },
+    "arrayhelpers": {
+      "Package": "arrayhelpers",
+      "Version": "1.1-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods",
+        "svUnit",
+        "utils"
+      ],
+      "Hash": "3d4e52d458784c335af3846f2de64f75"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.1",
@@ -331,7 +343,7 @@
     },
     "bayestestR": {
       "Package": "bayestestR",
-      "Version": "0.15.0",
+      "Version": "0.16.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -343,7 +355,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "d7c05ccb9d60d87dbbe8b4042c385f01"
+      "Hash": "d414d099aa3b59a132a17fd8accf20fb"
     },
     "bigD": {
       "Package": "bigD",
@@ -781,7 +793,7 @@
     },
     "datawizard": {
       "Package": "datawizard",
-      "Version": "1.0.0",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -790,7 +802,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "8a37ad13b9b0db70bf32d6eb2fc0a2aa"
+      "Hash": "5d0f865eb209e923728ddd043396e24a"
     },
     "dbplyr": {
       "Package": "dbplyr",
@@ -982,6 +994,23 @@
         "R"
       ],
       "Hash": "4ad4fc696f70fece9399140246f409f3"
+    },
+    "emmeans": {
+      "Package": "emmeans",
+      "Version": "1.11.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "estimability",
+        "graphics",
+        "methods",
+        "mvtnorm",
+        "numDeriv",
+        "stats",
+        "utils"
+      ],
+      "Hash": "fb6ababbe8f7f753969c2026e8ec6dbe"
     },
     "estimability": {
       "Package": "estimability",
@@ -1629,7 +1658,7 @@
     },
     "insight": {
       "Package": "insight",
-      "Version": "1.1.0",
+      "Version": "1.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1638,7 +1667,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "74e4e733b28ed34f28179ea421a0a8bb"
+      "Hash": "a9326ba549f9d95e7887f5dd02d562a4"
     },
     "isoband": {
       "Package": "isoband",
@@ -2086,7 +2115,7 @@
     },
     "parameters": {
       "Package": "parameters",
-      "Version": "0.24.1",
+      "Version": "0.26.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2099,7 +2128,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "1cff6878a759914640ff9ed51dd745a2"
+      "Hash": "338f8ab2f4f944adaa9f3f0e30b32f97"
     },
     "patchwork": {
       "Package": "patchwork",
@@ -2924,6 +2953,17 @@
       ],
       "Hash": "fe42836742a4f065b3f3f5de81fccab9"
     },
+    "svUnit": {
+      "Package": "svUnit",
+      "Version": "1.0.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "utils"
+      ],
+      "Hash": "894d0aff9585344af4ab78e2b4d60ab7"
+    },
     "svglite": {
       "Package": "svglite",
       "Version": "2.1.3",
@@ -3020,6 +3060,31 @@
         "vctrs"
       ],
       "Hash": "a84e2cc86d07289b3b6f5069df7a004c"
+    },
+    "tidybayes": {
+      "Package": "tidybayes",
+      "Version": "3.0.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "arrayhelpers",
+        "cli",
+        "coda",
+        "dplyr",
+        "ggdist",
+        "ggplot2",
+        "magrittr",
+        "methods",
+        "posterior",
+        "rlang",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "6dbf2b9042084ad5ccf37a75380a2399"
     },
     "tidyr": {
       "Package": "tidyr",
