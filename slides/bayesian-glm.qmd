@@ -1471,6 +1471,7 @@ grid |>
 Even easier with a t-test, we can do it directly from the model parameters:
 
 ```{r}
+#| echo: true
 #| code-fold: true
 x <- rep(0:1, each = 50)
 y <- 0.5 * x + rnorm(length(x))
@@ -1481,6 +1482,7 @@ boxplot(y ~ x, data = dat_t)
 ## Factorial design example, t-test
 
 ```{r}
+#| echo: true
 fit_t <- brm(
   y ~ x,
   file = here("slides", "objects", "fit_t.rds"),
@@ -1493,6 +1495,7 @@ summary(fit_t)
 ## Factorial design example, t-test
 
 ```{r}
+#| echo: true
 post <- as_draws_df(fit_t)
 head(post)
 ```
@@ -1500,12 +1503,14 @@ head(post)
 ## Factorial design example, t-test
 
 ```{r}
+#| echo: true
 hist(post$b_x / post$sigma)
 ```
 
 ## Factorial design example, t-test
 
 ```{r}
+#| echo: true
 post |>
   mutate(d = b_x / sigma) |>
   summarise(median_hdi(d))
