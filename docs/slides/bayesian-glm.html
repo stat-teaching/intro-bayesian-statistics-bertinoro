@@ -317,16 +317,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)   9.8697     0.1118  88.267  &lt; 2e-16 ***
-#&gt; x             0.5122     0.1140   4.493 1.92e-05 ***
+#&gt; (Intercept)  9.98942    0.09345 106.891  &lt; 2e-16 ***
+#&gt; x            0.41294    0.09829   4.201 5.86e-05 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 1.202647)
+#&gt; (Dispersion parameter for gaussian family taken to be 0.8668227)
 #&gt; 
-#&gt;     Null deviance: 142.14  on 99  degrees of freedom
-#&gt; Residual deviance: 117.86  on 98  degrees of freedom
-#&gt; AIC: 306.22
+#&gt;     Null deviance: 100.249  on 99  degrees of freedom
+#&gt; Residual deviance:  84.949  on 98  degrees of freedom
+#&gt; AIC: 273.48
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -1316,6 +1316,11 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <section id="intercept-prior-centering" class="slide level2">
 <h2>Intercept prior, centering</h2>
 <div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb34-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">10</span>, <span class="dv">8</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>)</span>
+<span id="cb34-3"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a aria-hidden="true" tabindex="-1"></a>priors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; Intercept ~ normal(10, 8)</code></pre>
 </div>
@@ -1367,8 +1372,8 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <p>Contrasts coding is a vast and difficult topic. The basic idea is that when you have categorical predictors, with or without interactions, the way you set the contrasts will impact the intepretation of model parameters (and the priors).</p>
 <p>By default in R, categorical variables are coded using the so-called <strong>dummy coding</strong> or <strong>treatment coding</strong>.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>), <span class="at">each =</span> <span class="dv">5</span>))</span>
-<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>), <span class="at">each =</span> <span class="dv">5</span>))</span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;  [1] a a a a a b b b b b c c c c c
 #&gt; Levels: a b c</code></pre>
@@ -1378,14 +1383,14 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <section id="contrasts-coding-1" class="slide level2">
 <h2>Contrasts coding</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;   b c
 #&gt; a 0 0
 #&gt; b 1 0
 #&gt; c 0 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">model.matrix</span>(<span class="sc">~</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">model.matrix</span>(<span class="sc">~</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;    (Intercept) xb xc
 #&gt; 1            1  0  0
@@ -1416,44 +1421,44 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <p>With a factor with <span class="math inline">\(p\)</span> levels, we need <span class="math inline">\(p - 1\)</span> variables representing contrasts. <strong>dummy-coding</strong> means that there will be a reference level (usually the first level) and <span class="math inline">\(p - 1\)</span> contrasts comparing the other levels with the first level (baseline).</p>
 <p>An example with the <code>iris</code> dataset:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(iris<span class="sc">$</span>Species)</span>
-<span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "setosa"     "versicolor" "virginica"</span></span>
-<span id="cb42-3"><a aria-hidden="true" tabindex="-1"></a>fit_dummy <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
-<span id="cb42-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dummy)</span>
-<span id="cb42-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb42-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
-<span id="cb42-7"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lm(formula = Sepal.Length ~ Species, data = iris)</span></span>
-<span id="cb42-8"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb42-9"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
-<span id="cb42-10"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span id="cb42-11"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -1.6880 -0.3285 -0.0060  0.3120  1.3120 </span></span>
-<span id="cb42-12"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb42-13"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
-<span id="cb42-14"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
-<span id="cb42-15"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)         5.0060     0.0728  68.762  &lt; 2e-16 ***</span></span>
-<span id="cb42-16"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesversicolor   0.9300     0.1030   9.033 8.77e-16 ***</span></span>
-<span id="cb42-17"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesvirginica    1.5820     0.1030  15.366  &lt; 2e-16 ***</span></span>
-<span id="cb42-18"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
-<span id="cb42-19"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
-<span id="cb42-20"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb42-21"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.5148 on 147 degrees of freedom</span></span>
-<span id="cb42-22"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared:  0.6187, Adjusted R-squared:  0.6135 </span></span>
-<span id="cb42-23"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; F-statistic: 119.3 on 2 and 147 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(iris<span class="sc">$</span>Species)</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "setosa"     "versicolor" "virginica"</span></span>
+<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>fit_dummy <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dummy)</span>
+<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; lm(formula = Sepal.Length ~ Species, data = iris)</span></span>
+<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb43-9"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb43-10"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb43-11"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -1.6880 -0.3285 -0.0060  0.3120  1.3120 </span></span>
+<span id="cb43-12"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb43-13"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb43-14"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb43-15"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; (Intercept)         5.0060     0.0728  68.762  &lt; 2e-16 ***</span></span>
+<span id="cb43-16"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesversicolor   0.9300     0.1030   9.033 8.77e-16 ***</span></span>
+<span id="cb43-17"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Speciesvirginica    1.5820     0.1030  15.366  &lt; 2e-16 ***</span></span>
+<span id="cb43-18"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb43-19"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span id="cb43-20"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb43-21"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Residual standard error: 0.5148 on 147 degrees of freedom</span></span>
+<span id="cb43-22"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multiple R-squared:  0.6187, Adjusted R-squared:  0.6135 </span></span>
+<span id="cb43-23"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; F-statistic: 119.3 on 2 and 147 DF,  p-value: &lt; 2.2e-16</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="contrasts-coding-3" class="slide level2">
 <h2>Contrasts coding</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>vv <span class="ot">&lt;-</span> <span class="fu">split</span>(iris<span class="sc">$</span>Sepal.Length, iris<span class="sc">$</span>Species)</span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a>vv <span class="ot">&lt;-</span> <span class="fu">split</span>(iris<span class="sc">$</span>Sepal.Length, iris<span class="sc">$</span>Species)</span>
+<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; [1] 5.006</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>versicolor) <span class="sc">-</span> <span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>versicolor) <span class="sc">-</span> <span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; [1] 0.93</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>virginica) <span class="sc">-</span> <span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(vv<span class="sc">$</span>virginica) <span class="sc">-</span> <span class="fu">mean</span>(vv<span class="sc">$</span>setosa)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; [1] 1.582</code></pre>
 </div>
@@ -1463,9 +1468,9 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <h2>Contrasts coding</h2>
 <p>Another coding scheme could be the so called <strong>Successive Differences Contrast Coding</strong>. The idea is to compare level 2 with level 1, level 3 with level 2 and so on.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>iris<span class="sc">$</span>Species_sdif <span class="ot">&lt;-</span> iris<span class="sc">$</span>Species</span>
-<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(iris<span class="sc">$</span>Species_sdif) <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">contr.sdif</span>(<span class="dv">3</span>)</span>
-<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(iris<span class="sc">$</span>Species_sdif)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a>iris<span class="sc">$</span>Species_sdif <span class="ot">&lt;-</span> iris<span class="sc">$</span>Species</span>
+<span id="cb50-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(iris<span class="sc">$</span>Species_sdif) <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">contr.sdif</span>(<span class="dv">3</span>)</span>
+<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(iris<span class="sc">$</span>Species_sdif)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;                   2-1        3-2
 #&gt; setosa     -0.6666667 -0.3333333
@@ -1477,8 +1482,8 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <section id="contrasts-coding-5" class="slide level2">
 <h2>Contrasts coding</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a>fit_sdif <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Species_sdif, <span class="at">data =</span> iris)</span>
-<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sdif)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a>fit_sdif <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Species_sdif, <span class="at">data =</span> iris)</span>
+<span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sdif)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; 
 #&gt; Call:
@@ -1629,11 +1634,11 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <p>The advantage is that we can simulate data to check if our priors are reasonable according to our model, phenomenon, etc.</p>
 <p>In <code>brms</code> there is an argument called <code>sample_prior</code> that can be set to <code>"only"</code> to fit a model ignoring the data:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">brm</span>(</span>
-<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> x,</span>
-<span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="co"># not used</span></span>
-<span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sample_prior =</span> <span class="st">"only"</span></span>
-<span id="cb53-5"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">brm</span>(</span>
+<span id="cb54-2"><a aria-hidden="true" tabindex="-1"></a>  y <span class="sc">~</span> x,</span>
+<span id="cb54-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dat, <span class="co"># not used</span></span>
+<span id="cb54-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sample_prior =</span> <span class="st">"only"</span></span>
+<span id="cb54-5"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="prior-predictive-check-1" class="slide level2">
@@ -1655,7 +1660,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>Prior predictive check</h2>
 <p>We know that <code>x</code> and <code>y</code> are standandardized thus we can think about the effect <code>g</code> in terms of Cohen’s <span class="math inline">\(d\)</span> and the effect of <code>x</code> in terms of units of standard deviations. Let’s set some priors for <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span>.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">get_prior</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">get_prior</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;                 prior     class coef group resp dpar nlpar lb ub       source
 #&gt;                (flat)         b                                       default
@@ -1669,13 +1674,13 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="prior-predictive-check-3" class="slide level2">
 <h2>Prior predictive check</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"g"</span>),</span>
-<span id="cb57-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"x"</span>)</span>
-<span id="cb57-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb57-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-6"><a aria-hidden="true" tabindex="-1"></a>fit_prior <span class="ot">&lt;-</span> <span class="fu">brm</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat, <span class="at">sample_prior =</span> <span class="st">"only"</span>, <span class="at">prior =</span> priors, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"objects"</span>, <span class="st">"fit_prior.rds"</span>))</span>
-<span id="cb57-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a>priors <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb58-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"g"</span>),</span>
+<span id="cb58-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"x"</span>)</span>
+<span id="cb58-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-6"><a aria-hidden="true" tabindex="-1"></a>fit_prior <span class="ot">&lt;-</span> <span class="fu">brm</span>(y <span class="sc">~</span> x <span class="sc">+</span> g, <span class="at">data =</span> dat, <span class="at">sample_prior =</span> <span class="st">"only"</span>, <span class="at">prior =</span> priors, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"objects"</span>, <span class="st">"fit_prior.rds"</span>))</span>
+<span id="cb58-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_prior)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt;  Family: gaussian 
 #&gt;   Links: mu = identity; sigma = identity 
@@ -1708,8 +1713,8 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>Extracting Posterior Distributions</h2>
 <p>When running a model with <code>lm</code> and <code>glm</code>, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>fit_lm_example <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Petal.Width <span class="sc">+</span> Species, <span class="at">data =</span> iris)</span>
-<span id="cb59-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_lm_example)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>fit_lm_example <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sepal.Length <span class="sc">~</span> Petal.Width <span class="sc">+</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_lm_example)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; 
 #&gt; Call:
@@ -1758,9 +1763,9 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="extracting-posterior-distributions-3" class="slide level2">
 <h2>Extracting Posterior Distributions</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as_draws_df</span>(fit_mark) <span class="sc">|&gt;</span> </span>
-<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"b"</span>), sigma) <span class="sc">|&gt;</span> </span>
-<span id="cb62-3"><a aria-hidden="true" tabindex="-1"></a>  posterior<span class="sc">::</span><span class="fu">summarise_draws</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as_draws_df</span>(fit_mark) <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"b"</span>), sigma) <span class="sc">|&gt;</span> </span>
+<span id="cb63-3"><a aria-hidden="true" tabindex="-1"></a>  posterior<span class="sc">::</span><span class="fu">summarise_draws</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; # A tibble: 3 × 10
 #&gt;   variable     mean median     sd    mad       q5    q95  rhat ess_bulk ess_tail
@@ -1775,7 +1780,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>HPDI with <code>bayestestR</code></h2>
 <p>The <code>bayestestR</code> contains a lot of functions to do inference and post-processing on <code>brms</code> (and also other) models:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a>bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a>bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; Highest Density Interval
 #&gt; 
@@ -1784,7 +1789,7 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 #&gt; (Intercept) | [-12.24, -3.92]
 #&gt; mark        | [  0.09,  0.18]</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bayestestR<span class="sc">::</span><span class="fu">hdi</span>(fit_mark))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-71-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
@@ -1792,8 +1797,8 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <h2>The <code>broom</code> package</h2>
 <p>The <code>broom.mixed</code> package automatically provide the <code>summary()</code> into a data.frame format:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom.mixed)</span>
-<span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom.mixed)</span>
+<span id="cb68-2"><a aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(fit_mark)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; # A tibble: 3 × 8
 #&gt;   effect   component group    term         estimate std.error conf.low conf.high

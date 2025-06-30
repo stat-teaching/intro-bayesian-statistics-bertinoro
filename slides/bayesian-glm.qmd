@@ -806,6 +806,7 @@ curve(dnorm(x, 10, 8), 0, 20, main = "Gaussian(mean = 10, sd = 8)")
 ## Intercept prior, centering
 
 ```{r}
+#| echo: true
 priors <- c(
   prior(normal(10, 8), class = "Intercept")
 )

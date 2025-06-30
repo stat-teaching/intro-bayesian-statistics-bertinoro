@@ -67,7 +67,7 @@
     "href": "slides/bayesian-glm.html#including-a-predictor",
     "title": "Generalized Linear Models with brms",
     "section": "Including a predictor",
-    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)   9.8697     0.1118  88.267  &lt; 2e-16 ***\n#&gt; x             0.5122     0.1140   4.493 1.92e-05 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 1.202647)\n#&gt; \n#&gt;     Null deviance: 142.14  on 99  degrees of freedom\n#&gt; Residual deviance: 117.86  on 98  degrees of freedom\n#&gt; AIC: 306.22\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
+    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.98942    0.09345 106.891  &lt; 2e-16 ***\n#&gt; x            0.41294    0.09829   4.201 5.86e-05 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.8668227)\n#&gt; \n#&gt;     Null deviance: 100.249  on 99  degrees of freedom\n#&gt; Residual deviance:  84.949  on 98  degrees of freedom\n#&gt; AIC: 273.48\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
   },
   {
     "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
@@ -354,7 +354,7 @@
     "href": "slides/bayesian-glm.html#intercept-prior-centering",
     "title": "Generalized Linear Models with brms",
     "section": "Intercept prior, centering",
-    "text": "Intercept prior, centering\n\n\n#&gt; Intercept ~ normal(10, 8)"
+    "text": "Intercept prior, centering\n\npriors &lt;- c(\n  prior(normal(10, 8), class = \"Intercept\")\n)\n\npriors\n\n#&gt; Intercept ~ normal(10, 8)"
   },
   {
     "objectID": "slides/bayesian-glm.html#slope-prior-rescaling",
@@ -648,14 +648,14 @@
     "href": "index.html",
     "title": "Introduction to Bayesian Statistics",
     "section": "",
-    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 5 - html\nParte 6 -  - Rnw"
+    "text": "Parte 1 -  - Rnw"
   },
   {
     "objectID": "index.html#slides",
     "href": "index.html#slides",
     "title": "Introduction to Bayesian Statistics",
     "section": "",
-    "text": "Parte 1 -  - Rnw\nParte 2 -  - Rnw\nParte 3 -  - Rnw\nParte 4 -  - Rnw\nParte 5 - html\nParte 6 -  - Rnw"
+    "text": "Parte 1 -  - Rnw"
   },
   {
     "objectID": "index.html#other-materials",
