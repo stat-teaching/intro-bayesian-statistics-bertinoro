@@ -262,6 +262,8 @@ ggplot(dat, aes(x, y)) +
     geom_point()
 ```
 
+## Including a predictor
+
 Seems that there is a positive (linear) relationship between `x` and `y`. We can try to improve the previous model by adding the predictor:
 
 ```{r}
@@ -864,6 +866,7 @@ priors <- c(
 We can now refit the model using our priors and rescaling/centering
 
 ```{r}
+#| echo: true
 dat_mark$mark10 <- dat_mark$mark/10
 dat_mark$mark10c <- dat_mark$mark10 - mean(dat_mark$mark10)
 fit_mark_priors <- brm(se ~ mark10c, 
@@ -982,11 +985,6 @@ There are few important points:
 - This works for any GLM (unlike the usual $R^2$)
 - Different models on the same dataset cannot be compared <!-- TODO rivedi questo -->
 https://avehtari.github.io/bayes_R2/bayes_R2.html
-
-## Extracting posteriors
-
-https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/
-https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet
 
 ## Bayes Factor
 
@@ -1305,7 +1303,7 @@ summary(fit_prior)
 pp_check(fit_prior, ndraws = 100)
 ```
 
-## Extracting Posterior Distributions
+## Extracting Posterior Distributions^[https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/]
 
 When running a model with `lm` and `glm`, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.
 
@@ -1354,6 +1352,14 @@ bayestestR::hdi(fit_mark)
 plot(bayestestR::hdi(fit_mark))
 ```
 
+## HPDI with `bayestestR`
+
+```{r}
+#| echo: true
+bayestestR::hdi(fit_mark)
+plot(bayestestR::hdi(fit_mark))
+```
+
 ## The `broom` package
 
 The `broom.mixed` package automatically provide the `summary()` into a data.frame format:
@@ -1366,7 +1372,7 @@ broom.mixed::tidy(fit_mark)
 
 ## More on `bayestestR`
 
-This is a really amazing package, have a look at the `Features` section because contains functions and explanations about different ways of summarizing the posterior distribution.
+This is a really amazing package, have a look at the [`Features`](https://easystats.github.io/bayestestR/) section because contains functions and explanations about different ways of summarizing the posterior distribution.
 
 ## Plotting effects
 
@@ -1621,6 +1627,6 @@ add_epred_draws(pp, fit_teddy) |>
 
 ## Bayesian Workflow
 
-- Nice paper about the Bayesian Workflow: [https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf](https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf)
+- Nice paper about the [Bayesian Workflow](https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf)
 
 ## References {.refs}

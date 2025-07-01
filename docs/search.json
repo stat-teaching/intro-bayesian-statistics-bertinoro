@@ -116,7 +116,14 @@
     "href": "slides/bayesian-glm.html#including-a-predictor",
     "title": "Generalized Linear Models with brms",
     "section": "Including a predictor",
-    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:\n\n\n\n\n\n\n\n\n\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)  9.99660    0.09248 108.093   &lt;2e-16 ***\n#&gt; x            0.46761    0.09768   4.787    6e-06 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 0.8550155)\n#&gt; \n#&gt;     Null deviance: 103.385  on 99  degrees of freedom\n#&gt; Residual deviance:  83.792  on 98  degrees of freedom\n#&gt; AIC: 272.1\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
+    "text": "Including a predictor\nWhen we include a predictor, we are actually try to explain the variability of y using a variable x. For example, this is an hypothetical relationship:"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#including-a-predictor-1",
+    "href": "slides/bayesian-glm.html#including-a-predictor-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "Including a predictor",
+    "text": "Including a predictor\nSeems that there is a positive (linear) relationship between x and y. We can try to improve the previous model by adding the predictor:\n\nfit &lt;- glm(y ~ x, family = gaussian(link = \"identity\"))\nsummary(fit)\n\n#&gt; \n#&gt; Call:\n#&gt; glm(formula = y ~ x, family = gaussian(link = \"identity\"))\n#&gt; \n#&gt; Coefficients:\n#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)   9.9062     0.1038  95.427  &lt; 2e-16 ***\n#&gt; x             0.6000     0.1096   5.474 3.39e-07 ***\n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; (Dispersion parameter for gaussian family taken to be 1.077623)\n#&gt; \n#&gt;     Null deviance: 137.90  on 99  degrees of freedom\n#&gt; Residual deviance: 105.61  on 98  degrees of freedom\n#&gt; AIC: 295.24\n#&gt; \n#&gt; Number of Fisher Scoring iterations: 2"
   },
   {
     "objectID": "slides/bayesian-glm.html#assumptions-of-the-linear-model",
@@ -431,7 +438,7 @@
     "href": "slides/bayesian-glm.html#refitting-the-model",
     "title": "Generalized Linear Models with brms",
     "section": "Refitting the model1",
-    "text": "Refitting the model1\nWe can now refit the model using our priors and rescaling/centering\n\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark10c \n#&gt;    Data: dat_mark (Number of observations: 30) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     3.58      0.32     2.95     4.23 1.00     3172     2437\n#&gt; mark10c       0.60      0.21     0.18     0.99 1.00     3775     2708\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     1.75      0.24     1.35     2.31 1.00     3378     2792\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).\n\n\nFor the residual standard deviation, brms is already doing a good job with default priors, mainly escluding negative values."
+    "text": "Refitting the model1\nWe can now refit the model using our priors and rescaling/centering\n\ndat_mark$mark10 &lt;- dat_mark$mark/10\ndat_mark$mark10c &lt;- dat_mark$mark10 - mean(dat_mark$mark10)\nfit_mark_priors &lt;- brm(se ~ mark10c, \n                       data = dat_mark, \n                       family = gaussian(link = \"identity\"),\n                       prior = priors,\n                       sample_prior = TRUE,\n                       file = here(\"slides\", \"objects\", \"fit_mark_priors.rds\"))\nsummary(fit_mark_priors)\n\n#&gt;  Family: gaussian \n#&gt;   Links: mu = identity; sigma = identity \n#&gt; Formula: se ~ mark10c \n#&gt;    Data: dat_mark (Number of observations: 30) \n#&gt;   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;\n#&gt;          total post-warmup draws = 4000\n#&gt; \n#&gt; Regression Coefficients:\n#&gt;           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; Intercept     3.58      0.32     2.95     4.23 1.00     3172     2437\n#&gt; mark10c       0.60      0.21     0.18     0.99 1.00     3775     2708\n#&gt; \n#&gt; Further Distributional Parameters:\n#&gt;       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS\n#&gt; sigma     1.75      0.24     1.35     2.31 1.00     3378     2792\n#&gt; \n#&gt; Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS\n#&gt; and Tail_ESS are effective sample size measures, and Rhat is the potential\n#&gt; scale reduction factor on split chains (at convergence, Rhat = 1).\n\n\nFor the residual standard deviation, brms is already doing a good job with default priors, mainly escluding negative values."
   },
   {
     "objectID": "slides/bayesian-glm.html#contrasts-coding",
@@ -502,13 +509,6 @@
     "title": "Generalized Linear Models with brms",
     "section": "Bayesian \\(R^2\\) (Gelman et al. 2019)",
     "text": "Bayesian \\(R^2\\) (Gelman et al. 2019)\nGelman et al. (2019) explained a generalization of the common \\(R^2\\) to be applied for Bayesian Generalized Linear Models.\n\\[\n\\text{Bayesian } R^2_s =\n\\frac{\n\\mathrm{Var}_{n=1}^{N}\\left( y_n^{\\text{pred}, s} \\right)\n}{\n\\mathrm{Var}_{n=1}^{N}\\left( y_n^{\\text{pred}, s} \\right) + \\mathrm{Var}_{\\text{res}}^s\n}\n\\]\nThere are few important points:\n\nThis works for any GLM (unlike the usual \\(R^2\\))\nDifferent models on the same dataset cannot be compared  https://avehtari.github.io/bayes_R2/bayes_R2.html"
-  },
-  {
-    "objectID": "slides/bayesian-glm.html#extracting-posteriors",
-    "href": "slides/bayesian-glm.html#extracting-posteriors",
-    "title": "Generalized Linear Models with brms",
-    "section": "Extracting posteriors",
-    "text": "Extracting posteriors\nhttps://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/ https://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/#complete-cheat-sheet"
   },
   {
     "objectID": "slides/bayesian-glm.html#bayes-factor",
@@ -633,8 +633,8 @@
     "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions",
     "href": "slides/bayesian-glm.html#extracting-posterior-distributions",
     "title": "Generalized Linear Models with brms",
-    "section": "Extracting Posterior Distributions",
-    "text": "Extracting Posterior Distributions\nWhen running a model with lm and glm, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.\n\nfit_lm_example &lt;- lm(Sepal.Length ~ Petal.Width + Species, data = iris)\nsummary(fit_lm_example)\n\n#&gt; \n#&gt; Call:\n#&gt; lm(formula = Sepal.Length ~ Petal.Width + Species, data = iris)\n#&gt; \n#&gt; Residuals:\n#&gt;     Min      1Q  Median      3Q     Max \n#&gt; -1.3891 -0.3043 -0.0472  0.2528  1.3358 \n#&gt; \n#&gt; Coefficients:\n#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)        4.78044    0.08308  57.543  &lt; 2e-16 ***\n#&gt; Petal.Width        0.91690    0.19386   4.730 5.25e-06 ***\n#&gt; Speciesversicolor -0.06025    0.23041  -0.262    0.794    \n#&gt; Speciesvirginica  -0.05009    0.35823  -0.140    0.889    \n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; Residual standard error: 0.481 on 146 degrees of freedom\n#&gt; Multiple R-squared:  0.6694, Adjusted R-squared:  0.6626 \n#&gt; F-statistic: 98.53 on 3 and 146 DF,  p-value: &lt; 2.2e-16"
+    "section": "Extracting Posterior Distributions1",
+    "text": "Extracting Posterior Distributions1\nWhen running a model with lm and glm, all the required information is included into the summary of the model. For each parameter we have the point estimate, standard error, confidence interval, etc.\n\nfit_lm_example &lt;- lm(Sepal.Length ~ Petal.Width + Species, data = iris)\nsummary(fit_lm_example)\n\n#&gt; \n#&gt; Call:\n#&gt; lm(formula = Sepal.Length ~ Petal.Width + Species, data = iris)\n#&gt; \n#&gt; Residuals:\n#&gt;     Min      1Q  Median      3Q     Max \n#&gt; -1.3891 -0.3043 -0.0472  0.2528  1.3358 \n#&gt; \n#&gt; Coefficients:\n#&gt;                   Estimate Std. Error t value Pr(&gt;|t|)    \n#&gt; (Intercept)        4.78044    0.08308  57.543  &lt; 2e-16 ***\n#&gt; Petal.Width        0.91690    0.19386   4.730 5.25e-06 ***\n#&gt; Speciesversicolor -0.06025    0.23041  -0.262    0.794    \n#&gt; Speciesvirginica  -0.05009    0.35823  -0.140    0.889    \n#&gt; ---\n#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n#&gt; \n#&gt; Residual standard error: 0.481 on 146 degrees of freedom\n#&gt; Multiple R-squared:  0.6694, Adjusted R-squared:  0.6626 \n#&gt; F-statistic: 98.53 on 3 and 146 DF,  p-value: &lt; 2.2e-16\n\n\nhttps://www.andrewheiss.com/blog/2022/09/26/guide-visualizing-types-posteriors/"
   },
   {
     "objectID": "slides/bayesian-glm.html#extracting-posterior-distributions-1",
@@ -663,6 +663,13 @@
     "title": "Generalized Linear Models with brms",
     "section": "HPDI with bayestestR",
     "text": "HPDI with bayestestR\nThe bayestestR contains a lot of functions to do inference and post-processing on brms (and also other) models:\n\nbayestestR::hdi(fit_mark)\n\n#&gt; Highest Density Interval\n#&gt; \n#&gt; Parameter   |         95% HDI\n#&gt; -----------------------------\n#&gt; (Intercept) | [-12.24, -3.92]\n#&gt; mark        | [  0.09,  0.18]\n\nplot(bayestestR::hdi(fit_mark))"
+  },
+  {
+    "objectID": "slides/bayesian-glm.html#hpdi-with-bayestestr-1",
+    "href": "slides/bayesian-glm.html#hpdi-with-bayestestr-1",
+    "title": "Generalized Linear Models with brms",
+    "section": "HPDI with bayestestR",
+    "text": "HPDI with bayestestR\n\nbayestestR::hdi(fit_mark)\n\n#&gt; Highest Density Interval\n#&gt; \n#&gt; Parameter   |         95% HDI\n#&gt; -----------------------------\n#&gt; (Intercept) | [-12.24, -3.92]\n#&gt; mark        | [  0.09,  0.18]\n\nplot(bayestestR::hdi(fit_mark))"
   },
   {
     "objectID": "slides/bayesian-glm.html#the-broom-package",
@@ -851,7 +858,7 @@
     "href": "slides/bayesian-glm.html#bayesian-workflow",
     "title": "Generalized Linear Models with brms",
     "section": "Bayesian Workflow",
-    "text": "Bayesian Workflow\n\nNice paper about the Bayesian Workflow: https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf"
+    "text": "Bayesian Workflow\n\nNice paper about the Bayesian Workflow"
   },
   {
     "objectID": "slides/bayesian-glm.html#references",
