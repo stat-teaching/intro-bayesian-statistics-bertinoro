@@ -9,9 +9,9 @@ title: "Introduction to Bayesian Statistics"
 ## Slides
 
 - Parte 1 - [{{< fa file-pdf >}}](slides/parte1.pdf)
+- Parte 2 - [{{< fa file-pdf >}}](slides/parte2.pdf)
+- Parte 3 - [{{< fa file-pdf >}}](slides/parte3.pdf)
 <!--
-- Parte 2 - [{{< fa file-pdf >}}](slides/parte2.pdf) - [Rnw](source/parte2.Rnw)
-- Parte 3 - [{{< fa file-pdf >}}](slides/parte3.pdf) - [Rnw](source/parte3.Rnw)
 - Parte 4 - [{{< fa file-pdf >}}](slides/parte4.pdf) - [Rnw](source/parte4.Rnw)
 - Parte 5 - [html](slides/bayesian-glm.qmd)
 - Parte 6 - [{{< fa file-pdf >}}](slides/parte6.pdf) - [Rnw](source/parte6.Rnw)

@@ -1654,6 +1654,15 @@ Sometimes people says that Bayesian inference is somehow safe in terms of infere
 - Whenever you have decision (the effect is different from zero, the effect is higher than, etc.) you have inferential errors. Even in the Bayesian framework.
 - You should worry about multiple comparison [@Gelman2012-rm] when you do inference.
 
+# Model Comparison
+
+## Model Comparison
+
+- @Piironen2017-er
+- https://sites.stat.columbia.edu/gelman/research/published/waic_understand3.pdf
+- https://kevintshoemaker.github.io/NRES-746/LECTURE8.html#Bayes_Factor
+- https://users.aalto.fi/~ave/CV-FAQ.html
+
 ## Bayesian Workflow
 
 - Nice paper about the [Bayesian Workflow](https://sites.stat.columbia.edu/gelman/research/unpublished/Bayesian_Workflow_article.pdf)

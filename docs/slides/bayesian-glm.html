@@ -312,16 +312,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)  9.94918    0.09724   102.3  &lt; 2e-16 ***
-#&gt; x            0.48983    0.11132     4.4 2.75e-05 ***
+#&gt; (Intercept) 10.02378    0.09916 101.082  &lt; 2e-16 ***
+#&gt; x            0.53418    0.09161   5.831 7.07e-08 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 0.9133985)
+#&gt; (Dispersion parameter for gaussian family taken to be 0.9833473)
 #&gt; 
-#&gt;     Null deviance: 107.198  on 99  degrees of freedom
-#&gt; Residual deviance:  89.513  on 98  degrees of freedom
-#&gt; AIC: 278.71
+#&gt;     Null deviance: 129.804  on 99  degrees of freedom
+#&gt; Residual deviance:  96.368  on 98  degrees of freedom
+#&gt; AIC: 286.09
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -2215,6 +2215,20 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <li>Whenever you have decision (the effect is different from zero, the effect is higher than, etc.) you have inferential errors. Even in the Bayesian framework.</li>
 <li>You should worry about multiple comparison <span class="citation" data-cites="Gelman2012-rm">(<a href="#/references" role="doc-biblioref" onclick="">Gelman, Hill, and Yajima 2012</a>)</span> when you do inference.</li>
 </ul>
+</section></section>
+<section>
+<section id="model-comparison" class="title-slide slide level1 center">
+<h1>Model Comparison</h1>
+
+</section>
+<section id="model-comparison-1" class="slide level2">
+<h2>Model Comparison</h2>
+<ul>
+<li><span class="citation" data-cites="Piironen2017-er">Piironen and Vehtari (<a href="#/references" role="doc-biblioref" onclick="">2017</a>)</span></li>
+<li>https://sites.stat.columbia.edu/gelman/research/published/waic_understand3.pdf</li>
+<li>https://kevintshoemaker.github.io/NRES-746/LECTURE8.html#Bayes_Factor</li>
+<li>https://users.aalto.fi/~ave/CV-FAQ.html</li>
+</ul>
 </section>
 <section id="bayesian-workflow" class="slide level2">
 <h2>Bayesian Workflow</h2>
@@ -2247,6 +2261,9 @@ Liddell, Torrin M, and John K Kruschke. 2018. <span>“Analyzing Ordinal Data wi
 </div>
 <div id="ref-Makowski2019-tx" class="csl-entry" role="listitem">
 Makowski, Dominique, Mattan S Ben-Shachar, S H Annabel Chen, and Daniel Lüdecke. 2019. <span>“Indices of Effect Existence and Significance in the Bayesian Framework.”</span> <em>Frontiers in Psychology</em> 10 (December): 2767. <a href="https://doi.org/10.3389/fpsyg.2019.02767">https://doi.org/10.3389/fpsyg.2019.02767</a>.
+</div>
+<div id="ref-Piironen2017-er" class="csl-entry" role="listitem">
+Piironen, Juho, and Aki Vehtari. 2017. <span>“Comparison of Bayesian Predictive Methods for Model Selection.”</span> <em>Statistics and Computing</em> 27 (May): 711–35. <a href="https://doi.org/10.1007/s11222-016-9649-y">https://doi.org/10.1007/s11222-016-9649-y</a>.
 </div>
 <div id="ref-Schad2020-ht" class="csl-entry" role="listitem">
 Schad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. <span>“How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.”</span> <em>Journal of Memory and Language</em> 110 (February): 104038. <a href="https://doi.org/10.1016/j.jml.2019.104038">https://doi.org/10.1016/j.jml.2019.104038</a>.
