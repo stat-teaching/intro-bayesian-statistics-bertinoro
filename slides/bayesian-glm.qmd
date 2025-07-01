@@ -584,6 +584,14 @@ depression <- rnorm(N, mean = fam$linkinv(b0 + b1 * anxiety), sd = sigma)
 
 In this way is more clear that we are generating data from a normal distribution with fixed $\sigma^2_{\epsilon}$ and we are modeling the mean.
 
+## Why GLMs are necessary?
+
+- The idea is that we can have more flexibility in terms of estimating the true data generation process.
+- In some cases, certain distributions and link functions are completely wrong (binary data analyzed as metric).
+- In some cases, using the wrong model is not only a problem of prediction but also a very serious inferential problem:
+  - see @Liddell2018-wu for ordinal (e.g., likert)
+  - see this [presentation](https://filippogambarota.github.io/slides/aip-sviluppo-2024/aip-sviluppo-2024.pdf) about type-1 error using wrong models 
+
 # Parameters intepretation
 
 ## Parameters intepretation
@@ -1624,6 +1632,27 @@ add_epred_draws(pp, fit_teddy) |>
   ggplot(aes(x = Parental_stress, y = .epred)) +
   stat_halfeye()
 ```
+
+# Inference
+
+## Inference in the Bayesian framework
+
+Inference in the Bayesian framework is less conventional and known compared to the frequentists framework. Why? Mainly because you have the full posterior distribution and thus Bayesians usually prefer to summarise the posterior in different ways compared to using a p-value:
+
+- Probability of something
+- Bayes Factor
+- HDI or CI and a null value (~ to the standard "p-value-like" inference)
+- ROPE [~ to the Equivalence testing framework, @Lakens2017-mr; @Kruschke2018-ce]
+- Bayesian p-values [@Makowski2019-tx]
+- More on the [bayestestR](https://easystats.github.io/bayestestR/) package
+
+## Inference means inferential errors
+
+Sometimes people says that Bayesian inference is somehow safe in terms of inferential errors (e.g., type-1 errors) BUT this is not *completely* true.
+
+- Priors can be used to decrease the type-1 error rate, but not easy to predict the actual impact
+- Whenever you have decision (the effect is different from zero, the effect is higher than, etc.) you have inferential errors. Even in the Bayesian framework.
+- You should worry about multiple comparison [@Gelman2012-rm] when you do inference.
 
 ## Bayesian Workflow
 

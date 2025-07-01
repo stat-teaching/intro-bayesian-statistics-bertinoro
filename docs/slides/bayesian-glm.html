@@ -312,16 +312,16 @@
 #&gt; 
 #&gt; Coefficients:
 #&gt;             Estimate Std. Error t value Pr(&gt;|t|)    
-#&gt; (Intercept)   9.9062     0.1038  95.427  &lt; 2e-16 ***
-#&gt; x             0.6000     0.1096   5.474 3.39e-07 ***
+#&gt; (Intercept)  9.94918    0.09724   102.3  &lt; 2e-16 ***
+#&gt; x            0.48983    0.11132     4.4 2.75e-05 ***
 #&gt; ---
 #&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #&gt; 
-#&gt; (Dispersion parameter for gaussian family taken to be 1.077623)
+#&gt; (Dispersion parameter for gaussian family taken to be 0.9133985)
 #&gt; 
-#&gt;     Null deviance: 137.90  on 99  degrees of freedom
-#&gt; Residual deviance: 105.61  on 98  degrees of freedom
-#&gt; AIC: 295.24
+#&gt;     Null deviance: 107.198  on 99  degrees of freedom
+#&gt; Residual deviance:  89.513  on 98  degrees of freedom
+#&gt; AIC: 278.71
 #&gt; 
 #&gt; Number of Fisher Scoring iterations: 2</code></pre>
 </div>
@@ -1042,6 +1042,18 @@ g(\mu_i) = \eta_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \cdots + \beta_p
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a>depression <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(N, <span class="at">mean =</span> fam<span class="sc">$</span><span class="fu">linkinv</span>(b0 <span class="sc">+</span> b1 <span class="sc">*</span> anxiety), <span class="at">sd =</span> sigma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In this way is more clear that we are generating data from a normal distribution with fixed <span class="math inline">\(\sigma^2_{\epsilon}\)</span> and we are modeling the mean.</p>
+</section>
+<section id="why-glms-are-necessary" class="slide level2">
+<h2>Why GLMs are necessary?</h2>
+<ul>
+<li>The idea is that we can have more flexibility in terms of estimating the true data generation process.</li>
+<li>In some cases, certain distributions and link functions are completely wrong (binary data analyzed as metric).</li>
+<li>In some cases, using the wrong model is not only a problem of prediction but also a very serious inferential problem:
+<ul>
+<li>see <span class="citation" data-cites="Liddell2018-wu">Liddell and Kruschke (<a href="#/references" role="doc-biblioref" onclick="">2018</a>)</span> for ordinal (e.g., likert)</li>
+<li>see this <a href="https://filippogambarota.github.io/slides/aip-sviluppo-2024/aip-sviluppo-2024.pdf">presentation</a> about type-1 error using wrong models</li>
+</ul></li>
+</ul>
 </section></section>
 <section>
 <section id="parameters-intepretation" class="title-slide slide level1 center">
@@ -2177,7 +2189,33 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <section id="logistic-regression-using-brms-9" class="slide level2">
 <h2>Logistic regression using <code>brms</code></h2>
 
-<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-96-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<img data-src="bayesian-glm_files/figure-revealjs/unnamed-chunk-96-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section></section>
+<section>
+<section id="inference" class="title-slide slide level1 center">
+<h1>Inference</h1>
+
+</section>
+<section id="inference-in-the-bayesian-framework" class="slide level2">
+<h2>Inference in the Bayesian framework</h2>
+<p>Inference in the Bayesian framework is less conventional and known compared to the frequentists framework. Why? Mainly because you have the full posterior distribution and thus Bayesians usually prefer to summarise the posterior in different ways compared to using a p-value:</p>
+<ul>
+<li>Probability of something</li>
+<li>Bayes Factor</li>
+<li>HDI or CI and a null value (~ to the standard “p-value-like” inference)</li>
+<li>ROPE <span class="citation" data-cites="Lakens2017-mr Kruschke2018-ce">(~ to the Equivalence testing framework, <a href="#/references" role="doc-biblioref" onclick="">Lakens 2017</a>; <a href="#/references" role="doc-biblioref" onclick="">Kruschke 2018</a>)</span></li>
+<li>Bayesian p-values <span class="citation" data-cites="Makowski2019-tx">(<a href="#/references" role="doc-biblioref" onclick="">Makowski et al. 2019</a>)</span></li>
+<li>More on the <a href="https://easystats.github.io/bayestestR/">bayestestR</a> package</li>
+</ul>
+</section>
+<section id="inference-means-inferential-errors" class="slide level2">
+<h2>Inference means inferential errors</h2>
+<p>Sometimes people says that Bayesian inference is somehow safe in terms of inferential errors (e.g., type-1 errors) BUT this is not <em>completely</em> true.</p>
+<ul>
+<li>Priors can be used to decrease the type-1 error rate, but not easy to predict the actual impact</li>
+<li>Whenever you have decision (the effect is different from zero, the effect is higher than, etc.) you have inferential errors. Even in the Bayesian framework.</li>
+<li>You should worry about multiple comparison <span class="citation" data-cites="Gelman2012-rm">(<a href="#/references" role="doc-biblioref" onclick="">Gelman, Hill, and Yajima 2012</a>)</span> when you do inference.</li>
+</ul>
+</section>
 <section id="bayesian-workflow" class="slide level2">
 <h2>Bayesian Workflow</h2>
 <ul>
@@ -2192,8 +2230,23 @@ BF_{01} = \frac{p(D|H_0)}{p(D|H_1)} \approx \frac{p(\pi = x|D, H_1)}{p(\pi = x |
 <div id="ref-Gelman2019-hp" class="csl-entry" role="listitem">
 Gelman, Andrew, Ben Goodrich, Jonah Gabry, and Aki Vehtari. 2019. <span>“R-Squared for Bayesian Regression Models.”</span> <em>The American Statistician</em> 73: 307–9. <a href="https://doi.org/10.1080/00031305.2018.1549100">https://doi.org/10.1080/00031305.2018.1549100</a>.
 </div>
+<div id="ref-Gelman2012-rm" class="csl-entry" role="listitem">
+Gelman, Andrew, Jennifer Hill, and Masanao Yajima. 2012. <span>“Why We (Usually) Don’t Have to Worry about Multiple Comparisons.”</span> <em>Journal of Research on Educational Effectiveness</em> 5 (April): 189–211. <a href="https://doi.org/10.1080/19345747.2011.618213">https://doi.org/10.1080/19345747.2011.618213</a>.
+</div>
 <div id="ref-Granziol2025-sy" class="csl-entry" role="listitem">
 Granziol, Umberto, Maximilian Rabe, Marcello Gallucci, Andrea Spoto, and Giulio Vidotto. 2025. <span>“Not Another Post Hoc Paper: A New Look at Contrast Analysis and Planned Comparisons.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 8 (January). <a href="https://doi.org/10.1177/25152459241293110">https://doi.org/10.1177/25152459241293110</a>.
+</div>
+<div id="ref-Kruschke2018-ce" class="csl-entry" role="listitem">
+Kruschke, John K. 2018. <span>“Rejecting or Accepting Parameter Values in Bayesian Estimation.”</span> <em>Advances in Methods and Practices in Psychological Science</em> 1 (June): 270–80. <a href="https://doi.org/10.1177/2515245918771304">https://doi.org/10.1177/2515245918771304</a>.
+</div>
+<div id="ref-Lakens2017-mr" class="csl-entry" role="listitem">
+Lakens, Daniël. 2017. <span>“Equivalence Tests: A Practical Primer for t Tests, Correlations, and <span>Meta-Analyses</span>.”</span> <em>Social Psychological and Personality Science</em> 8 (May): 355–62. <a href="https://doi.org/10.1177/1948550617697177">https://doi.org/10.1177/1948550617697177</a>.
+</div>
+<div id="ref-Liddell2018-wu" class="csl-entry" role="listitem">
+Liddell, Torrin M, and John K Kruschke. 2018. <span>“Analyzing Ordinal Data with Metric Models: What Could Possibly Go Wrong?”</span> <em>Journal of Experimental Social Psychology</em> 79 (November): 328–48. <a href="https://doi.org/10.1016/j.jesp.2018.08.009">https://doi.org/10.1016/j.jesp.2018.08.009</a>.
+</div>
+<div id="ref-Makowski2019-tx" class="csl-entry" role="listitem">
+Makowski, Dominique, Mattan S Ben-Shachar, S H Annabel Chen, and Daniel Lüdecke. 2019. <span>“Indices of Effect Existence and Significance in the Bayesian Framework.”</span> <em>Frontiers in Psychology</em> 10 (December): 2767. <a href="https://doi.org/10.3389/fpsyg.2019.02767">https://doi.org/10.3389/fpsyg.2019.02767</a>.
 </div>
 <div id="ref-Schad2020-ht" class="csl-entry" role="listitem">
 Schad, Daniel J, Shravan Vasishth, Sven Hohenstein, and Reinhold Kliegl. 2020. <span>“How to Capitalize on a Priori Contrasts in Linear (Mixed) Models: A Tutorial.”</span> <em>Journal of Memory and Language</em> 110 (February): 104038. <a href="https://doi.org/10.1016/j.jml.2019.104038">https://doi.org/10.1016/j.jml.2019.104038</a>.
