@@ -11,7 +11,7 @@ This dataset contains information on PhD students' stress levels (scale 0 to 100
 - **Statistical Knowledge:** Self-assessed score from 0 to 10  
 - **Software Used:** Statistical software used (`R`, `SPSS`, `Excel`)
 
-You can download the dataset [here](data/clean/phd.csv)
+You can download the dataset [here](../data/clean/phd.csv)
 
 # Exercises
 

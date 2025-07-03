@@ -2,7 +2,6 @@ library(brms)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(gamlss)
 library(ggeffects)
 library(effects)
 
@@ -14,6 +13,9 @@ g1 <- rnorm(N/2, 0.5, 2)
 
 y <- c(g0, g1)
 x <- rep(0:1, each = N/2)
+
+boxplot(y ~ x)
+
 
 # a more model-like way to simulate the data, brms is going to fit this
 
@@ -28,7 +30,7 @@ y2 <- rnorm(
     sd = exp(b0_sigma + b1_sigma * x)
 )
 
-dat <- data.frame(y, y2, x)
+dat <- data.frame(y, x)
 
 # equal variance t.test
 t.test(y ~ x, data = dat, var.equal = TRUE)
@@ -44,8 +46,8 @@ fit_equal <- brm(
 
 fit_unequal <- brm(
     bf(
-        y ~ x,
-        sigma ~ x
+        y ~ x + (1|id),
+        sigma ~ x + (1|id)
     ),
     data = dat,
     family = gaussian(link = "identity")
