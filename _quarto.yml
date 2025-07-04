@@ -4,6 +4,7 @@ project:
 
 resources:
   - "exercises/*"
+  - "extra/*"
 
 execute:
   freeze: auto  # re-render only when source changes

@@ -21,6 +21,7 @@ title: "Introduction to Bayesian Statistics"
 
 - Parte 1 - [Introduzione a R](https://arca-dpss.github.io/course-R/)^[This is an intensive course about R, we will see some useful elements]
 - Parte 5 - [Generalized Linear Models](https://stat-teaching.github.io/GLMphd/)^[This is an intensive PhD level course about GLMs]
+- Pastore's favourite Bayesian papers [html](extra/useful_papers.html)
 
 ## Exercises
 
