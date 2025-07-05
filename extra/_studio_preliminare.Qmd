@@ -1,0 +1,233 @@
+---
+title: "Studio preliminare"
+author: "mp"
+format: html
+editor: visual
+---
+
+```{r, echo=FALSE,message=FALSE}
+
+library( knitr )
+opts_chunk$set( echo = FALSE )
+
+```
+
+## Progetto
+
+Vogliamo studiare la relazione tra numero di spriz, tipo di software utilizzato e stress.
+
+Il modello che vogliamo valutare è
+
+$$
+stress = \beta_0 + \beta_1 \times spriz + \beta_2 \times software + \beta_3 \times spriz \times software + \epsilon
+$$ Usiamo le seguenti variabili: - stress, scala a 100 punti - spriz, numero di spriz e software utilizzato, R o excel
+
+# Design analysis
+
+```{r}
+mu_stress <- 70
+sigma_stress <- 10
+```
+
+Ipotizziamo che lo stress di distribuisca normalmente con media `r mu_stress` e dev.st. `r sigma_stress`, quindi graficamente:
+
+```{r}
+
+curve( dnorm( x, mu_stress, sigma_stress ), mu_stress - 3*sigma_stress, mu_stress + 3*sigma_stress )
+
+```
+
+# Definizione dei parametri
+
+Vogliamo simulare i punteggi standardizzati di stress; per semplicità consideriamo il numero di spriz come variabile centrata sulla media ed il tipo di software codificato con -.5, .5 al posto della classica codifica 0-1. 
+
+```{r parameter setting }
+
+lambda <- 3
+N <- 1000 # sample size 
+b0 <- 0 
+b1 <- -.3
+b2 <- .01
+b3 <- .1 
+n_vec <- c( 20, 50, 100 )
+B <- 15
+LEVEL <- .89 
+PROBS <- c( 1-(1-(1-LEVEL)/2), 1-(1-LEVEL)/2  )
+
+```
+
+I parametri del modello per la simulazione saranno i seguenti:
+
+-   $\beta_0 = `r b0`$\
+-   $\beta_1 = `r b1`$
+-   $\beta_2 = `r b2`$
+-   $\beta_3 = `r b3`$
+
+# Data simulation
+
+Simuliamo `r N` soggetti. 
+
+```{r, echo=TRUE}
+
+spriz <- rpois( N, lambda )
+spriz_s <- scale( spriz )
+plot( table( spriz ), type = "h" )
+
+```
+
+```{r, echo=TRUE}
+
+software <- sample( c(-.5,.5), N, replace = TRUE )
+stress <- b0 + b1*spriz_s + b2*software + b3*spriz_s*software + rnorm( N )
+
+plot( density( stress ) )
+
+
+```
+
+```{r, message=FALSE}
+
+myData <- data.frame(
+  stress, spriz = spriz_s, software
+)
+
+
+library( GGally )
+ggpairs( myData )
+
+
+
+```
+
+## Stima dei parametri dai dati simulati
+
+
+```{r,message=FALSE}
+
+library( brms )
+# get_prior( stress ~ spriz*software, data = myData )
+
+myPrior <- c(
+  prior("student_t( 3, 0, 1 )", class = "b" )
+)
+
+#fit <- brm( stress ~ spriz*software, data = myData, cores = 4,
+#            prior = myPrior )
+#save( fit, file = "/home/cox/MEGA/didattica/Bertinoro/data/esempio.rda")
+load("/home/cox/MEGA/didattica/Bertinoro/data/esempio.rda" )
+
+
+```
+
+Utilizziamo un modello lineare bayesiano con le seguenti prior:
+
+```{r}
+PRIOR <- prior_summary( fit )
+as.data.frame( PRIOR[,1:3] )
+
+```
+
+
+Posterior e diagnostiche del modello:
+```{r}
+plot( fit )
+```
+
+
+
+Le stime dei parametri sono le seguenti:
+
+```{r}
+fit 
+
+```
+
+# Ciclo di simulazione
+
+Per determinare quanti soggetti servono per stimare bene questi parametri esploriamo i seguenti livelli di $n$: `r n_vec`. 
+
+
+```{r simulation, eval=FALSE,echo=TRUE}
+
+PARTAB <- NULL
+for (n in n_vec) {
+  for ( b in 1:B) {
+    # genero i predittori
+    spriz <- rpois( n, lambda )
+    spriz_s <- scale( spriz )
+    software <- sample( c(-.5,.5), n, replace = TRUE )
+    
+    # genero la dipendente
+    stress <- b0 + b1*spriz_s + b2*software + b3*spriz_s*software + rnorm( n )
+    
+    # model fit 
+    Z <- data.frame(
+      stress, spriz = spriz_s, 
+      software
+    )
+    
+    if (b == 1) {
+      fit <- brm( stress ~ spriz*software, data = Z, cores = 4,
+                prior = myPrior )
+    } else {
+      fit <- update( fit, newdata = Z )
+    }
+    
+    PAR <- data.frame( fixef( fit, probs = round(PROBS,3) ) )
+    PAR$par <- row.names(PAR)
+    PAR$n <- n
+    
+    PARTAB <- rbind( PARTAB, PAR )
+    
+  }
+}
+
+
+```
+
+```{r}
+#save( PARTAB, file = "/home/cox/MEGA/didattica/Bertinoro/data/PARTAB.rda")
+load("/home/cox/MEGA/didattica/Bertinoro/data/PARTAB.rda")
+
+```
+
+```{r}
+
+library( ggplot2 )
+ggplot(PARTAB, aes( Estimate ) ) + 
+  facet_wrap( ~ par ) +
+  geom_density()
+
+
+```
+
+```{r}
+
+PARTAB$sig <- apply( PARTAB[, c("Q5.5","Q94.5")], 1, function(x){
+  ifelse( x[1]<0 & x[2]>0, FALSE, TRUE )
+}  )
+
+PW <- aggregate( sig ~ par+n, data = PARTAB, FUN = sum )
+PW$power <- PW$sig/B
+PW$n <- factor( PW$n )
+
+ggplot( PW, aes( n, power )) +
+  facet_wrap( ~ par ) +
+  geom_point() + geom_line( aes( group = 1) )
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
