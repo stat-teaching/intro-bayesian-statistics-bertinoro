@@ -1,7 +1,9 @@
 ---
 title: "Studio preliminare"
 author: "mp"
-format: html
+format:
+  html:
+    self-contained: true
 editor: visual
 ---
 
@@ -37,9 +39,9 @@ curve( dnorm( x, mu_stress, sigma_stress ), mu_stress - 3*sigma_stress, mu_stres
 
 ```
 
-# Definizione dei parametri
+### Definizione dei parametri
 
-Vogliamo simulare i punteggi standardizzati di stress; per semplicità consideriamo il numero di spriz come variabile centrata sulla media ed il tipo di software codificato con -.5, .5 al posto della classica codifica 0-1. 
+Vogliamo simulare i punteggi standardizzati di stress; per semplicità consideriamo il numero di spriz come variabile centrata sulla media ed il tipo di software codificato con -.5, .5 al posto della classica codifica 0-1.
 
 ```{r parameter setting }
 
@@ -63,9 +65,11 @@ I parametri del modello per la simulazione saranno i seguenti:
 -   $\beta_2 = `r b2`$
 -   $\beta_3 = `r b3`$
 
-# Data simulation
+### Data simulation
 
-Simuliamo `r N` soggetti. 
+Simuliamo `r N` soggetti.
+
+Iniziamo con la variabile spriz:
 
 ```{r, echo=TRUE}
 
@@ -75,9 +79,17 @@ plot( table( spriz ), type = "h" )
 
 ```
 
+Poi generiamo la variabile software:
 ```{r, echo=TRUE}
 
 software <- sample( c(-.5,.5), N, replace = TRUE )
+
+```
+
+e per finire la variabile stress, sulla base del modello:
+
+```{r, echo=TRUE}
+
 stress <- b0 + b1*spriz_s + b2*software + b3*spriz_s*software + rnorm( N )
 
 plot( density( stress ) )
@@ -85,22 +97,19 @@ plot( density( stress ) )
 
 ```
 
-```{r, message=FALSE}
+Aggreghiamo le variabili in un `data frame` e le rappresentiamo con grafici univariati e bivariati: 
+```{r, message=FALSE,echo=TRUE}
 
 myData <- data.frame(
   stress, spriz = spriz_s, software
 )
 
-
 library( GGally )
 ggpairs( myData )
 
-
-
 ```
 
-## Stima dei parametri dai dati simulati
-
+### Stima dei parametri dai dati simulati
 
 ```{r,message=FALSE}
 
@@ -119,7 +128,17 @@ load("/home/cox/MEGA/didattica/Bertinoro/data/esempio.rda" )
 
 ```
 
-Utilizziamo un modello lineare bayesiano con le seguenti prior:
+Per stimare i parametri, utilizziamo un modello lineare bayesiano 
+
+```{r, echo=TRUE, eval=FALSE}
+
+library( brms )
+fit <- brm( stress ~ spriz*software, data = myData, cores = 4,
+            prior = myPrior )
+
+```
+
+con le seguenti prior:
 
 ```{r}
 PRIOR <- prior_summary( fit )
@@ -127,13 +146,11 @@ as.data.frame( PRIOR[,1:3] )
 
 ```
 
+Visualizziamo le posterior ed i *traceplot* del modello:
 
-Posterior e diagnostiche del modello:
 ```{r}
 plot( fit )
 ```
-
-
 
 Le stime dei parametri sono le seguenti:
 
@@ -144,8 +161,7 @@ fit
 
 # Ciclo di simulazione
 
-Per determinare quanti soggetti servono per stimare bene questi parametri esploriamo i seguenti livelli di $n$: `r n_vec`. 
-
+Per determinare quanti soggetti servono per stimare bene questi parametri esploriamo i seguenti livelli di $n$: `r n_vec`.
 
 ```{r simulation, eval=FALSE,echo=TRUE}
 
@@ -173,6 +189,7 @@ for (n in n_vec) {
       fit <- update( fit, newdata = Z )
     }
     
+    # recupero le stime dei parametri e gli intervalli di credibilità
     PAR <- data.frame( fixef( fit, probs = round(PROBS,3) ) )
     PAR$par <- row.names(PAR)
     PAR$n <- n
@@ -191,6 +208,8 @@ load("/home/cox/MEGA/didattica/Bertinoro/data/PARTAB.rda")
 
 ```
 
+
+Vediamo se le stime dei parametri sono coerenti con l'attesa:
 ```{r}
 
 library( ggplot2 )
@@ -201,6 +220,8 @@ ggplot(PARTAB, aes( Estimate ) ) +
 
 ```
 
+
+Ed infine, le curve di potenza, ottenute contando quante volte l'intervallo di credibilità `r LEVEL*100`% non contiene lo zero:
 ```{r}
 
 PARTAB$sig <- apply( PARTAB[, c("Q5.5","Q94.5")], 1, function(x){
@@ -217,17 +238,3 @@ ggplot( PW, aes( n, power )) +
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
